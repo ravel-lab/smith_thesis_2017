@@ -1,0 +1,50 @@
+colName,meaning
+SampleID,Unique Sample ID (SID_Week_Day)
+SID,Subject ID
+SERIAL,Sequential day in study period
+CST,Community state type assignment
+reads_in,Number of Small RNA-Seq reads sequenced
+reads_surviving,Number of Small RNA-Seq reads surviving fastqc
+tRNA.mapped,Number of Small RNA-Seq reads mapped to tRNA reference
+tRNA.unmapped,Number of Small RNA-Seq reads left unmapped after mapping to tRNA reference
+hum5SrDNA.mapped,Number of Small RNA-Seq reads mapped to human 5S rRNA reference
+hum5SrDNA.unmapped,Number of Small RNA-Seq reads left unmapped after mapping to human 5S rRNA reference
+HumRibosomal.mapped,Number of Small RNA-Seq reads mapped to human rRNA reference
+HumRibosomal.unmapped,Number of Small RNA-Seq reads left unmapped after mapping to human rRNA reference
+Gvag.mapped,Number of Small RNA-Seq reads mapped to G.vaginalis reference
+Gvag.unmapped,Number of Small RNA-Seq reads left unmapped after mapping to G.vaginalis reference
+Liners.mapped,Number of Small RNA-Seq reads mapped to L.iners reference
+Liners.unmapped,Number of Small RNA-Seq reads left unmapped after mapping to L.iners reference
+hg19.mapped,Number of Small RNA-Seq reads mapped to human (hg19) reference
+hg19.unmapped,Number of Small RNA-Seq reads left unmapped after mapping to human (hg19) reference
+reads_surviving.percent,Percentage of Small RNA-Seq reads surviving fastqc (reads surviving/reads in)
+hg.unmapped.percent,Percentage of Small RNA-Seq reads unmapped to hg19 (hg19.unmapped/reads surviving)
+hg.mapped.percent,Percentage of Small RNA-Seq reads mapped to hg19 (hg19.mapped/reads surviving)
+mapped,Number of Small RNA-Seq reads mapped to any reference 
+mapped.percent,Percent of Small RNA-Seq reads mapped to any reference 
+number_reads_mirs,Number of Small RNA-Seq reads that are miRNAs
+number_reads_mirs.percent_surviving,Percentage of Small RNA-Seq reads that are miRNAs relative to post fastQC reads
+number_reads_mirs.percent_hgmapped,Percentage of Small RNA-Seq reads that are miRNAs relative to hg19 mapped reads
+Batch,Sequencing Batch
+RIN,RINe quality score
+BVGroup,"BV Group- either NBV, PBV or TBV (see text and Fig 1)"
+Age,Age of subject
+Race,"Race of subject (B=black, W=white)"
+NUGENT_SCORE,Nugent score (0-10)
+NUGENT_CLASS,"Nugent score class (No BV, Intermediate BV, BV)"
+PH,Vaginal pH
+MENSTRUATION_NORMALIZED_PHASED,"MENSTRUATION normalized to 28 day cycle and split into 3 phases: menses phase (day 1-5), proliferative phase (day 6-13) or secretory phase (day 14-28)"
+VAG_INT,Vaginal intercourse
+ANAL_SEX,Anal sex
+ORAL_SEX,Oral sex
+FING_PEN,Finger penetration
+SEX_TOY,Sex toy usage
+VAG_ODOR,Vaginal odor
+VAG_IRR,Vaginal irritation
+VAG_ITCH,Vaginal itching
+VAG_BURN,Vaginal burning
+VAG_DIS,Vaginal discharge
+BirthControl,Birth control usage
+symptoms,BV symptoms (either odor or discharge)
+symptoms_nonBV,"Non-BV symptoms (irritation, itching, burning)"
+QC_removal_stage,Sample removed due to QC failure

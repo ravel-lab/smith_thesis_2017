@@ -1,0 +1,20 @@
+mir	GO_format	value
+miR-193b	negative regulation of transcription from RNA polymerase II promoter	0.230769230769231
+miR-193b	response to hypoxia	0.307692307692308
+miR-193b	in utero embryonic development	0.0769230769230769
+miR-193b	positive regulation of protein phosphorylation	0.153846153846154
+miR-193b	transcription, DNA-templated	0.230769230769231
+miR-193b	regulation of transcription, DNA-templated	0.230769230769231
+miR-193b	transcription from RNA polymerase II promoter	0.230769230769231
+miR-193b	immune response	0.153846153846154
+miR-193b	cell cycle	0.0769230769230769
+miR-193b	signal transduction	0.307692307692308
+miR-193b	multicellular organism development	0.0769230769230769
+miR-193b	positive regulation of cell proliferation	0.307692307692308
+miR-193b	positive regulation of gene expression	0.153846153846154
+miR-193b	positive regulation of cell migration	0.153846153846154
+miR-193b	negative regulation of apoptotic process	0.230769230769231
+miR-193b	positive regulation of GTPase activity	0.0769230769230769
+miR-193b	positive regulation of transcription, DNA-templated	0.230769230769231
+miR-193b	positive regulation of transcription from RNA polymerase II promoter	0.230769230769231
+miR-193b	positive regulation of sequence-specific DNA binding transcription factor activity	0.0769230769230769

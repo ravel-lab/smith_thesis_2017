@@ -1,0 +1,20 @@
+variable,Group,Go_format,s,n
+GO:0000122~negative regulation of transcription from RNA polymerase II promoter,Transcription,negative regulation of transcription from RNA polymerase II promoter,1.555524133,6
+GO:0001666~response to hypoxia,Hypoxia,response to hypoxia,0.719457014,5
+GO:0001701~in utero embryonic development,Development,in utero embryonic development,0.616138763,5
+GO:0001934~positive regulation of protein phosphorylation,Signaling,positive regulation of protein phosphorylation,0.50433635,5
+GO:0006351~transcription<COMMA> DNA-templated,Transcription,"transcription, DNA-templated",0.886406486,5
+GO:0006355~regulation of transcription<COMMA> DNA-templated,Transcription,"regulation of transcription, DNA-templated",0.72831825,5
+GO:0006366~transcription from RNA polymerase II promoter,Transcription,transcription from RNA polymerase II promoter,0.747926094,5
+GO:0006955~immune response,Immune,immune response,0.707767722,5
+GO:0007049~cell cycle,Cell cycle,cell cycle,0.676187783,5
+GO:0007165~signal transduction,Signaling,signal transduction,0.982937406,5
+GO:0007275~multicellular organism development,Development,multicellular organism development,0.513197587,5
+GO:0008284~positive regulation of cell proliferation,Cell cycle,positive regulation of cell proliferation,0.969457014,5
+GO:0010628~positive regulation of gene expression,Transcription,positive regulation of gene expression,0.69183635,5
+GO:0030335~positive regulation of cell migration,Cell cycle,positive regulation of cell migration,0.62811086,5
+GO:0043066~negative regulation of apoptotic process,Cell cycle,negative regulation of apoptotic process,1.010180995,5
+GO:0043547~positive regulation of GTPase activity,Signaling,positive regulation of GTPase activity,0.445795626,5
+GO:0045893~positive regulation of transcription<COMMA> DNA-templated,Transcription,"positive regulation of transcription, DNA-templated",1.322680995,5
+GO:0045944~positive regulation of transcription from RNA polymerase II promoter,Transcription,positive regulation of transcription from RNA polymerase II promoter,1.444004525,5
+GO:0051091~positive regulation of sequence-specific DNA binding transcription factor activity,Transcription,positive regulation of sequence-specific DNA binding transcription factor activity,0.388197587,5

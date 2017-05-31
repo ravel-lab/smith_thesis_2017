@@ -1,0 +1,209 @@
+© 2000-2017 QIAGEN. All rights reserved.
+
+Canonical Pathway	LIGV.4	LIM.4	LIM.13	LIGV.13	LIM.22	
+Production of Nitric Oxide and Reactive Oxygen Species in Macrophages	1.3416407864998738	3.1529631254723287	2.6678918753996625	2.23606797749979	1.885618083164127	
+Dendritic Cell Maturation	0.4472135954999579	3.6380343755449944	1.885618083164127	1.3416407864998738	2.5	
+HMGB1 Signaling	2.1213203435596424	3.5	2.1105794120443453	N/A	1.7320508075688774	
+Interferon Signaling	N/A	2.0	2.4494897427831783	3.3166247903554	1.6329931618554523	
+Acute Phase Response Signaling	0.0	2.9848100289785457	3.3565855667130946	N/A	2.4961508830135313	
+Toll-like Receptor Signaling	N/A	2.4961508830135313	2.3333333333333335	2.23606797749979	1.6666666666666667	
+Role of Pattern Recognition Receptors in Recognition of Bacteria and Viruses	0.8164965809277261	3.05085107923876	1.8973665961010275	2.1213203435596424	0.8164965809277261	
+B Cell Receptor Signaling	1.6329931618554523	3.709704134011871	1.414213562373095	0.0	0.30151134457776363	
+TREM1 Signaling	N/A	3.3166247903554	1.414213562373095	N/A	2.1213203435596424	
+IL-1 Signaling	N/A	2.7136021011998728	2.23606797749979	N/A	1.889822365046136	
+Type I Diabetes Mellitus Signaling	0.4472135954999579	1.6035674514745464	2.1213203435596424	N/A	2.6457513110645903	
+NF-κB Signaling	0.7071067811865475	1.9611613513818404	1.6059101370939322	1.3416407864998738	1.0690449676496976	
+IL-6 Signaling	1.1338934190276817	3.1304951684997055	1.507556722888818	0.0	0.9045340337332909	
+PKCθ Signaling in T Lymphocytes	1.3416407864998738	3.05085107923876	1.1338934190276817	0.0	1.1338934190276817	
+PPAR Signaling	N/A	-3.1529631254723287	-2.3094010767585034	0.0	-0.9045340337332909	
+iNOS Signaling	0.0	2.23606797749979	2.23606797749979	N/A	1.889822365046136	
+Ceramide Signaling	N/A	1.889822365046136	2.82842712474619	0.0	1.6329931618554523	
+IL-8 Signaling	0.3333333333333333	2.32379000772445	1.7320508075688774	N/A	1.9414506867883021	
+Colorectal Cancer Metastasis Signaling	-0.3779644730092272	2.0647416048350555	0.8320502943378437	1.3416407864998738	1.697749375254331	
+NRF2-mediated Oxidative Stress Response	1.1338934190276817	2.1213203435596424	1.6666666666666667	0.0	1.2649110640673518	
+MIF-mediated Glucocorticoid Regulation	N/A	2.0	2.0	N/A	2.0	
+LXR/RXR Activation	-1.3416407864998738	-1.9414506867883021	-1.2909944487358056	N/A	-1.2649110640673518	
+Cholecystokinin/Gastrin-mediated Signaling	2.23606797749979	3.2071349029490928	0.3779644730092272	N/A	0.0	
+Antioxidant Action of Vitamin C	N/A	-1.8973665961010275	-1.1338934190276817	N/A	-2.6457513110645903	
+Protein Kinase A Signaling	0.0	-0.22941573387056174	-2.5	-1.889822365046136	-0.8320502943378437	
+p38 MAPK Signaling	0.4472135954999579	2.32379000772445	1.889822365046136	N/A	0.3333333333333333	
+MIF Regulation of Innate Immunity	N/A	2.23606797749979	1.3416407864998738	N/A	1.3416407864998738	
+PI3K Signaling in B Lymphocytes	0.4472135954999579	2.886751345948129	0.8164965809277261	N/A	0.6324555320336759	
+Pancreatic Adenocarcinoma Signaling	-1.1338934190276817	1.386750490563073	0.5773502691896258	N/A	1.3416407864998738	
+ERK5 Signaling	2.0	2.23606797749979	N/A	0.0	N/A	
+Leukocyte Extravasation Signaling	-0.4472135954999579	1.414213562373095	0.5345224838248488	N/A	1.8073922282301278	
+Calcium-induced T Lymphocyte Apoptosis	2.0	2.0	N/A	N/A	N/A	
+p53 Signaling	1.1338934190276817	1.414213562373095	0.4472135954999579	N/A	0.8164965809277261	
+iCOS-iCOSL Signaling in T Helper Cells	1.0	2.3333333333333335	0.4472135954999579	N/A	N/A	
+ILK Signaling	-0.4472135954999579	2.6678918753996625	0.3333333333333333	N/A	-0.30151134457776363	
+Role of IL-17F in Allergic Inflammatory Airway Diseases	N/A	2.6457513110645903	N/A	N/A	1.0	
+Inflammasome pathway	N/A	1.6329931618554523	N/A	N/A	2.0	
+IGF-1 Signaling	-0.4472135954999579	-1.1338934190276817	-2.0	N/A	N/A	
+RANK Signaling in Osteoclasts	0.0	2.3094010767585034	0.4472135954999579	0.0	0.8164965809277261	
+Death Receptor Signaling	-1.0	-0.5345224838248488	1.2649110640673518	N/A	-0.7071067811865475	
+Neuregulin Signaling	0.0	1.8973665961010275	1.1338934190276817	0.0	-0.3779644730092272	
+Role of NANOG in Mammalian Embryonic Stem Cell Pluripotency	1.0	1.3416407864998738	-1.0	N/A	N/A	
+LPS/IL-1 Mediated Inhibition of RXR Function	N/A	1.0	1.1338934190276817	N/A	-1.1338934190276817	
+Th1 Pathway	0.4472135954999579	1.0	-0.8164965809277261	N/A	-1.0	
+B Cell Activating Factor Signaling	N/A	1.889822365046136	N/A	0.0	1.3416407864998738	
+Activation of IRF by Cytosolic Pattern Recognition Receptors	0.0	0.3333333333333333	0.4472135954999579	1.414213562373095	-0.8164965809277261	
+4-1BB Signaling in T Lymphocytes	0.0	2.0	N/A	0.0	1.0	
+Fcγ Receptor-mediated Phagocytosis in Macrophages and Monocytes	-1.0	0.7071067811865475	1.1338934190276817	N/A	N/A	
+UVA-Induced MAPK Signaling	N/A	1.3416407864998738	0.0	1.3416407864998738	N/A	
+TNFR2 Signaling	0.0	1.1338934190276817	1.0	N/A	0.3779644730092272	
+Lymphotoxin β Receptor Signaling	0.4472135954999579	1.0	-1.0	0.0	0.0	
+TGF-β Signaling	N/A	1.414213562373095	N/A	N/A	1.0	
+Glioma Invasiveness Signaling	0.4472135954999579	1.889822365046136	0.0	N/A	0.0	
+Retinoic acid Mediated Apoptosis Signaling	N/A	0.0	2.23606797749979	N/A	N/A	
+Sphingosine-1-phosphate Signaling	0.4472135954999579	1.0	-0.3333333333333333	N/A	0.3779644730092272	
+Role of RIG1-like Receptors in Antiviral Innate Immunity	N/A	0.8164965809277261	N/A	1.3416407864998738	N/A	
+Coagulation System	N/A	0.4472135954999579	1.6329931618554523	N/A	N/A	
+VDR/RXR Activation	N/A	0.7071067811865475	1.3416407864998738	N/A	N/A	
+Th2 Pathway	0.4472135954999579	0.7071067811865475	-0.3779644730092272	N/A	-0.4472135954999579	
+TWEAK Signaling	N/A	-1.2649110640673518	0.0	0.0	-0.7071067811865475	
+Role of PI3K/AKT Signaling in the Pathogenesis of Influenza	N/A	0.3779644730092272	-0.4472135954999579	0.0	-1.0	
+PEDF Signaling	N/A	-0.3779644730092272	-1.3416407864998738	0.0	0.0	
+TNFR1 Signaling	N/A	0.30151134457776363	1.0	N/A	0.3779644730092272	
+CD27 Signaling in Lymphocytes	0.0	1.6666666666666667	N/A	0.0	N/A	
+Endothelin-1 Signaling	-0.3333333333333333	-0.30151134457776363	-1.0	N/A	0.0	
+IL-9 Signaling	N/A	0.7071067811865475	-0.8164965809277261	N/A	N/A	
+IL-17A Signaling in Airway Cells	N/A	0.0	-1.0	0.0	-0.4472135954999579	
+Apoptosis Signaling	0.0	-0.30151134457776363	0.3779644730092272	0.0	0.7071067811865475	
+April Mediated Signaling	N/A	1.0	N/A	0.0	0.3779644730092272	
+CD40 Signaling	N/A	0.5773502691896258	-0.4472135954999579	N/A	0.3333333333333333	
+PCP pathway	0.0	N/A	N/A	N/A	1.1338934190276817	
+Macropinocytosis Signaling	N/A	N/A	-1.0	N/A	N/A	
+Tumoricidal Function of Hepatic Natural Killer Cells	N/A	-1.0	N/A	0.0	N/A	
+STAT3 Pathway	N/A	-1.0	0.0	N/A	N/A	
+Cytotoxic T Lymphocyte-mediated Apoptosis of Target Cells	N/A	-1.0	N/A	0.0	N/A	
+Estrogen-mediated S-phase Entry	0.0	N/A	N/A	0.0	1.0	
+Complement System	0.0	N/A	N/A	N/A	1.0	
+Induction of Apoptosis by HIV1	0.0	-0.5345224838248488	0.3779644730092272	N/A	0.0	
+OX40 Signaling Pathway	N/A	-0.4472135954999579	N/A	0.0	-0.4472135954999579	
+PPARα/RXRα Activation	N/A	-0.2773500981126146	0.0	N/A	-0.3333333333333333	
+Inhibition of Angiogenesis by TSP1	N/A	N/A	N/A	N/A	-0.4472135954999579	
+Angiopoietin Signaling	N/A	0.0	0.4472135954999579	0.0	0.0	
+ATM Signaling	N/A	N/A	N/A	N/A	0.4472135954999579	
+γ-linolenate Biosynthesis II (Animals)	0.0	N/A	0.0	N/A	0.0	
+3-phosphoinositide Biosynthesis	N/A	N/A	N/A	N/A	N/A	
+3-phosphoinositide Degradation	N/A	N/A	N/A	N/A	N/A	
+Acetone Degradation I (to Methylglyoxal)	0.0	N/A	N/A	0.0	N/A	
+Adenosine Nucleotides Degradation II	0.0	0.0	N/A	N/A	N/A	
+Agranulocyte Adhesion and Diapedesis	N/A	N/A	N/A	N/A	N/A	
+Airway Pathology in Chronic Obstructive Pulmonary Disease	N/A	N/A	N/A	N/A	N/A	
+All-trans-decaprenyl Diphosphate Biosynthesis	N/A	N/A	0.0	0.0	0.0	
+Altered T Cell and B Cell Signaling in Rheumatoid Arthritis	N/A	N/A	N/A	N/A	N/A	
+Amyotrophic Lateral Sclerosis Signaling	N/A	N/A	N/A	0.0	N/A	
+Antigen Presentation Pathway	0.0	N/A	N/A	N/A	N/A	
+Aryl Hydrocarbon Receptor Signaling	N/A	N/A	N/A	N/A	0.0	
+Asparagine Biosynthesis I	0.0	0.0	0.0	0.0	N/A	
+Assembly of RNA Polymerase I Complex	0.0	N/A	0.0	0.0	0.0	
+Atherosclerosis Signaling	N/A	N/A	N/A	N/A	N/A	
+Bile Acid Biosynthesis, Neutral Pathway	0.0	0.0	N/A	0.0	N/A	
+Bladder Cancer Signaling	N/A	N/A	N/A	N/A	N/A	
+Bupropion Degradation	0.0	N/A	N/A	0.0	N/A	
+Cholesterol Biosynthesis I	0.0	0.0	0.0	N/A	0.0	
+Cholesterol Biosynthesis II (via 24,25-dihydrolanosterol)	0.0	0.0	0.0	N/A	0.0	
+Cholesterol Biosynthesis III (via Desmosterol)	0.0	0.0	0.0	N/A	0.0	
+Choline Biosynthesis III	N/A	N/A	N/A	0.0	N/A	
+Chondroitin and Dermatan Biosynthesis	0.0	0.0	0.0	0.0	N/A	
+Clathrin-mediated Endocytosis Signaling	N/A	N/A	N/A	0.0	N/A	
+Communication between Innate and Adaptive Immune Cells	N/A	N/A	N/A	N/A	N/A	
+Crosstalk between Dendritic Cells and Natural Killer Cells	N/A	N/A	N/A	N/A	N/A	
+D-myo-inositol (1,4,5,6)-Tetrakisphosphate Biosynthesis	N/A	N/A	N/A	N/A	N/A	
+D-myo-inositol (3,4,5,6)-tetrakisphosphate Biosynthesis	N/A	N/A	N/A	N/A	N/A	
+D-myo-inositol-5-phosphate Metabolism	N/A	N/A	N/A	N/A	N/A	
+Differential Regulation of Cytokine Production in Intestinal Epithelial Cells by IL-17A and IL-17F	N/A	N/A	N/A	0.0	N/A	
+Differential Regulation of Cytokine Production in Macrophages and T Helper Cells by IL-17A and IL-17F	N/A	N/A	N/A	0.0	N/A	
+Docosahexaenoic Acid (DHA) Signaling	N/A	N/A	N/A	0.0	N/A	
+Dopamine Degradation	0.0	N/A	N/A	N/A	N/A	
+Eicosanoid Signaling	N/A	N/A	N/A	N/A	N/A	
+Endometrial Cancer Signaling	N/A	N/A	N/A	0.0	N/A	
+ErbB Signaling	N/A	N/A	N/A	0.0	N/A	
+Erythropoietin Signaling	N/A	N/A	N/A	0.0	N/A	
+Estrogen Biosynthesis	0.0	N/A	N/A	0.0	N/A	
+Ethanol Degradation II	0.0	N/A	N/A	N/A	N/A	
+Ethanol Degradation IV	0.0	N/A	N/A	N/A	N/A	
+Extrinsic Prothrombin Activation Pathway	0.0	N/A	N/A	N/A	N/A	
+FAK Signaling	N/A	N/A	N/A	N/A	N/A	
+FXR/RXR Activation	N/A	N/A	N/A	N/A	N/A	
+Fatty Acid Biosynthesis Initiation II	N/A	N/A	0.0	0.0	0.0	
+Fatty Acid α-oxidation	N/A	N/A	N/A	N/A	N/A	
+G-Protein Coupled Receptor Signaling	N/A	N/A	N/A	N/A	N/A	
+GDP-L-fucose Biosynthesis II (from L-fucose)	N/A	N/A	0.0	0.0	0.0	
+Glucocorticoid Receptor Signaling	N/A	N/A	N/A	N/A	N/A	
+Glutamine Biosynthesis I	0.0	0.0	0.0	0.0	N/A	
+Glutathione Redox Reactions I	0.0	0.0	N/A	0.0	N/A	
+Glycogen Degradation II	0.0	N/A	N/A	N/A	N/A	
+Glycogen Degradation III	0.0	N/A	N/A	N/A	N/A	
+Graft-versus-Host Disease Signaling	N/A	N/A	N/A	0.0	N/A	
+Granulocyte Adhesion and Diapedesis	N/A	N/A	N/A	N/A	N/A	
+Granzyme A Signaling	0.0	0.0	N/A	N/A	N/A	
+Granzyme B Signaling	N/A	N/A	N/A	0.0	N/A	
+Guanosine Nucleotides Degradation III	0.0	N/A	N/A	N/A	N/A	
+HER-2 Signaling in Breast Cancer	N/A	N/A	N/A	0.0	N/A	
+HIF1α Signaling	N/A	N/A	N/A	N/A	N/A	
+Hematopoiesis from Pluripotent Stem Cells	N/A	N/A	N/A	0.0	N/A	
+Hepatic Cholestasis	N/A	N/A	N/A	N/A	N/A	
+Hepatic Fibrosis / Hepatic Stellate Cell Activation	N/A	N/A	N/A	N/A	N/A	
+Histamine Degradation	0.0	N/A	N/A	N/A	N/A	
+IL-10 Signaling	N/A	N/A	N/A	0.0	N/A	
+IL-17 Signaling	N/A	N/A	N/A	N/A	N/A	
+IL-17A Signaling in Fibroblasts	N/A	N/A	N/A	0.0	N/A	
+IL-17A Signaling in Gastric Cells	N/A	N/A	N/A	N/A	N/A	
+IL-4 Signaling	N/A	N/A	N/A	0.0	N/A	
+Inhibition of Matrix Metalloproteases	N/A	N/A	N/A	N/A	N/A	
+L-cysteine Degradation II	0.0	0.0	0.0	0.0	N/A	
+Lanosterol Biosynthesis	0.0	0.0	0.0	N/A	0.0	
+Lipoate Biosynthesis and Incorporation II	N/A	N/A	0.0	0.0	0.0	
+Lipoate Salvage and Modification	N/A	N/A	0.0	0.0	0.0	
+Melatonin Degradation I	0.0	N/A	N/A	0.0	N/A	
+Methylglyoxal Degradation III	0.0	0.0	N/A	0.0	N/A	
+Mevalonate Pathway I	0.0	0.0	N/A	N/A	0.0	
+Molecular Mechanisms of Cancer	N/A	N/A	N/A	N/A	N/A	
+NAD Salvage Pathway II	0.0	N/A	N/A	N/A	N/A	
+Neuroprotective Role of THOP1 in Alzheimers Disease	N/A	N/A	N/A	N/A	N/A	
+Oleate Biosynthesis II (Animals)	0.0	0.0	0.0	N/A	0.0	
+Ovarian Cancer Signaling	N/A	N/A	N/A	N/A	N/A	
+Oxidative Ethanol Degradation III	0.0	N/A	N/A	N/A	N/A	
+Palmitate Biosynthesis I (Animals)	N/A	N/A	0.0	0.0	0.0	
+Pathogenesis of Multiple Sclerosis	N/A	N/A	N/A	N/A	0.0	
+Proline Degradation	0.0	0.0	N/A	N/A	N/A	
+Prostanoid Biosynthesis	N/A	N/A	N/A	0.0	N/A	
+Protein Citrullination	0.0	N/A	N/A	N/A	N/A	
+Purine Nucleotides Degradation II (Aerobic)	0.0	N/A	N/A	N/A	N/A	
+Putrescine Biosynthesis III	N/A	N/A	0.0	0.0	N/A	
+Putrescine Degradation III	0.0	N/A	N/A	N/A	N/A	
+RAR Activation	N/A	N/A	N/A	N/A	N/A	
+Regulation of the Epithelial-Mesenchymal Transition Pathway	N/A	N/A	N/A	N/A	N/A	
+Retinoate Biosynthesis I	N/A	N/A	N/A	N/A	N/A	
+Role of Cytokines in Mediating Communication between Immune Cells	N/A	N/A	N/A	N/A	N/A	
+Role of Hypercytokinemia/hyperchemokinemia in the Pathogenesis of Influenza	N/A	N/A	N/A	N/A	N/A	
+Role of IL-17A in Arthritis	N/A	N/A	N/A	0.0	N/A	
+Role of IL-17A in Psoriasis	N/A	N/A	N/A	0.0	N/A	
+Role of JAK1 and JAK3 in γc Cytokine Signaling	N/A	N/A	N/A	N/A	N/A	
+Role of JAK1, JAK2 and TYK2 in Interferon Signaling	N/A	N/A	N/A	N/A	N/A	
+Role of JAK2 in Hormone-like Cytokine Signaling	N/A	N/A	N/A	N/A	N/A	
+Role of Macrophages, Fibroblasts and Endothelial Cells in Rheumatoid Arthritis	N/A	N/A	N/A	N/A	N/A	
+Role of Osteoblasts, Osteoclasts and Chondrocytes in Rheumatoid Arthritis	N/A	N/A	N/A	N/A	N/A	
+Role of PKR in Interferon Induction and Antiviral Response	N/A	N/A	N/A	N/A	N/A	
+Role of Tissue Factor in Cancer	N/A	N/A	N/A	N/A	N/A	
+Semaphorin Signaling in Neurons	N/A	N/A	N/A	N/A	N/A	
+Serine Biosynthesis	0.0	0.0	0.0	0.0	N/A	
+Serotonin Degradation	0.0	N/A	N/A	N/A	N/A	
+Small Cell Lung Cancer Signaling	N/A	N/A	N/A	0.0	N/A	
+Superoxide Radicals Degradation	0.0	N/A	N/A	0.0	N/A	
+Superpathway of Cholesterol Biosynthesis	0.0	0.0	N/A	N/A	0.0	
+Superpathway of Geranylgeranyldiphosphate Biosynthesis I (via Mevalonate)	0.0	0.0	N/A	N/A	0.0	
+Superpathway of Inositol Phosphate Compounds	N/A	N/A	N/A	N/A	N/A	
+Superpathway of Melatonin Degradation	0.0	N/A	N/A	0.0	N/A	
+Superpathway of Serine and Glycine Biosynthesis I	0.0	0.0	0.0	0.0	N/A	
+Th1 and Th2 Activation Pathway	N/A	N/A	N/A	N/A	N/A	
+Thioredoxin Pathway	N/A	N/A	N/A	0.0	N/A	
+Tryptophan Degradation X (Mammalian, via Tryptamine)	0.0	N/A	N/A	N/A	N/A	
+Unfolded protein response	N/A	N/A	N/A	N/A	N/A	
+Vitamin-C Transport	N/A	N/A	N/A	0.0	N/A	
+Xenobiotic Metabolism Signaling	N/A	N/A	N/A	N/A	N/A	
+nNOS Signaling in Skeletal Muscle Cells	N/A	N/A	N/A	0.0	N/A	
+tRNA Splicing	N/A	N/A	N/A	0.0	N/A	
+γ-glutamyl Cycle	0.0	N/A	N/A	0.0	N/A	
