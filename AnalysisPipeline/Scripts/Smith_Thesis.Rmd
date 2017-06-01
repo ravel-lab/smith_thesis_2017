@@ -148,6 +148,7 @@ TABLE_RF_SUMMARY<-"TABLE_A10.csv"
 
 TABLE_TRL_COUNTS_RAW<-"TABLE_A11.csv"
 TABLE_EDGER_RESULTS<-"TABLE_A12.csv"
+TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_A13.csv"
 
 
 FIGURE_SUBJECT_PLOTS<-"FIGURE_2_1_"
@@ -2542,6 +2543,8 @@ summary_pathways<-merge(summary_pathways,Pathways_design)
 
 ## Write table summarizing the number of pathways above or below z score, grouped by pathway category
 write.csv(summary_pathways,paste0(thesis_tables_directory,TABLE_TRL_SUMMARY_PATHWAYS),row.names=F,quote=F)
+
+write.csv(pathway_zscores.matrix.medium,paste0(thesis_tables_directory,TABLE_TRL_PATHWAY_Z_SCORES),row.names=T,quote=F)
 
 ##Sort # of z>2 pathways by negative cycle, positive immune and negative immune
 summary_pathways[order(summary_pathways$num_cycle.n,decreasing = T),]
