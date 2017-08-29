@@ -1176,7 +1176,8 @@ summary_sid.group<-ddply(pData(counts_meta.qc),c("SID","BVGroup"),summarise,N=le
 print(paste0("A total of ",sum(summary_sid.group$N)," samples, representing ",sum(summary_group.uniqSID$N)," unique subjects from one of 3 longitudinal groups were used in the final analysis"))
 
 ## Subset metadata for easier handling downstream
-selected_metadata<-dplyr::select(pData(features_metadata),c(SID,VAG_INT,FING_PEN,contains("SEX"),symptoms,symptoms_nonBV,BirthControl,NUGENT_SCORE,AMSEL_prediction,Pre_QC_ID,MENSTRUATION_NORMALIZED_PHASED,CST)) ## CSTs are *NOT* used in model input, but are instead passed along to top mir expression plot/table downstream. Remove CST from running in model.  
+selected_metadata<-dplyr::select(pData(features_metadata),c(SID,NUGENT_SCORE,AMSEL_prediction,Pre_QC_ID,CST)) 
+#selected_metadata<-dplyr::select(pData(features_metadata),c(SID,VAG_INT,FING_PEN,contains("SEX"),symptoms,symptoms_nonBV,BirthControl,NUGENT_SCORE,AMSEL_prediction,Pre_QC_ID,MENSTRUATION_NORMALIZED_PHASED,CST)) ## CSTs are *NOT* used in model input, but are instead passed along to top mir expression plot/table downstream. Remove CST from running in model.  
 
 ##Store only counts expressed 'above 0' to reduce noise in RF models
 min(exprs(features_metadata))
@@ -1186,15 +1187,16 @@ expressed_above_0<-exprs(features_metadata)[rowSums(exprs(features_metadata)!=0)
 model_input<-data.frame(t(expressed_above_0),selected_metadata)
 row.names(model_input)<-model_input$Pre_QC_ID
 model_input<-dplyr::select(model_input,-Pre_QC_ID)
-model_input$AMSEL_prediction<-as.character(model_input$AMSEL_prediction)
+model_input$AMSEL_prediction<-as.numeric(model_input$AMSEL_prediction)
+#model_input$AMSEL_prediction<-as.character(model_input$AMSEL_prediction)
 names(model_input)<-gsub(gsub(gsub(names(model_input),pattern = "mir.",replacement = "miR-"),pattern = "hsa.",replacement = ""),replacement ="-",pattern = "\\.")
 
 ##/// Subset model_input into the inputs for Amsel and Nugent RF
 model_input_Amsel<-dplyr::select(model_input[!is.na(model_input$AMSEL_prediction),],-c(NUGENT_SCORE,CST))## Keep CSTs in model_input, just not Amsel or Nugent input
-model_input_Nugent<-dplyr::select(model_input[!is.na(model_input$NUGENT_SCORE),],-c(AMSEL_prediction,CST)) ## Keep CSTs in model_input, just not Amsel or Nugent input
+#model_input_Nugent<-dplyr::select(model_input[!is.na(model_input$NUGENT_SCORE),],-c(AMSEL_prediction,CST)) ## Keep CSTs in model_input, just not Amsel or Nugent input
 
 model_input_Amsel[is.na(model_input_Amsel)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
-model_input_Nugent[is.na(model_input_Nugent)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
+#model_input_Nugent[is.na(model_input_Nugent)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
 
 ##ADD QC STAGE TO SRL_meta_table, then write to disk
 SRL_meta_table<-left_join(SRL_meta_table,removed_samples,by="Pre_QC_ID")
@@ -1214,63 +1216,34 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 ```{r run_model,eval=T}
 
 ## //////////
-### Amsel-RF
+### Random Forest
 ## //////////
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
 model_input_Amsel$AMSEL_prediction<-as.numeric(model_input_Amsel$AMSEL_prediction)
-Amsel_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
+Lacto_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
                            response_variable_name = "AMSEL_prediction",
                            subj_spec =T,
                            nfold = nfolds,
                            nreps = npermutes,
-                           permute = T,
-                           save_model = F,
+                           permute = F,
+                           save_model = T,
                            file_n = "Lacto_RF",
                            load_prev_model = F,
                            verbose = F,
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
 
-## Store top Amsel-RF features
-(Amsel_RF$top_features$top_features.all<-row.names(Amsel_RF$rfp$importance_w_pval[Amsel_RF$rfp$importance_w_pval[,"MeanDecreaseGini.pval"]<=pval_threshold | Amsel_RF$rfp$importance_w_pval[,"MeanDecreaseAccuracy.pval"]<=pval_threshold,]))
-
-## Calculate accuracy
-NBV.accuracy.AMSEL<-100*mean(sapply(Amsel_RF$accuracy_table, function(x) x["NBV","NBV"])/sapply(Amsel_RF$accuracy_table, function(x) sum(x["NBV",])))
-PBV.accuracy.AMSEL<-100*mean(sapply(Amsel_RF$accuracy_table, function(x) x["PBV","PBV"])/sapply(Amsel_RF$accuracy_table, function(x) sum(x["PBV",])))
-
-print(paste0("The accuracy of the proxy-Amsel-RF model classification was ",round(NBV.accuracy.AMSEL,digits = 1),"% for NBV and ",round(PBV.accuracy.AMSEL,digits = 1),"% for PBV. There were ",length(Amsel_RF$top_features$top_features.all)," significant miRNAs using proxy-Amsel RF."))
-
-## //////////
-### Nugent-RF
-## //////////
-
-Nugent_RF<-run_randomForest(predictors_response_table = model_input_Nugent,
-                            response_variable_name = "NUGENT_SCORE",
-                            subj_spec = T,
-                            nfold = nfolds,
-                            nreps = npermutes,
-                            permute = T,
-                            save_model = F,
-                            file_n = "Nugent_RF",
-                            load_prev_model = T,
-                            verbose = F,
-                            training_prop = training_prop,
-                            R_script_output_directory=R_script_output_directory) 
 
 ##Store op Nugent RF features
-(Nugent_RF$top_features$top_features.all<-row.names(Nugent_RF$rfp$importance_w_pval[Nugent_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold | Nugent_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold,]))
-
+Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = T),]
+(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold | Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold,]))
+Nugent_RF<-Lacto_RF
 ##Calculate accuracy/mean abs error
 accuracy_table.Nugent<-Nugent_RF$accuracy_table
 (mean_absolute_error.Nugent<-sum(abs(accuracy_table.Nugent$predicted- accuracy_table.Nugent$actual))/nrow(accuracy_table.Nugent))
-
-## //////////
-### Intersect Model Results
-## //////////
-
-intersect(Nugent_RF$top_features$top_features.all,Amsel_RF$top_features$top_features.all)
-
-print(paste0("The Nugent-RF model correctly predicted the Nugent score within ",round(mean_absolute_error.Nugent,digits = 0)," values on average. There were ",length(Nugent_RF$top_features$top_features.all)," significant miRNAs using Nugent-RF."))
+hist(abs(accuracy_table.Nugent$predicted- accuracy_table.Nugent$actual))
+plot(accuracy_table.Nugent$predicted, accuracy_table.Nugent$actual)
+print(paste0("The Nugent-RF model correctly predicted the Nugent score within ",round(mean_absolute_error.Nugent,digits = 2)," values on average. There were ",length(Lacto_RF$top_features$top_features.all)," significant miRNAs using Nugent-RF."))
 
 ## //////////
 ### Output Model Results
@@ -1587,8 +1560,11 @@ qPCR is measured with QIAGEN miScript II kit, BCSs are:
 * 0.5 hours   
 * 1 hour   
 * 4 hours   
+* 8 hours   
 * 11 hours   
-* 13 hours   
+* 13 hours  
+* 16 hours   
+* 19 hours   
 * 22 hours   
 
 Primers:   
