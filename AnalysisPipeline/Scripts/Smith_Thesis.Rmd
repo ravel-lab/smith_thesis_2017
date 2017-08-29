@@ -1,7 +1,7 @@
 ---
 title: "Smith PhD Thesis"
 author: "Steven Smith"
-date: "May 4, 2017"
+date: "August 29, 2017"
 output:
   word_document:
     toc: yes
@@ -30,7 +30,7 @@ timestamp()
 rm(list=ls())
 
 ## Set the root directory here:
-root_directory<-"~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/Thesis_pipeline/AnalysisPipeline/"
+root_directory<-"~/Documents/thesis/smith_thesis_2017/AnalysisPipeline/"#"~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/Thesis_pipeline/AnalysisPipeline/"
 
 ## Supress warnings to make knit PDF shorter... but turn these back on since there may be some weird behaviors
 knitr::opts_chunk$set(warning=FALSE, message=T,size=8)
@@ -53,7 +53,6 @@ library(grid)
 library(scales)
 library(gridExtra)
 library(edgeR) 
-library(Biobase)
 library(RColorBrewer)
 library(psych)
 library(randomForest) 
@@ -64,8 +63,9 @@ library(stringr)
 library(plotly)
 library(gPCA)
 library(nlme)
-library(caret)
 library(gplots)
+library(Biobase)
+library(caret)
 
 ## Source the Random Forest wrapper script
 source(paste0(root_directory,"Scripts/rfSubjectSpecific.R"))
@@ -892,17 +892,20 @@ missing<-rowSums(SRL_counts_table)==0 #rowSums(is.na(SRL_counts_table))==ncol(SR
 print(paste("Number of miRNAs without any counts across all",ncol(SRL_counts_table),"samples:",sum(missing)))
 print(paste0("which leaves ",100*(1-sum(missing)/nrow(SRL_counts_table))," percent of all annotated miRNAs with at least 1 read"))
 
+
 #print("...and the names of the miRNAs without any reads across all samples: ")
 #names(missing)[missing]
 
-plot_QC.preQC.batch<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "Batch",ploly = F,seed_val = seed_val)##FIGURE
-plot(plot_QC.preQC.batch$pca.p)
-plot_QC.preQC.batch$gPCA.result$p.val
-plot_QC.preQC.sid<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
-plot(plot_QC.preQC.sid$pca.p)
-plot_QC.preQC.sid$gPCA.result$p.val
-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "BVGroup",seed_val = seed_val)$pca.p##FIGURE
-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "NugentC",seed_val = seed_val)$pca.p##FIGURE
+##FIXME
+# plot_QC.preQC.batch<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "Batch",ploly = F,seed_val = seed_val)##FIGURE
+# plot(plot_QC.preQC.batch$pca.p)
+# plot_QC.preQC.batch$gPCA.result$p.val
+# plot_QC.preQC.sid<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
+# plot(plot_QC.preQC.sid$pca.p)
+# plot_QC.preQC.sid$gPCA.result$p.val
+# plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "BVGroup",seed_val = seed_val)$pca.p##FIGURE
+# plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "NugentC",seed_val = seed_val)$pca.p##FIGURE
+##END FIXME
 
 ## Get a *ROUGH* idea of miRNA coverage by dividing counts by # of annotated miRNAs in genome 
 (number_mirs_genome<-nrow(SRL_counts_meta)) ## number of annotated miRNAs
@@ -943,21 +946,22 @@ ncol(exprs(counts_meta.qc))
 
 ncol(pData(counts_meta.qc))
 nrow(exprs(counts_meta.qc))
-
-## Re-plot after QC
-plot_QC.postQC.batch<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by ="Batch",ploly = F,seed_val = seed_val)##FIGURE
-plot_QC.postQC.batch$pca.p
-
-plot_QC.postQC.sid<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
-plot_QC.postQC.sid$pca.p
-
-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "BVGroup",ploly = F,seed_val = seed_val)$pca.p##FIGURE
-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "NugentC",ploly = F,seed_val = seed_val)$pca.p##FIGURE
-
-plot_RIN_meta(pData(counts_meta.qc),"hg.mapped.percent",col_by = "Batch")##FIGURE
-plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_hgmapped",col_by = "Batch")##FIGURE
-plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_surviving",col_by = "Batch")##FIGURE
-dev.off()
+##FIXME
+# 
+# ## Re-plot after QC
+# plot_QC.postQC.batch<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by ="Batch",ploly = F,seed_val = seed_val)##FIGURE
+# plot_QC.postQC.batch$pca.p
+# 
+# plot_QC.postQC.sid<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
+# plot_QC.postQC.sid$pca.p
+# 
+# plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "BVGroup",ploly = F,seed_val = seed_val)$pca.p##FIGURE
+# plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "NugentC",ploly = F,seed_val = seed_val)$pca.p##FIGURE
+# 
+# plot_RIN_meta(pData(counts_meta.qc),"hg.mapped.percent",col_by = "Batch")##FIGURE
+# plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_hgmapped",col_by = "Batch")##FIGURE
+# plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_surviving",col_by = "Batch")##FIGURE
+# dev.off()
 median_RIN<-median(pData(counts_meta.qc)$RIN,na.rm = T)
 
 print(paste0("The median RINe score was ",median_RIN,", with ",round(100*sum(pData((counts_meta.qc))$RIN<7,na.rm = T)/length(pData((counts_meta.qc))$RIN),digits = 1),"% of the samples having a RINe greater than 7."))
@@ -970,24 +974,26 @@ print(paste0("The median (minimum/maximum) percentage of post-QC miRNA reads rel
 
 sum(pData((counts_meta.qc))$number_reads_mirs<10^6,na.rm = T)/length(pData((counts_meta.qc))$number_reads_mirs)
 
-cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.PREQC.BYBATCH),width = 8,height = 5.5)
-plot(plot_QC.preQC.batch$pca.p)
-dev.off()
-cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.PREQC.BYSUBJ),width = 8,height = 5.5)
-plot(plot_QC.preQC.sid$pca.p)
-dev.off()
-cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.RMLOW.BYBATCH),width = 8,height = 5.5)
-plot(plot_QC.postQC.batch$pca.p)
-dev.off()
-cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.RMLOW.BYSUBJ),width = 8,height = 5.5)
-plot(plot_QC.postQC.sid$pca.p)
-dev.off()
-cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_RIN_v_READS.PROP),width = 8,height = 5.5)
-plot(plot_QC.RIN.percent.batch)
-dev.off()
-cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_RIN_v_READS.ABS),width = 8,height = 5.5)
-plot(plot_QC.RIN.number.batch)
-dev.off()
+##FIXME
+
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.PREQC.BYBATCH),width = 8,height = 5.5)
+# plot(plot_QC.preQC.batch$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.PREQC.BYSUBJ),width = 8,height = 5.5)
+# plot(plot_QC.preQC.sid$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.RMLOW.BYBATCH),width = 8,height = 5.5)
+# plot(plot_QC.postQC.batch$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.RMLOW.BYSUBJ),width = 8,height = 5.5)
+# plot(plot_QC.postQC.sid$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_RIN_v_READS.PROP),width = 8,height = 5.5)
+# plot(plot_QC.RIN.percent.batch)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_RIN_v_READS.ABS),width = 8,height = 5.5)
+# plot(plot_QC.RIN.number.batch)
+# dev.off()
 
 ```
 # Discovery of miRNAs Associated w/ Lactobacillus spp. vs CST-IV/BV  
@@ -998,9 +1004,19 @@ Not all samples in the miRNA cohort have Amsel scores, but they do have 16S rRNA
 Therefore:    
 1. Build a RF model that uses a separate cohort to predict Amsel-16S rRNA associations.     
 2. Assess accuracy, and tweak parameters or predictors.      
-3. Using this model, assign proxy-Amsel scores to the miRNA cohort from the available 16S rRNA data.     
+3. Using this model, assign proxy-Amsel scores to the miRNA cohort from the available 16S rRNA data.   
 
-```{r Proxy_Amsel_Model, eval=T}
+```{r tmp}
+load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
+load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
+SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
+proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
+
+```
+
+```{r Proxy_Amsel_Model, eval=F}
+### This piece being turned off
+
 ## Generate a model using clinical visit data. The model uses 16S relative abundances to predict Amsel diagnosis. 
 load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
 load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
@@ -1096,16 +1112,19 @@ expSet_log<-ExpressionSet(assayData = log(exprs(counts_meta.qc),base=2),phenoDat
 expSet_log.normalized<-ExpressionSet(assayData = log(exprs(expSet.normalized)+1,base=2),
                                      phenoData = AnnotatedDataFrame(pData(expSet.normalized))) ## add pseuo counts... so that when take log(), all 0 reads become 0 normalized reads log(raw + 1)=log(1)=0. LIttle effect on other counts. This makes it esier to drop raw 0 counts later. Also store count table annotation from original Expression Set
 
-## PCA plots after normalization, colored by batch, SID and "BV group"
-plot_QC.normalized.batch<-plot_pca(expSet.normalized,color_by = "Batch",margins = unit(c(0,-200,0,-200),units = "points"),seed_val = seed_val)
-plot_QC.normalized.batch$pca.p
-plot_QC.normalized.sid<-plot_pca(expSet_log.normalized,color_by = "SID",ploly = F,logt = F,margins = unit(c(0,30,0,5),units = "pt"),seed_val = seed_val)
-plot_QC.normalized.sid$pca.p
-plot_pca(expSet_log.normalized,color_by = "BVGroup",logt = F)$pca.p
-plot_pca(expSet_log.normalized,color_by = "NugentC",logt = F)$pca.p
 
-## Print for text
-print(paste0("PCA plots before and after sample removal and after normalization do not support batch effects (guided PCA p-values ",plot_QC.preQC.batch$gPCA.result$p.val,", ",plot_QC.postQC.batch$gPCA.result$p.val,", and ",plot_QC.normalized.batch$gPCA.result$p.val,", respectively), or subject-specific effects (guided PCA p-values ",plot_QC.preQC.sid$gPCA.result$p.val,", ",plot_QC.postQC.sid$gPCA.result$p.val,", and ",plot_QC.normalized.sid$gPCA.result$p.val,", respectively, Figure S1)."))
+##FIXME
+# 
+# ## PCA plots after normalization, colored by batch, SID and "BV group"
+# plot_QC.normalized.batch<-plot_pca(expSet.normalized,color_by = "Batch",margins = unit(c(0,-200,0,-200),units = "points"),seed_val = seed_val)
+# plot_QC.normalized.batch$pca.p
+# plot_QC.normalized.sid<-plot_pca(expSet_log.normalized,color_by = "SID",ploly = F,logt = F,margins = unit(c(0,30,0,5),units = "pt"),seed_val = seed_val)
+# plot_QC.normalized.sid$pca.p
+# plot_pca(expSet_log.normalized,color_by = "BVGroup",logt = F)$pca.p
+# plot_pca(expSet_log.normalized,color_by = "NugentC",logt = F)$pca.p
+# 
+# ## Print for text
+# print(paste0("PCA plots before and after sample removal and after normalization do not support batch effects (guided PCA p-values ",plot_QC.preQC.batch$gPCA.result$p.val,", ",plot_QC.postQC.batch$gPCA.result$p.val,", and ",plot_QC.normalized.batch$gPCA.result$p.val,", respectively), or subject-specific effects (guided PCA p-values ",plot_QC.preQC.sid$gPCA.result$p.val,", ",plot_QC.postQC.sid$gPCA.result$p.val,", and ",plot_QC.normalized.sid$gPCA.result$p.val,", respectively, Figure S1)."))
 
 ## Store counts data as "features"
 features<-exprs(expSet_log.normalized)
@@ -1139,8 +1158,9 @@ dev.off()
 
 ```{r prepare_model_input,eval=T}
 ## Join the existing metdadata and predicted Amsel diagnosis
-joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(proxy_amsel_predictions),AMSEL_prediction=proxy_amsel_predictions),by="Pre_QC_ID")
+##joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(proxy_amsel_predictions),AMSEL_prediction=proxy_amsel_predictions),by="Pre_QC_ID")
 
+joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(proxy_amsel_predictions),AMSEL_prediction=proxy_amsel_predictions),by="Pre_QC_ID")
 row.names(joined_meta_amselPred)<-joined_meta_amselPred$Pre_QC_ID
 
 ##Store the joined data as features_metadata
@@ -1197,7 +1217,7 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 ### Amsel-RF
 ## //////////
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
-
+model_input_Amsel$AMSEL_prediction<-as.numeric(model_input_Amsel$AMSEL_prediction)
 Amsel_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
                            response_variable_name = "AMSEL_prediction",
                            subj_spec =T,
@@ -1205,8 +1225,8 @@ Amsel_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
                            nreps = npermutes,
                            permute = T,
                            save_model = F,
-                           file_n = "Amsel_RF",
-                           load_prev_model = T,
+                           file_n = "Lacto_RF",
+                           load_prev_model = F,
                            verbose = F,
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
