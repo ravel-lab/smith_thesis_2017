@@ -1223,9 +1223,9 @@ model_input_Amsel$AMSEL_prediction<-as.numeric(model_input_Amsel$AMSEL_predictio
 Lacto_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
                            response_variable_name = "AMSEL_prediction",
                            subj_spec =T,
-                           nfold = nfolds,
-                           nreps = npermutes,
-                           permute = F,
+                           nfold = 2,
+                           nreps = 20,
+                           permute = T,
                            save_model = T,
                            file_n = "Lacto_RF",
                            load_prev_model = F,
@@ -1236,7 +1236,8 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
 
 ##Store op Nugent RF features
 Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = T),]
-(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold | Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold,]))
+(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$importance[Lacto_RF$importance$X.IncMSE>=2,]))
+#(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold | Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold,]))
 Nugent_RF<-Lacto_RF
 ##Calculate accuracy/mean abs error
 accuracy_table.Nugent<-Nugent_RF$accuracy_table
@@ -1251,67 +1252,43 @@ print(paste0("The Nugent-RF model correctly predicted the Nugent score within ",
 
 ### Tables
 ## Write model input table to file, keeping only variables that were used in either Nugent-RF or Amsel-RF
-model_input.out<-model_input[,names(model_input) %in% unique(c(names(model_input_Amsel),names(model_input_Nugent)))]
+model_input.out<-model_input[,names(model_input) %in% unique(c(names(model_input_Amsel)))]
 
-predictor_names<-names(dplyr::select(model_input.out,-c(AMSEL_prediction,NUGENT_SCORE,SID)))
+predictor_names<-names(dplyr::select(model_input.out,-c(AMSEL_prediction,SID)))
 predictor_names.miRs<-sum(grepl(predictor_names,pattern = "miR|let"))
-print(paste0("The Nugent-RF and proxy-Amsel-RF models used ",length(predictor_names)," predictors including ",predictor_names.miRs," non-zero log2 transformed miRNA read counts and ",length(predictor_names)-predictor_names.miRs," metadata variables as inputs to rank feature importance (",TABLE_MODEL_INPUT,")."))
+print(paste0("The Lacto-RF models used ",length(predictor_names)," predictors including ",predictor_names.miRs," non-zero log2 transformed miRNA read counts and ",length(predictor_names)-predictor_names.miRs," metadata variables as inputs to rank feature importance (",TABLE_MODEL_INPUT,")."))
 
 ## Record which variables were used in training and testing
-model_input.out[row.names(model_input.out) %in% Nugent_RF$training_ids,"Nugent_RF_trainingTestingSet"]<-"training"
-model_input.out[row.names(model_input.out) %in% Nugent_RF$testing_ids,"Nugent_RF_trainingTestingSet"]<-"testing"
-
-model_input.out[row.names(model_input.out) %in% Amsel_RF$training_ids,"Amsel_RF_trainingTestingSet"]<-"training"
-model_input.out[row.names(model_input.out) %in% Amsel_RF$testing_ids,"Amsel_RF_trainingTestingSet"]<-"testing"
+model_input.out[row.names(model_input.out) %in% Lacto_RF$training_ids,"Lacto_RF_trainingTestingSet"]<-"training"
+model_input.out[row.names(model_input.out) %in% Lacto_RF$testing_ids,"Lacto_RF_trainingTestingSet"]<-"testing"
 
 write.csv(model_input.out,paste0(thesis_tables_directory,TABLE_MODEL_INPUT),row.names=T,quote=F)
 
 ## Combine both RF models' importance information as a single table
 TABLE_RF_SUMMARY_output<-data.frame(features=names(model_input %>% dplyr::select(-c(AMSEL_prediction,NUGENT_SCORE,SID))))
-TABLE_RF_SUMMARY_output.tmp1<-data.frame(features=row.names(Amsel_RF$rfp$importance_w_pval),AMSEL=Amsel_RF$rfp$importance_w_pval)
-TABLE_RF_SUMMARY_output.tmp2<-data.frame(features=row.names(Nugent_RF$rfp$importance_w_pval),NUGENT=Nugent_RF$rfp$importance_w_pval)
-TABLE_RF_SUMMARY_output<-merge(merge(TABLE_RF_SUMMARY_output.tmp1,TABLE_RF_SUMMARY_output.tmp2,all = T),TABLE_RF_SUMMARY_output,all = T)
-TABLE_RF_SUMMARY_output<-dplyr::select(TABLE_RF_SUMMARY_output,-contains("BV"))
+TABLE_RF_SUMMARY_output<-data.frame(features=row.names(Lacto_RF$rfp$importance_w_pval),AMSEL=Lacto_RF$rfp$importance_w_pval)
+
 write.csv(TABLE_RF_SUMMARY_output,file=paste0(thesis_tables_directory,TABLE_RF_SUMMARY),row.names=F,quote=F)
 write.csv(dplyr::select(Clinical_Visit_RF$importance,-contains("BV")),file=paste0(thesis_tables_directory,TABLE_RF_SUMMARY.CV),row.names=T,quote=F)
 
 ##Store the top miRNAs for later use
-top_mirs_table<-data.frame(miRNA=union(Nugent_RF$top_features$top_features.all,Amsel_RF$top_features$top_features.all),RF_Group=0)
-top_mirs_table[top_mirs_table$miRNA %in% Nugent_RF$top_features$top_features.all,"RF_Group"]<-"Nugent-RF"
-top_mirs_table[top_mirs_table$miRNA %in% Amsel_RF$top_features$top_features.all,"RF_Group"]<-"Amsel-RF"
-top_mirs_table[top_mirs_table$miRNA %in% Amsel_RF$top_features$top_features.all & top_mirs_table$miRNA %in% Nugent_RF$top_features$top_features.all,"RF_Group"]<-"Both"
-
-top_mirs_table[order(top_mirs_table$RF_Group),]
-
+top_mirs_table<-data.frame(miRNA=Lacto_RF$top_features$top_features.all)
 
 ## Text
-print(paste0("A total of ",length(top_mirs_table[top_mirs_table$RF_Group=="Both","miRNA"])," miRNAs were common to both proxy-Amsel-BV and Nugent-BV Random Forest models: ", str_c(top_mirs_table[top_mirs_table$RF_Group=="Both","miRNA"],collapse=", "),"."))
+print(paste0("A total of ",length(top_mirs_table$miRNA)," miRNAs were identified uing Lactobacillus RA.: ", str_c(top_mirs_table$miRNA,collapse=", "),"."))
 
-print(paste0("There were ",nrow(top_mirs_table[top_mirs_table$RF_Group=="Amsel-RF",])," and ",nrow(top_mirs_table[top_mirs_table$RF_Group=="Nugent-RF",])," statistically significant miRNAs unique to each ofproxy-Amsel classification (proxy-Amsel-RF) and Nugent score regression (Nugent-RF), respectively"))
 
 ### Figures
-dplyr::select(data.frame(Amsel_RF$rfp$importance_w_pval[row.names(Amsel_RF$rfp$importance_w_pval) %in% top_mirs_table[top_mirs_table$RF_Group %in% c("Amsel-RF","Both"),"miRNA"],]),contains("Mean"))
+Lacto_RF.plot<-plot_importance(dplyr::select(data.frame(Lacto_RF$rfp$importance_w_pval)[row.names(Lacto_RF$rfp$importance_w_pval) %in% top_mirs_table$miRNA,],contains("MSE")),ntopfeats =  11,rankBy = "IncMSE",nfeats = 11,model_name = "Lacto",size_font = 20)
 
-Amsel_RF.plot<-plot_importance(dplyr::select(data.frame(Amsel_RF$rfp$importance_w_pval[row.names(Amsel_RF$rfp$importance_w_pval) %in% top_mirs_table[top_mirs_table$RF_Group %in% c("Amsel-RF","Both"),"miRNA"],]),contains("Accuracy")),ntopfeats =  20,rankBy = "MeanDecreaseAccuracy",nfeats = 20,model_name = "proxy-Amsel",size_font = 20)
-
-Nugent_RF.plot<-plot_importance(dplyr::select(data.frame(Nugent_RF$rfp$importance_w_pval[row.names(Nugent_RF$rfp$importance_w_pval) %in% top_mirs_table[top_mirs_table$RF_Group %in% c("Nugent-RF","Both"),"miRNA"],]),contains("MSE")),ntopfeats = 30,rankBy = "IncMSE",nfeats = 30,model_name = "Nugent score",size_font = 20)
-
-plot(Amsel_RF.plot)
-plot(Nugent_RF.plot)
+plot(Lacto_RF.plot)
 
 cairo_ps(file=paste0(thesis_figures_directory,FIGURE_RF_IMPORTANCE_AMSEL), width=11, height=8.5)
-plot(Amsel_RF.plot)
+plot(Lacto_RF.plot)
 dev.off()
 
-cairo_ps(file=paste0(thesis_figures_directory,FIGURE_RF_IMPORTANCE_NUGENT), width=11, height=8.5)
-plot(Nugent_RF.plot)
-dev.off()
 
-plot_importance(dplyr::select(Clinical_Visit_RF$importance,contains("BV")),ntopfeats = 20,rankBy = "PBV",model_name = "Amsel")
-
-## Plot Expression of each RF mir as a function of Nugent score & proxy-Amsel prediction
-
-topmir_plot_data<-model_input[!is.na(model_input$NUGENT_SCORE),names(model_input) %in% c("NUGENT_SCORE","AMSEL_prediction","CST",as.character(top_mirs_table$miRNA[top_mirs_table$RF_Group %in% "Both"]))]
+topmir_plot_data<-model_input[!is.na(model_input$NUGENT_SCORE),names(model_input) %in% c("NUGENT_SCORE","AMSEL_prediction","CST",as.character(top_mirs_table$miRNA))]
 topmir_plot_data$CST<-as.character(topmir_plot_data$CST)
 
 topmir_plot_data<-melt(topmir_plot_data,id.vars = c("NUGENT_SCORE","AMSEL_prediction","CST"))
@@ -1340,9 +1317,9 @@ topmir_plot_data[topmir_plot_data$CST %in% c("I-A","I-B"),"CST"]<-"I"
 
 ## Plot the miRNA expression figure
 PLOT_EXPRESSION<-
-  ggplot(topmir_plot_data,aes(x=NUGENT_SCORE,y=value))+
+  ggplot(topmir_plot_data,aes(x=AMSEL_prediction,y=value))+
   stat_smooth(method = "lm",col='#FF5733',se=F)+ #
-  geom_point(aes(col=as.factor(CST),pch=AMSEL_prediction),size=3,show.legend = T)+
+  geom_point(aes(col=as.factor(CST)),size=3,show.legend = T)+
   facet_wrap(~variable,scales = "free_y",nrow=2)+
   ylab("Normalized Expression")+xlab("Nugent Score")+
   mBio+
@@ -1357,14 +1334,12 @@ dev.off()
 
 
 library(Boruta)
+
 postscript(paste0(R_script_output_directory,"Boruta_optimization.ps"))
-Nugent_RF.Boruta<-Boruta(x=dplyr::select(model_input_Nugent,-c(SID,NUGENT_SCORE)),y=model_input_Nugent$NUGENT_SCORE)
+Nugent_RF.Boruta<-Boruta(x=dplyr::select(model_input_Amsel,-c(SID)),y=model_input_Amsel$AMSEL_prediction)
 plot(Nugent_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
 Nugent_RF.Boruta$finalDecision[Nugent_RF.Boruta$finalDecision=="Confirmed"]
-Amsel_RF.Boruta<-Boruta(x=dplyr::select(model_input_Amsel,-c(SID,AMSEL_prediction)),y=as.factor(model_input_Amsel$AMSEL_prediction))
-plot(Amsel_RF.Boruta,main="proxy-Amsel-RF Boruta unimportant feature removal")
-Amsel_RF.Boruta$finalDecision[Amsel_RF.Boruta$finalDecision=="Confirmed"]
-intersect(names(Nugent_RF.Boruta$finalDecision[Nugent_RF.Boruta$finalDecision=="Confirmed"]),names(Amsel_RF.Boruta$finalDecision[Amsel_RF.Boruta$finalDecision=="Confirmed"]))
+
 
 dev.off()
 ```
@@ -1406,12 +1381,12 @@ mir_go<-read.csv(paste0(R_script_input_directory,"miR_GODirect_Gene_Map.csv"),st
 
 
 ## Filter just the miR-GO map to 'top' miRNAs discovered above belonging to both RF model results 
-mir_go<-mir_go[mir_go$mir %in% as.character(filter(top_mirs_table,RF_Group=="Both")$miRNA),]
+mir_go<-mir_go[mir_go$mir %in% as.character(top_mirs_table$miRNA),]
 ddply(unique(dplyr::select(mir_go,c(mir,gene))),c("mir"),summarise,n=length(gene))
 
 ## Read in miR-target counts, created in outside script. 
 mir_targetCnt<-read.csv(paste0(R_script_input_directory,"miR_Target_Counts.csv"),stringsAsFactors = F)
-mir_targetCnt[mir_targetCnt$mir %in% top_mirs_table[top_mirs_table$RF_Group=="Both","miRNA"],]
+mir_targetCnt[mir_targetCnt$mir %in% top_mirs_table$miRNA,]
 ## Determine the number of genes associated with each miRNA- need to determine how many GO processes to plot in figure
 mir_go.counts<-data.frame(table(dplyr::select(mir_go,c(mir,GO))))
 mir_go.miR193b<-mir_go[mir_go$mir=="miR-193b",]
