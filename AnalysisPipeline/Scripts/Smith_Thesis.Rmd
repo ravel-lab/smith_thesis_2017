@@ -1006,13 +1006,6 @@ Therefore:
 2. Assess accuracy, and tweak parameters or predictors.      
 3. Using this model, assign proxy-Amsel scores to the miRNA cohort from the available 16S rRNA data.   
 
-```{r tmp}
-load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
-load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
-SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
-proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
-
-```
 
 ```{r Proxy_Amsel_Model, eval=F}
 ### This piece being turned off
@@ -1157,6 +1150,14 @@ dev.off()
 ## Prepare & Analyze the Nugent and Amsel input tables (predictors) to RF model   
 
 ```{r prepare_model_input,eval=T}
+load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
+load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
+SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
+#proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
+proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
+##proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Gardnerella_vaginalis)))
+
+
 ## Join the existing metdadata and predicted Amsel diagnosis
 ##joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(proxy_amsel_predictions),AMSEL_prediction=proxy_amsel_predictions),by="Pre_QC_ID")
 
@@ -1188,7 +1189,7 @@ model_input<-data.frame(t(expressed_above_0),selected_metadata)
 row.names(model_input)<-model_input$Pre_QC_ID
 model_input<-dplyr::select(model_input,-Pre_QC_ID)
 model_input$AMSEL_prediction<-as.numeric(model_input$AMSEL_prediction)
-#model_input$AMSEL_prediction<-as.character(model_input$AMSEL_prediction)
+##model_input$AMSEL_prediction<-as.character(model_input$AMSEL_prediction)
 names(model_input)<-gsub(gsub(gsub(names(model_input),pattern = "mir.",replacement = "miR-"),pattern = "hsa.",replacement = ""),replacement ="-",pattern = "\\.")
 
 ##/// Subset model_input into the inputs for Amsel and Nugent RF
@@ -1214,18 +1215,17 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 * Nugent- Random Forest (using Nugent score as response variable)   
 
 ```{r run_model,eval=T}
-
 ## //////////
 ### Random Forest
 ## //////////
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
-model_input_Amsel$AMSEL_prediction<-as.numeric(model_input_Amsel$AMSEL_prediction)
+##model_input_Amsel$AMSEL_prediction<-as.numeric(model_input_Amsel$AMSEL_prediction)
 Lacto_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
                            response_variable_name = "AMSEL_prediction",
                            subj_spec =T,
-                           nfold = 2,
-                           nreps = 20,
-                           permute = T,
+                           nfold = nfolds,
+                           nreps = npermutes,
+                           permute = F,
                            save_model = T,
                            file_n = "Lacto_RF",
                            load_prev_model = F,
@@ -1235,7 +1235,7 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
 
 
 ##Store op Nugent RF features
-Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = T),]
+Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = F),]
 (Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$importance[Lacto_RF$importance$X.IncMSE>=2,]))
 #(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold | Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold,]))
 Nugent_RF<-Lacto_RF
