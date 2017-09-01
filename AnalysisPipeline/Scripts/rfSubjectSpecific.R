@@ -166,7 +166,7 @@ rfSubjectSpecific <- function(X, y, subjID, nfolds=10, verbose=FALSE,nrep=100, p
       nmse.loc[i] <- mean( error[[i]]^2 ) / mean( (x - y.mean)^2 )
       mae.loc[i] <- mean( abs( error[[i]] ) )
       nmae.loc[i] <- mean( abs( error[[i]] ) ) / mean( abs(x - y.mean) )
-      imp <- imp + importance(m.rf)
+      imp <- imp + randomForest::importance(m.rf)
 
     } else { ## If classification
       m <- length(s[[i]])
@@ -175,7 +175,7 @@ rfSubjectSpecific <- function(X, y, subjID, nfolds=10, verbose=FALSE,nrep=100, p
       cl.err.loc[i] <- sum(error[[i]]) / m
       ncl.err.loc[i] <- cl.err.loc[i] / ( sum(error.null[[i]]) / m ) # NOTE that this will be NaN when the denominator is 0 (null model has no errors for the given y[s[[i]]]
       ##print(cbind(as.character(x),as.character(y[s[[i]]])))
-      imp <- imp + importance(m.rf)#[,3:4] ##why were only the last 2 being used?
+      imp <- imp + randomForest::importance(m.rf)#[,3:4] ##why were only the last 2 being used?
       #head(importance(m.rf))
     }
     gError[s[[i]]] <- as.integer(error[[i]])
