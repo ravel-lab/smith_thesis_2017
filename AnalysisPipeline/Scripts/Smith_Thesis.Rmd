@@ -998,96 +998,6 @@ sum(pData((counts_meta.qc))$number_reads_mirs<10^6,na.rm = T)/length(pData((coun
 ```
 # Discovery of miRNAs Associated w/ Lactobacillus spp. vs CST-IV/BV  
 
-## Build a proxy-Amsel model from Clinical Visits   
-
-Not all samples in the miRNA cohort have Amsel scores, but they do have 16S rRNA sequencing taxa assignments. 
-Therefore:    
-1. Build a RF model that uses a separate cohort to predict Amsel-16S rRNA associations.     
-2. Assess accuracy, and tweak parameters or predictors.      
-3. Using this model, assign proxy-Amsel scores to the miRNA cohort from the available 16S rRNA data.   
-
-
-```{r Proxy_Amsel_Model, eval=F}
-### This piece being turned off
-
-## Generate a model using clinical visit data. The model uses 16S relative abundances to predict Amsel diagnosis. 
-load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
-load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
-SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
-
-ncol(CV_16S_AMSEL)
-setdiff(names(CV_16S_AMSEL),names(SRL_16S))
-setdiff(names(SRL_16S),names(CV_16S_AMSEL))
-
-table(CV_16S_AMSEL$Amsel_BV)
-
-nuniq_subjs_amsel<-length(unique(gsub(row.names(CV_16S_AMSEL),pattern = "_.*",replacement = "")))
-
-print(paste0('Therefore, a proxy-Amsel diagnosis was developed by applying a Random Forest model trained with metataxonomic data and metadata from ',nuniq_subjs_amsel,' subjects of the parent cohort that included ',nrow(CV_16S_AMSEL),' samples for which both metataxonomic data and Amsel diagnosis was available (Amsel subset)(',TABLE_PROXY_AMSEL_INPUT,').'))
-
-
-NBV.amsel<-table(CV_16S_AMSEL$Amsel_BV)["NBV"]
-PBV.amsel<-table(CV_16S_AMSEL$Amsel_BV)["PBV"]
-
-
-print(paste0("In the Amsel subset, asymptomatic or symptomatic BV diagnoses represented ",round(100*PBV.amsel/(NBV.amsel+PBV.amsel),digits = 1),"% (",PBV.amsel,"/",NBV.amsel+PBV.amsel,") of the Amsel diagnoses (",TABLE_PROXY_AMSEL_INPUT,"), a figure closely matching the reported prevalence of 29.2% for BV in similar populations [REF]."))
-
-
-##Sanity check for Amsel
-pairs.panels(dplyr::select(CV_16S_AMSEL,Lactobacillus_iners,Gardnerella_vaginalis,Lactobacillus_crispatus,Atopobium_vaginae,BVAB1,Megasphaera_sp._type_1,Amsel_BV),scale = F,density = F)
-
-CV_16S_AMSEL <- CV_16S_AMSEL %>% dplyr::select(-c(AMSEL))
-min_CV_16S_AMSEL<-min(dplyr::select(CV_16S_AMSEL,-Amsel_BV)[dplyr::select(CV_16S_AMSEL,-Amsel_BV)>0],na.rm = T)
-CV_16S_AMSEL[is.na(CV_16S_AMSEL)]<-0
-CV_16S_AMSEL_IDs=row.names(CV_16S_AMSEL)
-
-
-## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time. 
-
-Clinical_Visit_RF<-run_randomForest(predictors_response_table = CV_16S_AMSEL,
-                                    response_variable_name = "Amsel_BV",
-                                    subj_spec = FALSE,
-                                    nfold = nfolds,
-                                    nreps = npermutes,
-                                    save_model = F,
-                                    file_n = "Clinical_Visit_RF",
-                                    verbose = F,
-                                    permute = T,
-                                    load_prev_model = T,
-                                    R_script_output_directory=R_script_output_directory) 
-
-Clinical_Visit_RF$accuracy_table
-
-(Clinical_Visit_RF.accuracy<-c(diag(Clinical_Visit_RF$accuracy_table)/rowSums(Clinical_Visit_RF$accuracy_table)))
-
-(Clinical_Visit_RF$top_features$top_features.all<-row.names(Clinical_Visit_RF$importance[Clinical_Visit_RF$importance$MeanDecreaseAccuracy.pval<=pval_threshold | Clinical_Visit_RF$importance$MeanDecreaseGini.pval<=pval_threshold,]))
-
-print(paste0("Multiple (",length(Clinical_Visit_RF$top_features$top_features.all),") important microbial (taxa and their relative abundance) or metadata features were predictive of the Amsel diagnosis: ",str_c(sort(Clinical_Visit_RF$top_features$top_features.all),collapse = ", ")," (",TABLE_RF_SUMMARY.CV,")")) 
-
-print(paste0("The Amsel Random Forest model accuracy was tested using a hold-out set and found to be ",round(100*Clinical_Visit_RF.accuracy["NBV"],1),"% accurate in correctly assigning NBV diagnosis and ",round(100*Clinical_Visit_RF.accuracy["PBV"],1),"% accurate in correctly assigning PBV diagnosis."))
-
-proxy_amsel_predictions.classprobs<-predict(Clinical_Visit_RF$rfp, SRL_16S, type = "prob")
-(proxy_amsel_predictions<-predict(Clinical_Visit_RF$rfp, SRL_16S, type = "response"))
-
-CV_16S_AMSEL.out<-CV_16S_AMSEL
-CV_16S_AMSEL.out$Amsel_BV_trainingTestingSet<-""
-CV_16S_AMSEL.out[row.names(CV_16S_AMSEL.out) %in% Clinical_Visit_RF$testing_ids,"Amsel_BV_trainingTestingSet"]<-"testing"
-CV_16S_AMSEL.out[row.names(CV_16S_AMSEL.out) %in% Clinical_Visit_RF$training_ids,"Amsel_BV_trainingTestingSet"]<-"training"
-
-write.csv(CV_16S_AMSEL.out,file=paste0(thesis_tables_directory,TABLE_PROXY_AMSEL_INPUT),row.names=T,quote=F)
-
-SRL_16S_AMSEL<-cbind(SRL_16S,AMSEL_PREDICTION=proxy_amsel_predictions)
-table(SRL_16S_AMSEL$AMSEL_PREDICTION)
-
-write.csv(SRL_16S_AMSEL,file=paste0(thesis_tables_directory,TABLE_PROXY_AMSEL_SRL),row.names=T,quote=F)
-
-##Sanity Check
-nfeats_plot<-9
-pairs_panel_data<-SRL_16S_AMSEL[,names(SRL_16S_AMSEL) %in% c(unique(c("Lactobacillus_iners","Gardnerella_vaginalis","Lactobacillus_crispatus","Atopobium_vaginae",Clinical_Visit_RF$top_features$top_features.all)[1:nfeats_plot]),"AMSEL_PREDICTION")]
-pairs.panels(pairs_panel_data,main="proxy-Amsel Prediction Top Features with Gvag, Lcrisp, Avag, Liners")
-dev.off()
-
-```
 ## Normalize & log2 transform small RNA-Seq counts for use in models   
 
 ```{r normalize,eval=TRUE,warning=FALSE}
@@ -1153,15 +1063,13 @@ dev.off()
 load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
 load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
 SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
-#proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
-proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
-##proxy_amsel_predictions<-rowSums(dplyr::select(SRL_16S,c(Gardnerella_vaginalis)))
+#LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
+LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
+##LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Gardnerella_vaginalis)))
 
 
 ## Join the existing metdadata and predicted Amsel diagnosis
-##joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(proxy_amsel_predictions),AMSEL_prediction=proxy_amsel_predictions),by="Pre_QC_ID")
-
-joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(proxy_amsel_predictions),AMSEL_prediction=proxy_amsel_predictions),by="Pre_QC_ID")
+joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(LACTO_PROP),LACTO_PROP=LACTO_PROP),by="Pre_QC_ID")
 row.names(joined_meta_amselPred)<-joined_meta_amselPred$Pre_QC_ID
 
 ##Store the joined data as features_metadata
@@ -1177,8 +1085,8 @@ summary_sid.group<-ddply(pData(counts_meta.qc),c("SID","BVGroup"),summarise,N=le
 print(paste0("A total of ",sum(summary_sid.group$N)," samples, representing ",sum(summary_group.uniqSID$N)," unique subjects from one of 3 longitudinal groups were used in the final analysis"))
 
 ## Subset metadata for easier handling downstream
-selected_metadata<-dplyr::select(pData(features_metadata),c(SID,NUGENT_SCORE,AMSEL_prediction,Pre_QC_ID,CST)) 
-#selected_metadata<-dplyr::select(pData(features_metadata),c(SID,VAG_INT,FING_PEN,contains("SEX"),symptoms,symptoms_nonBV,BirthControl,NUGENT_SCORE,AMSEL_prediction,Pre_QC_ID,MENSTRUATION_NORMALIZED_PHASED,CST)) ## CSTs are *NOT* used in model input, but are instead passed along to top mir expression plot/table downstream. Remove CST from running in model.  
+selected_metadata<-dplyr::select(pData(features_metadata),c(SID,NUGENT_SCORE,LACTO_PROP,Pre_QC_ID,CST)) 
+#selected_metadata<-dplyr::select(pData(features_metadata),c(SID,VAG_INT,FING_PEN,contains("SEX"),symptoms,symptoms_nonBV,BirthControl,NUGENT_SCORE,LACTO_PROP,Pre_QC_ID,MENSTRUATION_NORMALIZED_PHASED,CST)) ## CSTs are *NOT* used in model input, but are instead passed along to top mir expression plot/table downstream. Remove CST from running in model.  
 
 ##Store only counts expressed 'above 0' to reduce noise in RF models
 min(exprs(features_metadata))
@@ -1188,15 +1096,15 @@ expressed_above_0<-exprs(features_metadata)[rowSums(exprs(features_metadata)!=0)
 model_input<-data.frame(t(expressed_above_0),selected_metadata)
 row.names(model_input)<-model_input$Pre_QC_ID
 model_input<-dplyr::select(model_input,-Pre_QC_ID)
-model_input$AMSEL_prediction<-as.numeric(model_input$AMSEL_prediction)
-##model_input$AMSEL_prediction<-as.character(model_input$AMSEL_prediction)
+model_input$LACTO_PROP<-as.numeric(model_input$LACTO_PROP)
+##model_input$LACTO_PROP<-as.character(model_input$LACTO_PROP)
 names(model_input)<-gsub(gsub(gsub(names(model_input),pattern = "mir.",replacement = "miR-"),pattern = "hsa.",replacement = ""),replacement ="-",pattern = "\\.")
 
 ##/// Subset model_input into the inputs for Amsel and Nugent RF
-model_input_Amsel<-dplyr::select(model_input[!is.na(model_input$AMSEL_prediction),],-c(NUGENT_SCORE,CST))## Keep CSTs in model_input, just not Amsel or Nugent input
-#model_input_Nugent<-dplyr::select(model_input[!is.na(model_input$NUGENT_SCORE),],-c(AMSEL_prediction,CST)) ## Keep CSTs in model_input, just not Amsel or Nugent input
+model_input_Lactobacillus<-dplyr::select(model_input[!is.na(model_input$LACTO_PROP),],-c(NUGENT_SCORE,CST))## Keep CSTs in model_input, just not Amsel or Nugent input
+#model_input_Nugent<-dplyr::select(model_input[!is.na(model_input$NUGENT_SCORE),],-c(LACTO_PROP,CST)) ## Keep CSTs in model_input, just not Amsel or Nugent input
 
-model_input_Amsel[is.na(model_input_Amsel)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
+model_input_Lactobacillus[is.na(model_input_Lactobacillus)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
 #model_input_Nugent[is.na(model_input_Nugent)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
 
 ##ADD QC STAGE TO SRL_meta_table, then write to disk
@@ -1219,16 +1127,16 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 ### Random Forest
 ## //////////
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
-##model_input_Amsel$AMSEL_prediction<-as.numeric(model_input_Amsel$AMSEL_prediction)
-Lacto_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
-                           response_variable_name = "AMSEL_prediction",
+##model_input_Lactobacillus$LACTO_PROP<-as.numeric(model_input_Lactobacillus$LACTO_PROP)
+Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus,
+                           response_variable_name = "LACTO_PROP",
                            subj_spec =T,
                            nfold = nfolds,
                            nreps = npermutes,
-                           permute = F,
+                           permute = T,
                            save_model = T,
                            file_n = "Lacto_RF",
-                           load_prev_model = F,
+                           load_prev_model = T,
                            verbose = F,
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
@@ -1237,7 +1145,8 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Amsel,
 ##Store op Nugent RF features
 Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = F),]
 (Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$importance[Lacto_RF$importance$X.IncMSE>=2,]))
-#(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold | Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold,]))
+Lacto_RF$rfp$importance_w_pval
+(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold & Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold ,]))
 Nugent_RF<-Lacto_RF
 ##Calculate accuracy/mean abs error
 accuracy_table.Nugent<-Nugent_RF$accuracy_table
@@ -1252,9 +1161,9 @@ print(paste0("The Nugent-RF model correctly predicted the Nugent score within ",
 
 ### Tables
 ## Write model input table to file, keeping only variables that were used in either Nugent-RF or Amsel-RF
-model_input.out<-model_input[,names(model_input) %in% unique(c(names(model_input_Amsel)))]
+model_input.out<-model_input[,names(model_input) %in% unique(c(names(model_input_Lactobacillus)))]
 
-predictor_names<-names(dplyr::select(model_input.out,-c(AMSEL_prediction,SID)))
+predictor_names<-names(dplyr::select(model_input.out,-c(LACTO_PROP,SID)))
 predictor_names.miRs<-sum(grepl(predictor_names,pattern = "miR|let"))
 print(paste0("The Lacto-RF models used ",length(predictor_names)," predictors including ",predictor_names.miRs," non-zero log2 transformed miRNA read counts and ",length(predictor_names)-predictor_names.miRs," metadata variables as inputs to rank feature importance (",TABLE_MODEL_INPUT,")."))
 
@@ -1265,7 +1174,7 @@ model_input.out[row.names(model_input.out) %in% Lacto_RF$testing_ids,"Lacto_RF_t
 write.csv(model_input.out,paste0(thesis_tables_directory,TABLE_MODEL_INPUT),row.names=T,quote=F)
 
 ## Combine both RF models' importance information as a single table
-TABLE_RF_SUMMARY_output<-data.frame(features=names(model_input %>% dplyr::select(-c(AMSEL_prediction,NUGENT_SCORE,SID))))
+TABLE_RF_SUMMARY_output<-data.frame(features=names(model_input %>% dplyr::select(-c(LACTO_PROP,NUGENT_SCORE,SID))))
 TABLE_RF_SUMMARY_output<-data.frame(features=row.names(Lacto_RF$rfp$importance_w_pval),AMSEL=Lacto_RF$rfp$importance_w_pval)
 
 write.csv(TABLE_RF_SUMMARY_output,file=paste0(thesis_tables_directory,TABLE_RF_SUMMARY),row.names=F,quote=F)
@@ -1288,10 +1197,10 @@ plot(Lacto_RF.plot)
 dev.off()
 
 
-topmir_plot_data<-model_input[!is.na(model_input$NUGENT_SCORE),names(model_input) %in% c("NUGENT_SCORE","AMSEL_prediction","CST",as.character(top_mirs_table$miRNA))]
+topmir_plot_data<-model_input[!is.na(model_input$NUGENT_SCORE),names(model_input) %in% c("NUGENT_SCORE","LACTO_PROP","CST",as.character(top_mirs_table$miRNA))]
 topmir_plot_data$CST<-as.character(topmir_plot_data$CST)
 
-topmir_plot_data<-melt(topmir_plot_data,id.vars = c("NUGENT_SCORE","AMSEL_prediction","CST"))
+topmir_plot_data<-melt(topmir_plot_data,id.vars = c("NUGENT_SCORE","LACTO_PROP","CST"))
 
 topmir_plot_data$variable<-gsub(topmir_plot_data$variable,pattern = "hsa.mir.",replacement = "miR-")
 
@@ -1317,7 +1226,7 @@ topmir_plot_data[topmir_plot_data$CST %in% c("I-A","I-B"),"CST"]<-"I"
 
 ## Plot the miRNA expression figure
 PLOT_EXPRESSION<-
-  ggplot(topmir_plot_data,aes(x=AMSEL_prediction,y=value))+
+  ggplot(topmir_plot_data,aes(x=LACTO_PROP,y=value))+
   stat_smooth(method = "lm",col='#FF5733',se=F)+ #
   geom_point(aes(col=as.factor(CST)),size=3,show.legend = T)+
   facet_wrap(~variable,scales = "free_y",nrow=2)+
@@ -1336,7 +1245,7 @@ dev.off()
 library(Boruta)
 
 postscript(paste0(R_script_output_directory,"Boruta_optimization.ps"))
-Nugent_RF.Boruta<-Boruta(x=dplyr::select(model_input_Amsel,-c(SID)),y=model_input_Amsel$AMSEL_prediction)
+Nugent_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID)),y=model_input_Lactobacillus$LACTO_PROP)
 plot(Nugent_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
 Nugent_RF.Boruta$finalDecision[Nugent_RF.Boruta$finalDecision=="Confirmed"]
 
