@@ -1152,7 +1152,7 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus
                            permute = T,
                            save_model = T,
                            file_n = "Lacto_RF",
-                           load_prev_model = T,
+                           load_prev_model = F,
                            verbose = F,
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
@@ -1261,7 +1261,7 @@ dev.off()
 library(Boruta)
 
 postscript(paste0(R_script_output_directory,"Boruta_optimization.ps"))
-Nugent_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID)),y=model_input_Lactobacillus$LACTO_PROP)
+Nugent_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID,LACTO_PROP)),y=model_input_Lactobacillus$LACTO_PROP)
 plot(Nugent_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
 Nugent_RF.Boruta$finalDecision[Nugent_RF.Boruta$finalDecision=="Confirmed"]
 

@@ -1,3 +1,4 @@
-*log.txt
-*eps
-*ps
+**.log.txt
+**.eps
+**.ps
+*.eps
