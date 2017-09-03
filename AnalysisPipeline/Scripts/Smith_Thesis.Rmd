@@ -24,6 +24,22 @@ Script_input contains static data used by script (previously generated and forma
 
 Some library installation may be required (e.g., install.packages("PACKAGE"))
 
+** Some packages may mask fucntions from other packages. Not sure how to remedy this, except for explicilty calling all functions with the package name. 
+** cairo_ps may not function proportly on macOS systems without XQuartz (https://www.xquartz.org). Either download Xquartz or subsititue cairo_ps for postscript(). Note that postscript() is not able to print transparency. 
+
+
+Need to followup
+
+-Figure 2_2_X
+-Ref Gvag vs Media-- RNAseq vs qPCR
+-GO figure
+-Figure_3_4 and 5?
+-Sctaych area vs EdU
+-Drop RF figure
+-Choose only one filtering metric for RF
+-Long plots- only the Lacto RA 
+
+
 ```{r timestamp1}
 timestamp()
 # Clear enviornment variables, set root 
@@ -1537,8 +1553,12 @@ qpcr_sigtest[qpcr_sigtest$ref=="G. vaginalis","lt"]<-1#"dashed"
 qpcr_sigtest[qpcr_sigtest$ref=="Cell Culture Medium","lt"]<-3#"solid"
 cairo_ps(paste0(R_script_output_directory,"miR_long_plot_presentation.eps"),width = 11.5,height = 6)
 ## Plot qPCR Timecourse (put lactic acid comparison in sep. figure)
+
 PLOT_QPCR_TIMECOURSE<-
-  ggplot(filter(qpcr_sigtest,reference=="G. vaginalis" & !grepl(qpcr_sigtest$comparison,pattern = "_10|_766|0_")), #& qpcr_sigtest$reference== "G. vaginalis"),
+ # ggplot(filter(qpcr_sigtest,reference=="G. vaginalis" &
+   ggplot(filter(qpcr_sigtest,reference=="Cell Culture Medium" &
+                   comp %in% c("L. crispatus","L. jensenii","L. iners")&
+  !grepl(qpcr_sigtest$comparison,pattern = "_10|_766|0_")), #& qpcr_sigtest$reference== "G. vaginalis"),
          aes(x=ExposureTime.n,y=-mean_diff,col=comp))+
   theme_bw()+
   geom_hline(yintercept = 0,col="#9e9ac8",size=2.5)+
