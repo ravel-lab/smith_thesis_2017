@@ -626,8 +626,8 @@ mapping_stats<-function(column=pData(counts_meta.qc)$number_reads_mirs){
 
 ## Plot RF Importance variables. Output is a plot
 
-plot_importance<-function(importance_df=Nugent_RF$importance, ## Data frame holding importance results
-                          ntopfeats=length(Nugent_RF$top_features$top_features.all), ## number of features to plot
+plot_importance<-function(importance_df=Lacto_RF$importance, ## Data frame holding importance results
+                          ntopfeats=length(Lacto_RF$top_features$top_features.all), ## number of features to plot
                           nfeats=25,#max # of features to plot
                           rankBy="IncMSE", ## Importance variable to rank by
                           model_name="",
@@ -1143,7 +1143,7 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 ### Random Forest
 ## //////////
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
-##model_input_Lactobacillus$LACTO_PROP<-as.numeric(model_input_Lactobacillus$LACTO_PROP)
+
 Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus,
                            response_variable_name = "LACTO_PROP",
                            subj_spec =T,
@@ -1152,20 +1152,19 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus
                            permute = T,
                            save_model = T,
                            file_n = "Lacto_RF",
-                           load_prev_model = F,
+                           load_prev_model = T,
                            verbose = F,
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
-
 
 ##Store op Nugent RF features
 Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = F),]
 (Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$importance[Lacto_RF$importance$X.IncMSE>=2,]))
 Lacto_RF$rfp$importance_w_pval
 (Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold & Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold ,]))
-Nugent_RF<-Lacto_RF
+
 ##Calculate accuracy/mean abs error
-accuracy_table.Nugent<-Nugent_RF$accuracy_table
+accuracy_table.Nugent<-Lacto_RF$accuracy_table
 (mean_absolute_error.Nugent<-sum(abs(accuracy_table.Nugent$predicted- accuracy_table.Nugent$actual))/nrow(accuracy_table.Nugent))
 hist(abs(accuracy_table.Nugent$predicted- accuracy_table.Nugent$actual))
 plot(accuracy_table.Nugent$predicted, accuracy_table.Nugent$actual)
@@ -1261,9 +1260,9 @@ dev.off()
 library(Boruta)
 
 postscript(paste0(R_script_output_directory,"Boruta_optimization.ps"))
-Nugent_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID,LACTO_PROP)),y=model_input_Lactobacillus$LACTO_PROP)
-plot(Nugent_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
-Nugent_RF.Boruta$finalDecision[Nugent_RF.Boruta$finalDecision=="Confirmed"]
+Lacto_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID,LACTO_PROP)),y=model_input_Lactobacillus$LACTO_PROP)
+plot(Lacto_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
+Lacto_RF.Boruta$finalDecision[Lacto_RF.Boruta$finalDecision=="Confirmed"]
 
 
 dev.off()
@@ -1420,7 +1419,6 @@ cairo_ps(paste0(R_script_output_directory,"miR193b_GOProcess_presentation.eps"),
 plot(mir193b_GOcount_groups.plot)
 dev.off()
 
-
 ```
 
 # Function of miR-193b and in vitro Experimentation, Implications  
@@ -1475,19 +1473,44 @@ Primers:
 # Calculate mean & s.d. Ct values for each BCS/time point. 
 load(file=paste0(R_script_input_directory,"qPCR_time_course.Rdata")) ## Ct values
 load(file=paste0(R_script_input_directory,"qpcr_sigtest.Rdata")) ## Container for holding sig testing comparisons/results
+nd<-read.table("~/Desktop/new_qpcr_data.txt",header = T,sep = "\t")
+
+qPCR_time_course<-rbind.fill(nd,qPCR_time_course)
 
 qPCR_time_course.summary<-ddply(qPCR_time_course,c("Study","ExposureTime","BCS"),summarise,m_193b=mean(miR193b_Ct,na.rm = T),sd_193b=sd(miR193b_Ct,na.rm = T),
                                 m_R6=mean(RNU6_Ct,na.rm = T),sd_R6=sd(RNU6_Ct,na.rm = T))
-
+##qPCR_time_course.summary m, sd of Cts 
+qPCR_time_course$ExposureTime.n<-as.numeric(gsub(qPCR_time_course$ExposureTime,pattern = "hr",replacement = ""))
+write.csv(qPCR_time_course,"~/all_qpcr.csv",quote = F,row.names = F)
+ggplot()+geom_point(data=dplyr::filter(qPCR_time_course,BCS %in% c("L. crispatus","L. jensenii","L. iners", "G. vaginalis","Cell Culture Medium") & Study %in% c("study_6", "study_5")),aes(x=ExposureTime.n,y=miR193b_Ct,col=BCS,pch=Study))#+
+#  geom_jitter(data=dplyr::filter(qPCR_time_course,BCS %in% c("L. crispatus","L. jensenii","L. iners", "G. vaginalis","Cell Culture Medium")),aes(x=ExposureTime.n,y=miR193b_Ct,col=BCS))+facet_wrap(~Study)
 ## Calcualte delta Ct using RNU6 as endogenous control. Calcualte standard deviation using propagation of error
 qPCR_time_course.summary$deltaCt.RNU6<-qPCR_time_course.summary$m_193b-qPCR_time_course.summary$m_R6
 qPCR_time_course.summary$deltaCt.RNU6.sd<-sqrt(qPCR_time_course.summary$sd_193b^2+qPCR_time_course.summary$sd_R6^2)
+
 # 
+## sd delta Ct =deltaCt.RNU6.sd
+dev.off()
+
+
+qpcr_sigtest<-rbind.fill(qpcr_sigtest,
+data.frame(reference="Cell Culture Medium",
+           ExposureTime=c(rep(c("8hr","16hr","19hr"),each=2)),
+                   #  ExposureTime.n=c(rep(c(8,16,19),each=3)),
+           comparison=rep(c("L. jensenii","L. iners"),times=3),
+          
+           #ref="Cell Culture Medium",
+           
+           Study.ref="study_6",Study.comp="study_6"
+           ))
+
+rm_rows<-qPCR_time_course.summary[is.na(qPCR_time_course.summary$sd_193b),c("ExposureTime","BCS")]
+qpcr_sigtest<-qpcr_sigtest[!(qpcr_sigtest$comparison %in% rm_rows$BCS & qpcr_sigtest$ExposureTime %in% rm_rows$ExposureTime),]
+qPCR_time_course.summary[!is.na(qPCR_time_course.summary$sd_193b),]
 
 ## calcualte signifigance using delta Ct mean + s.d., which uses a modified t.test2 function. 
 ## Loop through the comparisons and test pair-wise
 for(sigtest in 1:nrow(qpcr_sigtest)){
-  
   timei<-as.character(qpcr_sigtest[sigtest,"ExposureTime"]) # TIme point
   x1<-as.character(qpcr_sigtest[sigtest,"comparison"]) ## Comparison sample
   y1<-as.character(qpcr_sigtest[sigtest,"reference"]) ## Reference sample
@@ -1496,7 +1519,7 @@ for(sigtest in 1:nrow(qpcr_sigtest)){
   study.x<-as.character(qpcr_sigtest[sigtest,"Study.comp"])
   study.y<-as.character(qpcr_sigtest[sigtest,"Study.ref"])
   
-  # Standard deviations, as computed above 
+  # Standard deviations, as computed above (actually a delta Ct sd) 
   sx <- filter(qPCR_time_course.summary,BCS==x1 & ExposureTime==timei & Study==study.x)$deltaCt.RNU6.sd
   sy<-filter(qPCR_time_course.summary,BCS==y1 & ExposureTime==timei  & Study==study.y)$deltaCt.RNU6.sd
   
@@ -1551,8 +1574,9 @@ qpcr_sigtest$comp<-as.character(qpcr_sigtest$comparison)
 ## Assign line types
 qpcr_sigtest[qpcr_sigtest$ref=="G. vaginalis","lt"]<-1#"dashed"
 qpcr_sigtest[qpcr_sigtest$ref=="Cell Culture Medium","lt"]<-3#"solid"
-cairo_ps(paste0(R_script_output_directory,"miR_long_plot_presentation.eps"),width = 11.5,height = 6)
+#cairo_ps(paste0(R_script_output_directory,"miR_long_plot_presentation.eps"),width = 11.5,height = 6)
 ## Plot qPCR Timecourse (put lactic acid comparison in sep. figure)
+
 
 PLOT_QPCR_TIMECOURSE<-
  # ggplot(filter(qpcr_sigtest,reference=="G. vaginalis" &
