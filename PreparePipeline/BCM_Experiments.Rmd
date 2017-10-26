@@ -1,0 +1,590 @@
+---
+title: "BCM_Experiments - 100916 & 101016"
+author: "Steven Smith"
+date: "October 13, 2016"
+output: html_document
+---
+
+The LCM experiments measure specific miRNAs of vaginal cells (VK2 & A2EN) exposed to various BCMs. qPCR is measured with QIAGEN miScript II kit, LCMs are:   
+*  L.crispatus  
+*  L. iners  
+*  G.vaginalis   
+*  Media control    
+
+Cell type for monolayer epithelial cells:   
+* A2EN    
+* VK2    
+
+BCMs exposed to monolayer epithelial cells for:   
+* 60 minutes (1:1 dilution)    
+
+Primer choices are:   
+* hsa-miR-193b-3p   
+* hsa-miR-103a-1   
+* hsa-miR-221   
+* hsa-miR-RNU6   
+
+```{r}
+library(ggplot2)
+library(reshape)
+library(tidyr)
+library(dplyr)
+library(plyr)
+#rm(list=ls())
+
+```
+## Load & format data
+```{r,load_data}
+LCM<-NULL
+root<-"/Volumes/HD-PATU3/StevenSmith_ComputerRecords_2012_2017/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Proliferation/"
+
+lcm.list<-c("100916_101016_A2EN_VK2_CM_miScript","101616_LActicAcid","102016_VK2_phrange","102416/102416_VK2_miScript","110116_BCM_1_5_22hr","110816/110816_vK2_run2","110816/110816_vk2_HiFlex_CCND1","112816_BCM","112816_run2_BCM","011217_BCM","011717_BCM_LA","012017_BCM","012617_BCM","022017_BCS","022017_finale","022017_LacticAcid_4hr","042417/042417_LacticAcid","093017_BCS")
+for(l in lcm.list){
+LCM.qpcr<-read.csv(paste0(root,l,".csv"))
+LCM.ph<-read.csv(paste0(root,l,"_ph.csv")) 
+LCM.RNA<-read.csv(paste0(root,l,"_RNA.csv"))
+LCM.new<-left_join(dplyr::select(LCM.qpcr,c(Study,PrimerPair,Sample,Ct,Replicate,CellLine,BCM,ExposureTime)),select(LCM.ph,c(Sample,pH)))
+LCM.new<-left_join(LCM.new,select(LCM.RNA,c(Sample,RINe,Conc_ng_ul)))
+
+LCM<-rbind.fill(LCM,LCM.new)
+}
+
+unique(LCM$Study)
+LCM[LCM$ExposureTime=="4hr" & LCM$BCM=="GVAG" |  LCM$BCM=="MEDIA",]
+LCM.tmp<-read.csv(paste0(root,"102416/102416_VK2_miScript","_pH.csv"))
+LCM<-left_join(LCM,LCM.tmp)
+
+LCM<-filter(LCM,!is.na(LCM$Study) & !grepl(LCM$Sample,pattern = "NTC"))
+LCM$RNA_Input<-LCM$Conc_ng_ul*7
+LCM$ExposureTime<-factor(LCM$ExposureTime,levels = c("0hr","0.5hr","1hr","2hr","4hr","6hr","8hr","11hr","13hr","15Hr","16hr","19hr","20hr","22hr","SP","N_A"),ordered = T)
+LCM[LCM$Sample=="022017_sub2_LiNERS_13hr",]
+LA_10_12<-paste0(rep(c("D_","L_","DL_"),each=3),rep(c("12","10","8"),times=3))
+LA_ph<-c("PH_733","PH_755","PH_766")
+LCM$BCM<-factor(LCM$BCM,ordered = T,levels = c("LCRISP","LINERS","LJENS","GVAG","MEDIA","LACTICACID","NTC","0hr","CONTROL","FASC_INHIBITOR","SIS_INHIBITOR","CK4_INHIBITOR",paste0(rep(c("DL_","L_"),each=2),rep(c("0_08","0_06"),times=2)),paste0(rep(c("0_08_","0_06_"),times=3),rep(c("DL","L","D"),each=2)),LA_10_12,LA_ph),labels = c("L. crispatus","L. iners","L. jensenii","G. vaginalis","Cell Culture Medium","lactic acid","Negative Control","0hr","CONTROL","FASC_INHIBITOR","SIS_INHIBITOR","CK4_INHIBITOR",paste0(rep(c("DL_","L_"),each=2),rep(c("0_08","0_06"),times=2)),paste0(rep(c("0_08_","0_06_"),times=3),rep(c("DL","L","D"),each=2)),LA_10_12,LA_ph))
+
+```
+## Analyze & Plot
+```{r,sublook,eval=F}
+LCM.tmp<-read.csv(paste0(root,"110816/110816_vK2",".csv"))
+ggplot(filter(LCM.tmp,!LA_CONC==""))+geom_point(aes(x=LA_CONC,y=-Ct,col=PrimerPair))+facet_wrap(~LA_ISOMER)
+
+DLLA<-spread(select(LCM.tmp,c(PrimerPair,Ct,LA_ISOMER,LA_CONC,Replicate)) %>% filter(!LA_CONC==""),PrimerPair,value=Ct)
+DLLA<-data.frame(DLLA,deltaCt=DLLA$`miR-193b`-DLLA$RNU6)
+
+ggplot(LCM[grepl(LCM$Study,pattern = "0424"),])+geom_point(aes(x=BCM,y=Ct,col=BCM,pch=PrimerPair))
+
+ggplot(DLLA)+geom_point(aes(x=LA_CONC,y=-deltaCt,col=LA_ISOMER))
+
+ggplot(LCM)+geom_point(aes(x=Sample,y=-Ct,col=PrimerPair),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))+  ggtitle("All Ct Results BCM & LacticAcid exposed A2EN & VK2s")
+
+ggplot(filter(LCM,grepl(LCM$Study,pattern = "110816")))+geom_point(aes(x=BCM,y=-Ct,col=PrimerPair,pch=Study),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))+  ggtitle("From the 110816 studies")
+
+ggplot(filter(LCM,grepl(LCM$Study,pattern = "22017|11717")))+geom_point(aes(x=Sample,y=-Ct,col=PrimerPair,pch=Study),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))+  ggtitle("From the 22017|11717 studies")
+
+
+ggplot(filter(LCM,grepl(LCM$Study,pattern = "OTHER|22017")))+geom_point(aes(x=Sample,y=-Ct,col=PrimerPair,pch=Study),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))+  ggtitle("From the 022017 studies")
+
+CCDN1_studies<-unique(LCM[LCM$PrimerPair=="CCND1","Study"])
+ggplot(filter(LCM,LCM$Study %in% c(unique(LCM[LCM$PrimerPair=="CCND1","Study"]))))+geom_point(aes(x=BCM,y=-Ct,col=PrimerPair,pch=Study),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))+  ggtitle("From any study with CCND1")
+LCM<-filter(LCM,!(BCM=="DL_0_06" & Ct>30))
+
+ggplot(filter(LCM,grepl(LCM$Study,pattern = "112816")))+geom_point(aes(x=Conc_ng_ul,y=-Ct,pch=PrimerPair,col=BCM),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))+  ggtitle("From the 112816 studies")
+
+ggplot(filter(LCM,grepl(LCM$Study,pattern = "112816")))+geom_point(aes(x=Conc_ng_ul,y=-Ct,pch=PrimerPair,col=Study),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))+  ggtitle("From the 112816 studies")
+
+ggplot(LCM)+geom_point(aes(x=RNA_Input,y=-Ct,col=PrimerPair),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))+xlab("Amount RNA Input (ng)")+  ggtitle("All Results BCM & LacticAcid exposed A2EN & VK2s")
+
+ggplot(LCM)+geom_histogram(aes(x=RNA_Input))+geom_histogram(data=filter(LCM,Study=="12617"),aes(x=RNA_Input,fill='red'))
+ggplot(LCM)+geom_point(aes(x=RNA_Input,y=-Ct,col=Study),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))+xlab("Amount RNA Input (ng)")+  ggtitle("All Results BCM & LacticAcid exposed A2EN & VK2s")
+
+ggplot(LCM)+geom_point(aes(x=RINe,y=-Ct,col=PrimerPair),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))+xlab("RINe")+  ggtitle("All Results BCM & LacticAcid exposed A2EN & VK2s")
+```
+
+```{r analyze}
+LCM.spread<-spread(select(LCM,c(Study,PrimerPair,Study,Sample,Ct,Replicate,CellLine,BCM,pH,RINe,ExposureTime,RNA_Input,LacticAcid_D_g_L,LacticAcid_L_g_L)),key = PrimerPair,value = Ct)
+
+LCM.spread.summary<-ddply(LCM.spread,c("Sample"),summarise,
+      m_193b=mean(`miR-193b`,na.rm = T),sd_193b=sd(`miR-193b`,na.rm = T),
+      m_R6=mean(RNU6,na.rm = T),sd_R6=sd(RNU6,na.rm = T),
+      m_CCND1=mean(CCND1,na.rm = T),sd_CCND1=sd(CCND1,na.rm = T))
+LCM.spread.summary$deltaCt.RNU6<-LCM.spread.summary$m_193b-LCM.spread.summary$m_R6
+LCM.spread.summary$deltaCt.RNU6.sd<-sqrt(LCM.spread.summary$sd_193b^2+LCM.spread.summary$sd_R6^2)
+
+LCM.spread.summary$deltaCt.CCND1<-LCM.spread.summary$m_CCND1-LCM.spread.summary$m_R6
+LCM.spread.summary$deltaCt.CCND1.sd<-sqrt(LCM.spread.summary$sd_CCND1^2+LCM.spread.summary$sd_R6^2)
+
+LCM.spread.summary<-inner_join(LCM.spread.summary,unique(select(LCM,c(Study,Sample, pH, BCM, CellLine, RNA_Input,ExposureTime,LacticAcid_D_g_L,LacticAcid_L_g_L))))
+```
+## Prepare table for manuscript
+```{r prep_manuscript}
+  #"042417","022017_run_0424"
+  qPCR_time_course<-filter(LCM.spread,!BCM %in% c("negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017","22017_rerunMarch","042417","022017_run_0424","93017","52917") ) %>% select(c(Study,Sample,Replicate,BCM,ExposureTime,`miR-193b`,RNU6))
+qPCR_time_course[qPCR_time_course$Study %in% c("93017","52917"),]
+qPCR_time_course<-filter(qPCR_time_course, !is.na(BCM)  & !BCM %in% c("lactic acid","negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017","22017_rerunMarch","11717","22017","22017_rerunMarch","042417","022017_run_0424","93017","52917")) 
+
+qPCR_time_course$Study.comp<-factor("study_1",levels=c("study_1","study_2","study_3","LA"))
+qPCR_time_course$Study.ref<-factor("study_1",levels=c("study_1","study_2","study_3","LA"))
+qPCR_time_course[qPCR_time_course$Study2=="022017_sub2",c("Study.comp","Study.ref")]<-factor("study_2") ###factor("study_2",levels=c("study_1","study_2","LA"))
+qPCR_time_course[grepl(pattern = "0_06",x = qPCR_time_course$BCM),c("Study.comp","Study.ref")]<-factor("LA")
+
+qPCR_time_course[,c("Study.comp","Study.ref")]<-factor("study_1")
+qPCR_time_course[qPCR_time_course$Study %in% c("022017_sub2"),c("Study.comp","Study.ref")]<-factor("study_2")
+qPCR_time_course[qPCR_time_course$Study=="22017_rerunMarch",c("Study.comp","Study.ref")]<-factor("LA")
+qPCR_time_course<-qPCR_time_course[!(qPCR_time_course$Study=="22017" & grepl(qPCR_time_course$BCM,pattern = "0_06")),]
+qPCR_time_course[qPCR_time_course$Study=="022017_run_0424",c("Study.comp","Study.ref")]<-"study_3"
+qPCR_time_course[qPCR_time_course$Study=="042417",c("Study.comp","Study.ref")]<-"study_4"
+qPCR_time_course[qPCR_time_course$Study=="93017",c("Study.comp","Study.ref")]<-"study_5"
+qPCR_time_course<-qPCR_time_course[!(qPCR_time_course$Study=="93017"  & qPCR_time_course$BCM=="L. iners" & qPCR_time_course$ExposureTime %in% c("16hr","19hr")),]
+qPCR_time_course<-qPCR_time_course[!(qPCR_time_course$Study=="93017"  & qPCR_time_course$BCM=="Cell Culture Medium" & qPCR_time_course$ExposureTime %in% c("8hr")),]
+qPCR_time_course[qPCR_time_course$Study=="52917"  #& qPCR_time_course$BCM=="L. iners"
+                 ,c("Study.comp","Study.ref")]<-"study_5"
+
+qPCR_time_course<-qPCR_time_course[qPCR_time_course$BCM %in% c("L. crispatus","L. iners", "L. jensenii", "G. vaginalis", "Cell Culture Medium", "D_10","L_10","0_06_D","0_06_L","PH_766","PH_755","PH_733"),!names(qPCR_time_course) %in% c("Sample","Study")] #"0_06_D","0_06_DL","0_06_L","D_12","D_8","L_12","DL_12","DL_10","DL_8","L_8"
+
+qPCR_time_course<-dplyr::rename(qPCR_time_course,"BCS"=BCM,"miR193b_Ct"=`miR-193b`,"RNU6_Ct"=RNU6,"Study"=Study.comp)
+#write.csv(qPCR_time_course,"~/timecourse.csv")
+qPCR_time_course<-select(qPCR_time_course,c(Study,BCS,ExposureTime,miR193b_Ct,RNU6_Ct))
+qPCR_time_course<-filter(qPCR_time_course,!ExposureTime=="SP")
+qPCR_time_course<-filter(qPCR_time_course,!(Study=="study_2" & BCS %in% c("L. crispatus", "L. iners")))
+qPCR_time_course<-filter(qPCR_time_course,!BCS=="0_06_DL")
+qPCR_time_course
+
+final_dir<-"/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/"
+save(qPCR_time_course,file=paste0(final_dir,"qPCR_time_course.Rdata"))
+save(qPCR_time_course,file=paste0(root,"qPCR_time_course.Rdata"))
+
+  
+qpcr_sigtest<-data.frame(
+  comparison=rep(c("L. crispatus","L. jensenii","L. iners"),each=2),
+  reference=rep(c("G. vaginalis","Cell Culture Medium"),times=3),
+ExposureTime=paste0(rep(c(0.5,1,4,8,11,13,16,19,22),each=6),"hr"),
+                         Study.ref=factor("study_1",levels=c("study_1","study_2","study_5","LA")),
+                         Study.comp=factor("study_1",levels=c("study_1","study_2","study_5","LA")))
+qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(
+  comparison=c(rep(c("0_06_L","0_06_D"),times=2),"0_06_L"),
+ reference=c(rep(c("G. vaginalis","Cell Culture Medium"),each=2),"0_06_D"),ExposureTime="4hr",
+                         Study.ref=factor("study_1",levels=c("study_1","study_2","LA")),
+                         Study.comp=factor("study_1",levels=c("study_1","study_2","LA"))))
+
+qpcr_sigtest[qpcr_sigtest$comparison=="L. jensenii" & qpcr_sigtest$ExposureTime %in% c("4hr","13hr","22hr"),c("Study.comp","Study.ref")]<-"study_2"
+
+qpcr_sigtest[qpcr_sigtest$reference=="L. jensenii" & qpcr_sigtest$ExposureTime %in% c("4hr","13hr","22hr"),c("Study.comp","Study.ref")]<-"study_2"
+
+qpcr_sigtest[ grepl(qpcr_sigtest$comparison,pattern = "0_06") ,  c("Study.comp","Study.ref")]<-"LA"
+qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(comparison=c("D_10","D_10","D_10","L_10","L_10","PH_766","PH_766"),reference=c("L_10","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium"),ExposureTime="4hr",Study.comp="study_4",Study.ref=c("study_4","study_3","study_3","study_3","study_3","study_3","study_3")))
+qpcr_sigtest[qpcr_sigtest$ExposureTime %in% c("8hr","16hr","19hr") ,c("Study.ref","Study.comp")]<-"study_5"
+
+save(qpcr_sigtest,file="/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/qpcr_sigtest.Rdata")
+  
+```
+
+```{r other}
+
+  ggplot(filter(LCM.spread.summary,Study %in% CCDN1_studies))+geom_point(aes(x=BCM,y=-deltaCt.RNU6,fill=BCM,col=BCM,pch=Study),size=6,show.legend = T)+theme_bw()+facet_wrap(~ExposureTime)+ggtitle("miR-193b in CCND1 studies")
+  
+   
+  ggplot(filter(LCM.spread.summary,Study %in% CCDN1_studies))+geom_point(aes(x=BCM,y=-deltaCt.CCND1,fill=BCM,col=BCM,pch=Study),size=6,show.legend = T)+theme_bw()+facet_wrap(~ExposureTime)+ggtitle("CCND1 in CCND1 studies")
+
+ggplot(filter(LCM.spread),aes(x=CCND1,y=`miR-193b`,col=Study))+geom_point()
+   
+ggplot(filter(LCM.spread),aes(x=RNU6,y=`miR-193b`,col=Study))+geom_point()
+    
+     ggplot(filter(LCM.spread),aes(x=CCND1,y=RNU6,col=Study))+geom_point()
+    
+
+  ggplot(LCM.spread.summary)+geom_point(aes(x=BCM,y=-deltaCt.CCND1,fill=BCM,col=BCM))
+  LCM.spread.summary$Sample
+  
+  ggplot(filter(LCM.spread.summary,Study=="22017"))+geom_point(aes(y=-deltaCt.RNU6,x=BCM,col=ExposureTime))
+  #cairo_ps("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/Working/Figures/FIGURE_4.eps",width = 9,height = 6)
+  cairo_ps("~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/FIGURE_4_wLA.eps",width = 9,height = 6)
+LCM.spread.summary$Sample
+  dct_plot<-ggplot(filter(LCM.spread.summary, !BCM %in% c("lactic acid","negative control","CONTROL")  & Study %in% c("102416","110116","110816","11217","022017_sub2") | Sample %in% c("022017_VK2_LJENS_0.5hr","022017_VK2_LJENS_1hr","022017_VK2_LJENS_11hr","011717_VK2_L_0_06_1hr","011717_VK2_DL_0_08_1hr","011717_VK2_DL_0_06_1hr","011717_VK2_L_0_08_1hr")))+geom_point(aes(x=BCM,y=-deltaCt.RNU6,fill=BCM,col=BCM),size=6,pch=22,show.legend = T)+theme_bw()+
+    geom_errorbar(aes(x=BCM,ymax=-(deltaCt.RNU6+deltaCt.RNU6.sd),ymin=-(deltaCt.RNU6-deltaCt.RNU6.sd),fill=BCM,col=BCM),show.legend = F)+
+  ylab(expression(paste("-",Delta,"Ct")))+
+  facet_wrap(~ExposureTime,nrow=1)+theme(plot.margin=unit(c(0,0,0,0),units = "pt"),axis.text.x = element_blank(), text=element_text(size=16))+ #element_text(angle = 90,size=14),
+scale_fill_manual(values = c("L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange',"L.jensenii"='brown',"Cell Media"='blue',"DL_0_08"='#fbb4b9',"DL_0_06"='#ae017e',"L_0_08"='#cbc9e2',"L_0_06"='#6a51a3'))+ #'#91bfdb'
+  scale_colour_manual(values = c("L.crispatus"='#990000',
+                                 #rgb(252/255,90/255,70/255),
+                                 "G.vaginalis"='#088A68',"Cell Media"='darkblue',"L.iners"='darkorange',"L.jensenii"='brown',
+                                 "DL_0_08"='#fbb4b9',"DL_0_06"='#ae017e',"L_0_08"='#cbc9e2',"L_0_06"='#6a51a3'))
+
+plot(dct_plot)
+  dev.off()  
+
+
+  
+  filter(LCM.spread.summary,Sample %in% c("11717_0_06_DL_1hr","11717_0_06_L_1hr","11717_0_08_DL_1hr","11717_0_08_L_1hr","11717_GVAG_1hr","11717_MEDIA_1hr","22017_0_06_D_4hr","22017_0_06_DL_4hr", "22017_0_06_L_4hr","22017_GVAG_4hr" , "22017_MEDIA_4hr" ))
+
+qpcr_sigtest_input
+
+filter(LCM.spread.summary,!is.na(BCM)  & !BCM %in% c("lactic acid","negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017_rerunMarch") & ExposureTime=="4hr" )
+
+
+
+ggplot(filter(LCM.spread.summary,!is.na(BCM)  & !BCM %in% c("lactic acid","negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017_rerunMarch") & ExposureTime=="4hr" )
+)+geom_point(aes(x=BCM,y=-deltaCt.RNU6,fill=BCM,col=BCM),size=6,pch=22,show.legend = T)+theme_bw()+
+    geom_errorbar(aes(x=BCM,ymax=-(deltaCt.RNU6+deltaCt.RNU6.sd),ymin=-(deltaCt.RNU6-deltaCt.RNU6.sd),fill=BCM,col=BCM),show.legend = F)+
+  ylab(expression(paste("-",Delta,"Ct")))+
+  facet_wrap(~ExposureTime,nrow=1)+theme(plot.margin=unit(c(0,0,0,0),units = "pt"),axis.text.x = element_blank(), text=element_text(size=16))#+ #element_text(angle = 90,size=14),
+scale_fill_manual(values = c("L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange',"L.jensenii"='brown',"Cell Media"='blue',"DL_0_08"='#fbb4b9',"DL_0_06"='#ae017e',"L_0_08"='#cbc9e2',"L_0_06"='#6a51a3'))+ #'#91bfdb'
+  scale_colour_manual(values = c("L.crispatus"='#990000',
+                                 #rgb(252/255,90/255,70/255),
+                                 "G.vaginalis"='#088A68',"Cell Media"='darkblue',"L.iners"='darkorange',"L.jensenii"='brown',
+                                 "DL_0_08"='#fbb4b9',"DL_0_06"='#ae017e',"L_0_08"='#cbc9e2',"L_0_06"='#6a51a3'))
+  
+  
+# m1, m2: the sample means
+# s1, s2: the sample standard deviations
+# n1, n2: the same sizes
+# m0: the null value for the difference in means to be tested for. Default is 0. 
+# equal.variance: whether or not to assume equal variance. Default is FALSE. 
+t.test2 <- function(m1,m2,s1,s2,n1,n2,m0=0,equal.variance=FALSE)
+{
+    if( equal.variance==FALSE ) 
+    {
+        se <- sqrt( (s1^2/n1) + (s2^2/n2) )
+        # welch-satterthwaite df
+        df <- ( (s1^2/n1 + s2^2/n2)^2 )/( (s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1) )
+    } else
+    {
+        # pooled standard deviation, scaled by the sample sizes
+        se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*s1^2 + (n2-1)*s2^2)/(n1+n2-2) )
+        
+        df <- n1+n2-2
+    }      
+    t <- (m1-m2-m0)/se 
+    dat <- c(m1-m2, se, t, 2*pt(-abs(t),df))    
+    names(dat) <- c("Difference of means", "Std Error", "t", "p-value")
+    return(dat) 
+}
+
+qpcr_sigtest<-data.frame(x=c(rep("L.crispatus",times=4),rep("L.jensenii",times=3),rep("L.iners",times=2),"G.vaginalis"),y=c("L.jensenii","L.iners","G.vaginalis","Cell Media","L.iners","G.vaginalis","Cell Media","G.vaginalis","Cell Media","Cell Media"),et=paste0(rep(c(0.5,1,4,11,13,22),each=10),"hr"))
+qpcr_sigtest$study2.x<-"study_1"
+qpcr_sigtest$study2.y<-"study_1"
+qpcr_sigtest[ qpcr_sigtest$x %in% c("L.jensenii") & qpcr_sigtest$y %in% c("L.iners","G.vaginalis","Cell Media") &  qpcr_sigtest$et %in% c("4hr","13hr","22hr"),  c("study2.y","study2.x")]<-"study_2"
+
+qpcr_sigtest[ qpcr_sigtest$y %in% c("L.jensenii") &  qpcr_sigtest$et %in% c("4hr","13hr","22hr"),  c("study2.y")]<-"study_2"
+
+select(qpcr_sigtest,c(x,y,et,study2.x,study2.y))
+
+qpcr_sigtest_input<-filter(LCM.spread.summary,!BCM %in% c("lactic acid","negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017") ) 
+qpcr_sigtest_input[qpcr_sigtest_input$Study %in% c("022017_sub2"),"study2.x"]<-"study_2"
+qpcr_sigtest_input[!qpcr_sigtest_input$Study %in% c("022017_sub2"),"study2.x"]<-"study_1"
+qpcr_sigtest_input[qpcr_sigtest_input$Study %in% c("022017_sub2"),"study2.y"]<-"study_2"
+qpcr_sigtest_input[!qpcr_sigtest_input$Study %in% c("022017_sub2"),"study2.y"]<-"study_1"
+
+qpcr_sigtest_input
+qpcr_sigtest_input[ qpcr_sigtest_input$Study %in% c("022017_sub2"),]
+#qpcr_sigtest_input$study2<-qpcr_sigtest_input=="022017_sub2"
+filter(qpcr_sigtest_input,BCM=="L.jensenii") %>% select(Study)
+filter(qpcr_sigtest_input,Study=="022017_sub2")
+filter(qpcr_sigtest_input,study2=="study_2")
+for(sigtest in 1:nrow(qpcr_sigtest)){
+  #sigtest<-54
+  #timei<-"1hr"
+  x1<-as.character(qpcr_sigtest[sigtest,"x"])
+  y1<-as.character(qpcr_sigtest[sigtest,"y"])
+  
+  timei<-as.character(qpcr_sigtest[sigtest,"et"])
+  study.x<-as.character(qpcr_sigtest[sigtest,"study2.x"])
+  study.y<-as.character(qpcr_sigtest[sigtest,"study2.y"])
+  ##if the comparison is L.jense vs cell media at 13, 22, 4 use the cell 
+
+      sx = filter(qpcr_sigtest_input,BCM==x1 & ExposureTime==timei & study2.x==study.x)$deltaCt.RNU6.sd
+    sy=filter(qpcr_sigtest_input,BCM==y1 & ExposureTime==timei  & study2.y==study.y)$deltaCt.RNU6.sd
+
+
+    tes<-t.test2(m1 = filter(qpcr_sigtest_input,BCM==x1 & ExposureTime==timei & study2.x==study.x)$deltaCt.RNU6,
+               m2=filter(qpcr_sigtest_input,BCM==y1 & ExposureTime==timei & study2.y==study.y)$deltaCt.RNU6,
+               s1=sx,
+               s2=sy,
+               n1 = 3,n2=3) 
+  qpcr_sigtest[sigtest,"pval"]<-tes["p-value"]
+  qpcr_sigtest[sigtest,"mean_diff"]<-tes["Difference of means"]
+  
+  qpcr_sigtest[sigtest,"se"]<-sqrt(sy^2+sx^2)#tes["Std Error"]
+  if(-qpcr_sigtest[sigtest,"mean_diff"]<0){
+    qpcr_sigtest[sigtest,"ddct"]<-(-2^(tes["Difference of means"]))
+    qpcr_sigtest[sigtest,"ddct_se"]<-(-2^(tes["Difference of means"]+qpcr_sigtest[sigtest,"se"]))
+    qpcr_sigtest[sigtest,"ddct_se_m"]<-(-2^(tes["Difference of means"]-qpcr_sigtest[sigtest,"se"]))
+  }else{
+  qpcr_sigtest[sigtest,"ddct"]<-2^(-tes["Difference of means"]) ## ddCt >0 implies x transcript is less abundant than y and ddCt<0 implies x is more abudnact than y. The relative magnatitude on a plot of 2^(-x) != 2(x) although the interpretability is the same (transcript is either 2^-x less abudnant than y or 2^x more abudnant than y). Therefore, take absolute ddCt before raising it to 2.   
+  
+  qpcr_sigtest[sigtest,"ddct_se"]<-2^((-tes["Difference of means"])+ qpcr_sigtest[sigtest,"se"])
+   qpcr_sigtest[sigtest,"ddct_se_m"]<-2^((-tes["Difference of means"])- qpcr_sigtest[sigtest,"se"])
+  
+  }
+  
+}
+qpcr_sigtest[-qpcr_sigtest$mean_diff<0,"mean_diff"]
+
+dftmp<-data.frame(ddct=-5:5,2^(abs(-5:5)))
+
+plot(dftmp)
+2^1.05
+pval_threshold<-0.05
+qpcr_sigtest
+qpcr_sigtest[qpcr_sigtest$pval<=pval_threshold & !is.na(qpcr_sigtest$pval),"sig"]<-"*"
+filter(qpcr_sigtest,x %in% c("L.crispatus","L.iners","L.jensenii") & y %in% c("G.vaginalis","Cell Media"))
+qpcr_sigtest$et.n<-as.numeric(gsub(qpcr_sigtest$et,pattern = "hr",replacement = ""))
+qpcr_sigtest$deltaCt_comparison<-paste0(qpcr_sigtest$x," vs ",qpcr_sigtest$y)
+filter(qpcr_sigtest,deltaCt_comparison=="L.crispatus vs Cell Media")
+filter(qpcr_sigtest,deltaCt_comparison=="L.crispatus vs G.vaginalis")
+filter(qpcr_sigtest,deltaCt_comparison=="L.iners vs Cell Media")
+filter(qpcr_sigtest,deltaCt_comparison=="L.iners vs G.vaginalis")
+#qpcr_sigtest$deltaCt_comparison<-factor(qpcr_sigtest$deltaCt_comparison,levels = rev(c("L.crispatus vs Cell Media","L.crispatus vs G.vaginalis","L.crispatus vs L.iners","L.iners vs Cell Media","L.iners vs G.vaginalis","G.vaginalis vs Cell Media")),ordered = T)
+
+cairo_ps("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/Working/Figures/FIGURE_4_B.eps",width = 9,height = 6)
+
+
+qpcr_sigtest_plot<-filter(qpcr_sigtest,!qpcr_sigtest$deltaCt_comparison %in% c("G.vaginalis vs Cell Media","L.crispatus vs L.iners","L.crispatus vs L.jensenii","L.jensenii vs L.iners"))
+qpcr_sigtest_plot$ref<-as.character(qpcr_sigtest_plot$y)
+qpcr_sigtest_plot$comp<-as.character(qpcr_sigtest_plot$x)
+
+qpcr_sigtest_plot[qpcr_sigtest_plot$ref=="G.vaginalis","lt"]<-1#"dashed"
+qpcr_sigtest_plot[qpcr_sigtest_plot$ref=="Cell Media","lt"]<-3#"solid"
+
+qpcr_sigtest_plot[qpcr_sigtest_plot$comp=="L.crispatus","pch"]<-19
+qpcr_sigtest_plot[qpcr_sigtest_plot$comp=="L.iners","pch"]<-17
+qpcr_sigtest_plot[qpcr_sigtest_plot$comp=="L.jensenii","pch"]<-18
+
+#qpcr_sigtest_plot[qpcr_sigtest_plot$comp=="L.crispatus","sigSymbol"]<-"*"
+#qpcr_sigtest_plot[qpcr_sigtest_plot$comp=="L.iners","sigSymbol"]<-"#"
+#qpcr_sigtest_plot[is.na(qpcr_sigtest_plot$sig),"sig"]<-"N.S."
+ qpcr_sigtest_plot[qpcr_sigtest_plot$et=="22hr" & qpcr_sigtest_plot$x=="L.jensenii",]
+ 
+ qpcr_sigtest_input[qpcr_sigtest_input$Study=="022017_sub2",]
+ddct_plot<-
+  ggplot(qpcr_sigtest_plot,aes(x=et.n,y=-mean_diff,col=comp))+#deltaCt_comparison))+
+  theme_bw()+
+  geom_hline(yintercept = 0,col="#9e9ac8",size=2.5)+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
+  geom_line(size=1.5,show.legend = F,aes(linetype=ref))+ #
+  geom_errorbar(aes(ymax=-mean_diff+se,ymin=-mean_diff-se),size=1,show.legend = F)+
+  geom_point(size=6,show.legend = F)+ #aes(pch=as.character(pch))
+  ylab(expression(paste(-Delta,Delta,"Ct")))+#scriptstyle("+"/"-")," ",2^-paste(Delta,Delta,"Ct"))
+  xlab("Exposure Time (hours)")+
+  #scale_color_brewer(type = "qual",palette = "Set2",direction = -1)+
+  scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = c("L.crispatus"='#990000',"L.iners"='darkorange',"L.jensenii"='yellow'))+
+  scale_x_continuous(breaks=c(0.5,1,4,11,13,22),minor_breaks = NULL)+
+  #annotate("rect", xmin=-Inf, xmax=Inf, ymin=-1, ymax=1, alpha=.5, fill='grey')+
+  
+  scale_linetype_manual(name=expression(paste("Reference ",Delta,"Ct")),values=as.numeric(qpcr_sigtest_plot$lt))+
+  #annotate("text" ,x=qpcr_sigtest_plot$et.n,y=-qpcr_sigtest_plot$mean_diff,label=rep("*",times=24),size=10,col='grey')
+geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
+
+#Lcrisp relatiavte to CM is highest overall, reamining >ddCt until about 13h. (highest 2^ddCt at 4, 11 hr = )
+#L.crisp vs GV peaks at 11 hr (2^),  Liners vv Gvag peaks at 4 hrs (2^) and L.iners vs Gvag peaks at 1 hour (2^), returning to dCt==0 at 13 hr. All  except LI v GV remain above >0 at 22 hr. 
+
+qpcr_sigtest_plot[!is.na(qpcr_sigtest_plot$sig),c("x","y","et")]
+qpcr_sigtest_plot[qpcr_sigtest_plot$deltaCt_comparison=="L.jensenii vs Cell Media",]
+qpcr_sigtest_plot[qpcr_sigtest_plot$deltaCt_comparison=="L.crispatus vs Cell Media",]
+qpcr_sigtest_plot[qpcr_sigtest_plot$deltaCt_comparison=="L.iners vs Cell Media",]
+plot(ddct_plot)
+dev.off()
+2^3.3
+filter(qpcr_sigtest,x=="L.crispatus" & y=="G.vaginalis") %>% select(et,mean_diff) 
+deltaCts<-data.frame(Sample=LCM.spread$Sample,Study=LCM.spread$Study,CellLine=LCM.spread$CellLine,RNA_Input=LCM.spread$RNA_Input,BCM=LCM.spread$BCM,Replicate=LCM.spread$Replicate,pH=LCM.spread$pH,deltaCt.103a=LCM.spread$`miR-193b`-LCM.spread$`miR-103a`,deltaCt.221=LCM.spread$`miR-193b`-LCM.spread$`miR-221`,deltaCt.RNU6=LCM.spread$`miR-193b`-LCM.spread$RNU6,ExposureTime=LCM.spread$ExposureTime,deltaCt.182=LCM.spread$`miR-182`-LCM.spread$RNU6,D=LCM.spread$LacticAcid_D_g_L,L=LCM.spread$LacticAcid_L_g_L)
+
+deltaCts.melt<-melt(deltaCts,id.vars = c("Sample","Replicate","Study","pH","BCM","CellLine","RNA_Input","ExposureTime","D","L"))
+deltaCts.melt$D_L<-(deltaCts.melt$D/(deltaCts.melt$L+0.001))
+load("~/Github_repos/RAVEL_LAB/HMP/SCRIPTS/Plot_Vaginal_Microbiome_Data_Files/phColorTbl.v3.hmp.RData")
+
+
+#ggplot(filter(deltaCts.melt,variable=="deltaCt.RNU6"))+geom_point(aes(x=prolif,y=value,pch=ExposureTime,col=BCM))
+
+ggplot(filter(deltaCts.melt,variable=="deltaCt.RNU6" & !deltaCts.melt$BCM %in% c("lactic acid","Negative Control")  &Study %in% c("102416","110116","110816")))+geom_point(aes(x=BCM,y=-value,fill=BCM,col=BCM),size=10,pch=22)+theme_bw()+ggtitle("Exposure BCM vs miR-193v delta Ct, broken out by Exposure Time")+
+  ylab("delta Ct")+
+  #scale_colour_manual(values=c("L.crispatus"='red1',"L.iners"='darkorange',"G.vaginalis"="lightseagreen","Cell Media"='blue'))+
+  facet_wrap(~ExposureTime,nrow=1)+theme(plot.margin=unit(c(0,50,0,0),units = "pt"),axis.text.x = element_blank(), text=element_text(size=16))+ #element_text(angle = 90,size=14),
+scale_fill_manual(values = c("L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange',"Cell Media"='blue'))+ #'#91bfdb'
+  scale_colour_manual(values = c("L.crispatus"='#990000',
+                                 #rgb(252/255,90/255,70/255),
+                                 "G.vaginalis"='#088A68',"Cell Media"='blue',"L.iners"='orange'))
+dev.off()
+#cairo_ps("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/R_script_output/DLLA_deltaCt.eps",width = 8.7,height = 8)
+
+ggplot(filter(deltaCts.melt,variable=="deltaCt.RNU6" & !deltaCts.melt$BCM %in% c("lactic acid","Negative Control")  &Study %in% c("102416","110816")),aes(y=-value,fill=BCM,col=BCM),size=10)+geom_point(aes(x=D),pch=22,size=10)+geom_point(aes(x=L),pch=24,size=10,show.legend = T)+theme_bw()+ggtitle("[D, L lactic acid] vs miR-193v delta Ct, 11 hours BCM Exposure")+
+  ylab("delta Ct")+xlab("[Lactic Acid] g/L")+
+scale_fill_manual(values = c("L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange',"Cell Media"='blue'))+ #'#91bfdb'
+  scale_colour_manual(values = c("L.crispatus"='#990000', "G.vaginalis"='#088A68',"Cell Media"='blue',"L.iners"='orange'))
+dev.off()
+
+#"L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange'
+
+
+ggplot(filter(deltaCts.melt,variable=="deltaCt.RNU6" & !deltaCts.melt$BCM %in% c("lactic acid","Negative Control") & ExposureTime=="11hr"))+geom_point(aes(x=BCM,y=-value,col=BCM))+theme_bw()+ggtitle("Exposure BCM vs miR-193v delta Ct")+ylab("delta Ct")+scale_colour_manual(values=c("L.crispatus"='red1',"L.iners"='darkorange',"G.vaginalis"="lightseagreen","Cell Media"='yellow'))
+
+sample_vs_deltaCt<- ggplot(deltaCts.melt)+geom_point(aes(x=Sample,y=-value,col=variable),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))+ggtitle("DeltaCts across samples")+ylab("Delta Ct")
+
+ph_vs_deltaCt<-ggplot(deltaCts.melt)+geom_point(aes(x=pH,y=-value,col=variable,pch=CellLine),size=3)+ggtitle("pH versus deltaCt")+ylab("delta Ct")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))
+
+ggplot(deltaCts.melt)+geom_point(aes(x=RNA_Input,y=-value,col=variable,pch=CellLine))+ggtitle("Amount RNA input versus deltaCt")+ylab("delta Ct")+theme_bw()
+
+ph_vs_deltaCt.sub<-
+  ggplot(filter(deltaCts.melt,variable=="deltaCt.RNU6"))+geom_point(aes(x=pH,y=-value,col=CellLine,pch=ExposureTime),size=3)+ggtitle("pH versus deltaCt for miR193b-RNU6 only")+ylab("delta Ct")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))#+facet_wrap(~ExposureTime,ncol=1)
+
+ph_vs_deltaCt.sub<-
+  ggplot(filter(filter(deltaCts.melt,!BCM=="LACTICACID"),variable=="deltaCt.RNU6" & CellLine=="VK2"))+geom_point(aes(x=pH,y=-value,col=Study,pch=ExposureTime),size=3)+ggtitle("pH versus deltaCt for miR193b-RNU6 only")+ylab("delta Ct")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))#+facet_wrap(~ExposureTime,ncol=1)
+
+  ggplot(filter(deltaCts.melt, variable=="deltaCt.RNU6" & !BCM=="LACTICACID",CellLine=="VK2"),aes(x=pH,y=-value,col=ExposureTime))+stat_smooth()+geom_point(size=3)+ggtitle("pH versus miR-193b delta Ct")+ylab("delta Ct")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))
+  
+    ggplot(filter(deltaCts.melt, variable=="deltaCt.182" & !BCM=="LACTICACID",CellLine=="VK2"),aes(x=pH,y=-value,col=ExposureTime))+stat_smooth()+geom_point(size=3)+ggtitle("pH versus miR-193b delta Ct")+ylab("delta Ct")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))
+
+study_102416_proliferate<-select(read.csv(paste0("~/Dropbox (IGS)/Working/proliferation/","102416_VK2_miScript","_RNA.csv")),c(Sample,PercentProliferate))
+study_102416_proliferate<-study_102416_proliferate[!is.na(study_102416_proliferate$PercentProliferate),]
+
+study_102016_proliferate<-select(read.csv(paste0("~/Dropbox (IGS)/Working/proliferation/","102016_VK2_phrange","_RNA.csv")),c(Sample,PercentProliferate))
+study_102016_proliferate<-study_102016_proliferate[!is.na(study_102016_proliferate$PercentProliferate),]
+
+
+  ggplot(filter(join(rbind(study_102016_proliferate,study_102416_proliferate),deltaCts.melt),variable=="deltaCt.RNU6"),aes(x=100*PercentProliferate,y=-value,col=ExposureTime))+geom_point(size=3)+ggtitle("Percent Proliferation vs miR-193b delta Ct")+ylab("delta Ct")+xlab("Percent Proliferation")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))
+
+  ggplot(filter(join(rbind(study_102016_proliferate,study_102416_proliferate),deltaCts.melt),variable=="deltaCt.RNU6"),aes(x=pH,y=-value,col=ExposureTime))+geom_point(size=3)+ggtitle("Percent Proliferation vs miR-193b delta Ct")+ylab("delta Ct")+xlab("Percent Proliferation")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))
+
+ 
+  LCM.proliferate<-join(rbind(study_102016_proliferate,study_102416_proliferate),LCM)
+   LCM.proliferate$BCM<-factor(LCM.proliferate$BCM,ordered = T,levels = c("LCRISP","LINERS","GVAG","MEDIA","LACTICACID","NTC"),labels = c("L.crispatus","L.iners","G.vaginalis","Cell Media","lactic acid","Negative Control"))
+ggplot(filter(LCM.proliferate,!BCM=="lactic acid"))+geom_point(aes(x=BCM,y=PercentProliferate,col=BCM))+theme_bw()+ggtitle("Exposure BCM vs Proliferation")+ylab("Percent Proliferation")+scale_colour_manual(values=c("L.crispatus"='red1',"L.iners"='darkorange',"G.vaginalis"="lightseagreen","Cell Media"='yellow'))+theme(axis.text.x = element_text(angle = 90,size=14))
+
+
+plot(sample_vs_deltaCt)
+plot(ph_vs_deltaCt)
+plot(ph_vs_deltaCt.sub)
+
+
+```
+
+## Write plots to disk
+```{r,write_plots}
+postscript("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/100916_101026_VK2_A2EN_1_1_1HR/100916_101026_VK2_A2EN_1_1_1HR_BCM_plots.ps")
+plot(sample_vs_deltaCt)
+plot(ph_vs_deltaCt)
+plot(ph_vs_deltaCt.sub)
+dev.off()
+
+```
+##092316, 092916 with RNU6
+```{r}
+LCM<-read.csv("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/092316_LCM_8hr_092916_12hr_193b_RNU_miScript.csv")
+LCM.spread<-spread(select(LCM,c(Sample,PrimerPair,Ct,Replicate)),key = PrimerPair,value = Ct)
+            #      pH=LCM.spread$pH
+deltaCts<-data.frame(Sample=LCM.spread$Sample,replicate=LCM.spread$Replicate,deltaCt.RNU6=LCM.spread$MIR193B-LCM.spread$RNU6)
+
+ggplot(deltaCts)+geom_point(aes(x=Sample,y=-deltaCt.RNU6))+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))
+
+
+```
+
+## Load & format data
+```{r,load_data}
+
+#LCM.ph<-read.csv("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/100916_101026_VK2_A2EN_1_1_1HR/100916_101016_A2EN_VK2_CM_miScript_ph.csv")
+#LCM.RNA<-read.csv("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/100916_101026_VK2_A2EN_1_1_1HR/100916_101016_A2EN_VK2_CM_miScript_RNA.csv")
+subset(LCM,select = c("PrimerPair","Sample","Ct"))
+#LCM<-left_join(dplyr::select(LCM,c(PrimerPair,Sample,Ct,Replicate,CellLine,BCM)),LCM.ph)
+#LCM<-left_join(LCM,LCM.RNA)
+ggplot(LCM)+geom_point(aes(x=Sample,y=-Ct,col=PrimerPair),size=3)+theme_bw()+geom_boxplot(aes(x=Sample,y=-Ct,col=PrimerPair))+theme(title=element_text(size=14),text=element_text(size = 20))+
+  ggtitle("101616 Lactic Acid exposed A2EN & VK2s, 1 hour, 20 hour,qPCR")
+
+
+LCM.spread<-spread(select(LCM,c(Sample,pH,CellType,Replicate,Ct,PrimerPair,ExposureTime)),key = PrimerPair,value = Ct)
+LCM.spread<-filter(LCM.spread,!Sample=="NTC")
+#pairs(dplyr::select(LCM.spread,-c(Replicate,Sample,conc)))
+
+deltaCts<-data.frame(Sample=LCM.spread$Sample,Time=LCM.spread$ExposureTime,CellLine=LCM.spread$CellType,replicate=LCM.spread$Replicate,pH=LCM.spread$pH,deltaCt.103a=LCM.spread$`miR-193b`-LCM.spread$`miR-103a`,deltaCt.RNU6=LCM.spread$`miR-193b`-LCM.spread$RNU6)
+
+deltaCts.melt<-melt(deltaCts,id.vars = c("Sample","replicate","pH","CellLine","Time"))
+
+sample_vs_deltaCt<- ggplot(deltaCts.melt)+geom_point(aes(x=Sample,y=-value,col=variable),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20),axis.text.x = element_text(angle = 90))+ggtitle("DeltaCts across samples")+ylab("Delta Ct")
+
+ph_vs_deltaCt<-ggplot(deltaCts.melt)+geom_point(aes(x=pH,y=-value,col=variable,pch=CellLine),size=3)+ggtitle("pH versus deltaCt")+ylab("delta Ct")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))
+
+ggplot(deltaCts.melt)+geom_point(aes(x=amount_inpuit,y=-value,col=variable,pch=CellLine))+ggtitle("Amount RNA input versus deltaCt")+ylab("delta Ct")+theme_bw()
+
+ph_vs_deltaCt.sub<-ggplot(filter(deltaCts.melt,variable=="deltaCt.RNU6" & CellLine=="VK2"))+geom_point(aes(x=pH,y=-value,col=variable,pch=CellLine),size=3)+ggtitle("pH versus deltaCt for miR193b-RNU6 only")+ylab("delta Ct")+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))
+
+ggplot(filter(deltaCts.melt,deltaCts.melt$variable=="deltaCt.RNU6"))+geom_point(aes(x=amount_inpuit,y=-value,col=variable,pch=CellLine))+ggtitle("amount_inpuit versus deltaCt for miR193b-RNU6 only")+ylab("delta Ct")+theme_bw()
+
+plot(sample_vs_deltaCt)
+plot(ph_vs_deltaCt)
+plot(ph_vs_deltaCt.sub)
+
+
+```
+
+```{r proliferation}
+proliferation<-read.csv("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/Working/R_script_input/Proliferation_Area.csv",stringsAsFactors = T)
+EdU<-filter(proliferation,grepl(proliferation$type,pattern = "edu"))
+proliferation<-filter(proliferation,!grepl(proliferation$type,pattern = "edu"))
+proliferation<-ddply(melt(100*select(proliferation,-type)),c("variable"),summarise,mean=mean(value),sd=sd(value))
+proliferation$variable<-factor(proliferation$variable,ordered = T,levels = c("Lcrisp","Liners","Ljens","Gvag","Media"),labels = c("L.crispatus","L.iners","L.jensenii","G.vaginalis","Cell Media"))
+
+
+EdU<-ddply(melt(EdU),c("type","variable"),summarise,mean=mean(value),sd=sd(value))
+EdU$variable<-factor(EdU$variable,ordered = T,levels = c("Lcrisp","Liners","Ljens","Gvag","Media"),labels = c("L.crispatus","L.iners","L.jensenii","G.vaginalis","Cell Media"))
+
+cairo_ps("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/Figures/Proliferation.eps",width = 5.5,height = 7)
+
+EdU
+
+ggplot(proliferation)+geom_bar(aes(x=variable,y=mean,fill=variable,col=variable),stat="identity",show.legend = F)+
+  geom_errorbar(aes(x=variable,ymin=mean-sd,ymax=mean+sd,col=variable),width=.3,size=2,show.legend = F)+
+theme_bw()+
+  ylab("Filled Scratch Area (%)")+
+  xlab("BCM")+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1))+ 
+  scale_fill_manual(values = c("L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange',"Cell Media"='blue',"L.jensenii"="brown"))+  
+  scale_y_continuous(limits=c(0,100))+
+  scale_colour_manual(values = c("L.crispatus"='#990000', "G.vaginalis"='#088A68',"Cell Media"='darkblue',"L.iners"='darkorange',"L.jensenii"="brown"))
+
+dev.off()
+
+
+cairo_ps("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/Figures/EdU.eps",width = 5.5,height = 7)
+EdU$BCM_edu<-paste0(EdU$type,"_",EdU$variable)
+EdU$BCM_edu<-factor(x=EdU$BCM_edu,levels = c("edu_high_L.crispatus","edu_any_L.crispatus","edu_high_L.iners","edu_any_L.iners","edu_high_G.vaginalis","edu_any_G.vaginalis","edu_high_Cell Media","edu_any_Cell Media"),ordered = T)
+
+ggplot(EdU,aes(x=variable,y=mean,fill=BCM_edu,col=variable))+geom_bar(stat="identity", position="dodge",show.legend = F)+
+ geom_errorbar(aes(x=variable,ymin=mean-sd,ymax=mean+sd),position="dodge",show.legend = F,size=2)+#width=.3,size=2
+theme_bw()+
+  ylab("Cells Positive for EdU (%)")+
+  xlab("BCM")+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1))+ 
+  #scale_fill_manual(values = c("L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange',"Cell Media"='blue'))+  
+  scale_fill_manual(values=c("edu_high_L.crispatus"='red1',"edu_any_L.crispatus"='#b74c4c',"edu_high_L.iners"='orange',"edu_any_L.iners"='#ffae4c',"edu_high_G.vaginalis"='lightseagreen',"edu_any_G.vaginalis"='#52ad95',"edu_high_Cell Media"='blue',"edu_any_Cell Media"='#4c4cad',"L.jensenii"="brown"))+
+  scale_y_continuous(limits=c(0,100))+
+  scale_colour_manual(values = c("L.crispatus"='#990000', "G.vaginalis"='#088A68',"Cell Media"='darkblue',"L.iners"='darkorange',"L.jensenii"="brown"))
+
+
+
+#
+
+
+dev.off()
+
+tmp<-filter(LCM.spread.summary,!BCM %in% c("lactic acid","negative control")  & Study %in% c("102416","110116","110816") & ExposureTime=="13hr")
+ggplot(data.frame(tmp$BCM,tmp$deltaCt.RNU6,proliferation$variable,proliferation$mean,EdU$variable,EdU$mean))+geom_point(aes(x=EdU.mean,y=tmp.deltaCt.RNU6))
+plot(proliferation$mean,EdU$mean)
+deltaCts.melt$BCM
+
+```
+
+
+```{r LA}
+<-filter(LCM.spread.summary, BCM %in% c("L_0_06","L_0_08","DL_0_06","DL_0_08")  & CellLine=="VK2") 
+             #Study %in% c("102416","110116","110816","11217","12617"))# %>% select(Study)
+
+
+ggplot(df)+geom_point(aes(x=BCM,y=-deltaCt.RNU6,fill=BCM,col=BCM),size=6,pch=22,show.legend = T)+theme_bw()+
+    geom_errorbar(aes(x=BCM,ymax=-(deltaCt.RNU6+deltaCt.RNU6.sd),ymin=-(deltaCt.RNU6-deltaCt.RNU6.sd),fill=BCM,col=BCM),show.legend = F)+
+  ylab(expression(paste("-",Delta,"Ct")))+
+  facet_wrap(~ExposureTime,nrow=1)+theme(plot.margin=unit(c(0,0,0,0),units = "pt"),axis.text.x = element_blank(), text=element_text(size=16))#+ #element_text(angle = 90,size=14),
+#scale_fill_manual(values = c("L.crispatus"='red1',"G.vaginalis"='lightseagreen',"L.iners"='orange',"Cell Media"='blue'))+ #'#91bfdb'
+ # scale_colour_manual(values = c("L.crispatus"='#990000',
+                                 #rgb(252/255,90/255,70/255),
+  #                               "G.vaginalis"='#088A68',"Cell Media"='darkblue',"L.iners"='darkorange'))
+```
+
+## END OF MARKDOWN
