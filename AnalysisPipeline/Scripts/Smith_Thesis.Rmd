@@ -1470,12 +1470,12 @@ Primers:
 * hsa-miR-RNU6 (normalization control)   
 ```{r qPCR_time_course,eval=T}
 
-# Calculate mean & s.d. Ct values for each BCS/time point. 
-load(file=paste0(R_script_input_directory,"qPCR_time_course.Rdata")) ## Ct values
-load(file=paste0(R_script_input_directory,"qpcr_sigtest.Rdata")) ## Container for holding sig testing comparisons/results
-nd<-read.table("~/Desktop/new_qpcr_data.txt",header = T,sep = "\t")
+load("/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/qPCR_time_course.Rdata")
+load("/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/qpcr_sigtest.Rdata")
 
-qPCR_time_course<-rbind.fill(nd,qPCR_time_course)
+# Calculate mean & s.d. Ct values for each BCS/time point. 
+####load(file=paste0(R_script_input_directory,"qPCR_time_course.Rdata")) ## Ct values
+####load(file=paste0(R_script_input_directory,"qpcr_sigtest.Rdata")) ## Container for holding sig testing comparisons/results
 
 qPCR_time_course.summary<-ddply(qPCR_time_course,c("Study","ExposureTime","BCS"),summarise,m_193b=mean(miR193b_Ct,na.rm = T),sd_193b=sd(miR193b_Ct,na.rm = T),
                                 m_R6=mean(RNU6_Ct,na.rm = T),sd_R6=sd(RNU6_Ct,na.rm = T))
@@ -1493,20 +1493,20 @@ qPCR_time_course.summary$deltaCt.RNU6.sd<-sqrt(qPCR_time_course.summary$sd_193b^
 dev.off()
 
 
-qpcr_sigtest<-rbind.fill(qpcr_sigtest,
-data.frame(reference="Cell Culture Medium",
-           ExposureTime=c(rep(c("8hr","16hr","19hr"),each=2)),
-                   #  ExposureTime.n=c(rep(c(8,16,19),each=3)),
-           comparison=rep(c("L. jensenii","L. iners"),times=3),
+#qpcr_sigtest<-rbind.fill(qpcr_sigtest,
+#data.frame(reference="Cell Culture Medium",
+ #          ExposureTime=c(rep(c("8hr","16hr","19hr"),each=2)),
+  #                 #  ExposureTime.n=c(rep(c(8,16,19),each=3)),
+   #        comparison=rep(c("L. jensenii","L. iners"),times=3),
           
            #ref="Cell Culture Medium",
            
-           Study.ref="study_6",Study.comp="study_6"
-           ))
+    #       Study.ref="study_6",Study.comp="study_6"
+     #      ))
+
 
 rm_rows<-qPCR_time_course.summary[is.na(qPCR_time_course.summary$sd_193b),c("ExposureTime","BCS")]
 qpcr_sigtest<-qpcr_sigtest[!(qpcr_sigtest$comparison %in% rm_rows$BCS & qpcr_sigtest$ExposureTime %in% rm_rows$ExposureTime),]
-qPCR_time_course.summary[!is.na(qPCR_time_course.summary$sd_193b),]
 
 ## calcualte signifigance using delta Ct mean + s.d., which uses a modified t.test2 function. 
 ## Loop through the comparisons and test pair-wise
@@ -1577,7 +1577,6 @@ qpcr_sigtest[qpcr_sigtest$ref=="Cell Culture Medium","lt"]<-3#"solid"
 #cairo_ps(paste0(R_script_output_directory,"miR_long_plot_presentation.eps"),width = 11.5,height = 6)
 ## Plot qPCR Timecourse (put lactic acid comparison in sep. figure)
 
-
 PLOT_QPCR_TIMECOURSE<-
  # ggplot(filter(qpcr_sigtest,reference=="G. vaginalis" &
    ggplot(filter(qpcr_sigtest,reference=="Cell Culture Medium" &
@@ -1592,8 +1591,8 @@ PLOT_QPCR_TIMECOURSE<-
   geom_point(size=6,show.legend = F)+ 
   ylab(expression(paste(-Delta,Delta,"Ct")))+
   xlab("Exposure Time (hours)")+
-  scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
-  scale_x_continuous(breaks=c(0.5,1,4,11,13,22),minor_breaks = NULL)+
+  #####scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
+  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
   scale_linetype_manual(name=expression(paste("Reference ",Delta,"Ct")),values=as.numeric(qpcr_sigtest$lt))+
   geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
 
@@ -1646,21 +1645,39 @@ load(file=paste0(R_script_input_directory,"In_Vitro_Experiments.Rdata"))
 ## //////////////
 ### Scratch Assay
 ## //////////////
-
 ## Melt scratch assay data for easier handling
 scratch.m<-filter(in_vitro_experiments,Experiment=="Scratch" & Observation == "Proliferation" & !grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_")) %>% dplyr::select(-c(Experiment,Coverslip)) #melt(proliferation)
 
 
 ## Re-name the melted data
-names(scratch.m)<-c("Observation","BCS","percent_cells","Field")
+names(scratch.m)<-c("Observation","BCS","ExposureTime","percent_cells","Field")
 
 #Factor BCS so that order is enforced
 scratch.m$BCS<-factor(scratch.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"))
-
+scratch_sigtest.all<-data.frame(temp<-"NA")
+scratch.summary.all<-data.frame(temp<-"NA")
+for(et in c("8hr","13hr","16hr","19hr")){
 ## Create a significance testing data frame to hold results
-setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = scratch.m,test_function = "t.test",Experiment = "Scratch")
+setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = dplyr::filter(scratch.m,ExposureTime==et),test_function = "t.test",Experiment = "Scratch")
 scratch_sigtest<-setup_sigtest.data$sigtest
+scratch_sigtest$ExposureTime<-et
 scratch.summary<-setup_sigtest.data$summary_stats
+scratch.summary$ExposureTime<-et
+scratch_sigtest.all<-rbind.fill(scratch_sigtest,scratch_sigtest.all)
+scratch.summary.all<-rbind.fill(scratch.summary,scratch.summary.all)
+}
+
+ggplot(scratch.summary.all)+geom_line(aes(x=as.numeric(gsub(scratch.summary.all$ExposureTime,pattern = "hr",replacement = "")),y=mean,col=BCS),show.legend = F)+
+  geom_errorbar(aes(x=as.numeric(gsub(scratch.summary.all$ExposureTime,pattern = "hr",replacement = "")),ymin=mean-sd,ymax=mean+sd),width=.3,show.legend = F)+
+  mBio+
+  ylab("Filled Scratch Area (%)")+
+  xlab("Exposure Time (hours)")+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(face="italic",angle = 45,vjust = 1,hjust = 1))+
+  scale_y_continuous(limits=c(0,102))###+
+  ###scale_colour_manual(values=color_scheme_BCS)+
+  ####annotate("text",x=scratch_sigtest$midpoints,y=scratch_sigtest$y.sig,label=scratch_sigtest$sig,size=4)+
+  ####geom_segment(data=setup_sigtest.data$statbars,aes(x=x,xend=xend,y=y,yend=yend),size=1)+
+  ####geom_segment(data=setup_sigtest.data$statbars2,aes(x=x,xend=xend,y=y,yend=yend),size=1)
 
 
 ## Create Barplots for scratch assay
@@ -1695,14 +1712,33 @@ EdU.m<-rename(EdU.m,BCS=Treatment)
 
 #Factor BCS so that order is enforced
 EdU.m$BCS<-factor(EdU.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"))
-
+EdU.m$percent_cells<-EdU.m$percent_cells+abs(rnorm(nrow(EdU.m),1E-3,0.01))
+statbars<-EdU_sigtest<-statbars2<-EdU.summary<-data.frame(temp="NA")
+for(et in c("8hr","13hr","16hr","19hr")){
 ## Create a significance testing data frame to hold results
-setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = EdU.m,test_function = "t.test",Experiment = "Scratch")
+setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = dplyr::filter(EdU.m,ExposureTime==et),test_function = "t.test",Experiment = "Scratch")
 
-statbars<-setup_sigtest.data$statbars
-statbars2<-setup_sigtest.data$statbars2
-EdU_sigtest<-setup_sigtest.data$sigtest
-EdU.summary<-setup_sigtest.data$summary_stats
+
+statbars<-rbind.fill(data.frame(setup_sigtest.data$statbars,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),statbars)
+statbars2<-rbind.fill(data.frame(setup_sigtest.data$statbars2,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),statbars2)
+EdU_sigtest<-rbind.fill(data.frame(setup_sigtest.data$sigtest,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),EdU_sigtest)
+EdU.summary<-rbind.fill(data.frame(setup_sigtest.data$summary_stats,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),EdU.summary)
+
+
+}
+
+ ggplot(EdU.summary)+geom_line(aes(x=ExposureTime,y=mean,col=BCS), show.legend = F)+
+  geom_errorbar(aes(x=ExposureTime,ymin=mean-sd,ymax=mean+sd),show.legend = F,width=.3)+
+  mBio+
+  ylab("Epithelial Cells Positive for EdU (%)")+
+  xlab("BCS")+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(face="italic",angle = 45,vjust = 1,hjust = 1))+
+  scale_y_continuous(limits=c(0,102))#+
+  ####scale_colour_manual(values=color_scheme_BCS)+
+  ####annotate("text",x=EdU_sigtest$midpoints,y=EdU_sigtest$y.sig,label=EdU_sigtest$sig,size=4)+
+ #### geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend),size=1)+
+  ####geom_segment(data=statbars2,aes(x=x,xend=xend,y=y,yend=yend),size=1)
+
 
 ## Create Barplots for EdU assay
 
