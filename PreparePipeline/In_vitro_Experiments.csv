@@ -1,0 +1,459 @@
+Experiment,Observation,Treatment,ExposureTime,percent_cells,Coverslip,Field
+Scratch,Proliferation,G. vaginalis,13hr,29.9059757,NA,1
+Scratch,Proliferation,G. vaginalis,13hr,23.4500462,NA,2
+Scratch,Proliferation,G. vaginalis,13hr,36.0123632,NA,3
+Scratch,Proliferation,L. crispatus,13hr,5.0786142,NA,1
+Scratch,Proliferation,L. crispatus,13hr,4.6069627,NA,2
+Scratch,Proliferation,L. crispatus,13hr,8.0793198,NA,3
+Scratch,Proliferation,L. iners,13hr,8.746294,NA,1
+Scratch,Proliferation,L. iners,13hr,11.0628071,NA,2
+Scratch,Proliferation,L. iners,13hr,5.8038248,NA,3
+Scratch,Proliferation,Cell Culture Medium,13hr,93.9455896,NA,1
+Scratch,Proliferation,Cell Culture Medium,13hr,72.9697784,NA,2
+Scratch,Proliferation,Cell Culture Medium,13hr,55.754386,NA,3
+Scratch,Proliferation,L. jensenii,13hr,4.7571286,NA,1
+Scratch,Proliferation,L. jensenii,13hr,4.6920732,NA,2
+Scratch,Proliferation,L. jensenii,13hr,1.1668605,NA,3
+Scratch,EdU,G. vaginalis,13hr,16.51376147,1,1
+Scratch,EdU,G. vaginalis,13hr,22.55639098,1,2
+Scratch,EdU,G. vaginalis,13hr,19.26605505,1,3
+Scratch,EdU,G. vaginalis,13hr,18.26923077,1,4
+Scratch,EdU,G. vaginalis,13hr,20.80291971,1,5
+Scratch,EdU,G. vaginalis,13hr,15.16853933,2,1
+Scratch,EdU,G. vaginalis,13hr,23.03030303,2,2
+Scratch,EdU,G. vaginalis,13hr,28.35820896,2,3
+Scratch,EdU,G. vaginalis,13hr,22.66666667,2,4
+Scratch,EdU,G. vaginalis,13hr,28.8,2,5
+Scratch,EdU,L. crispatus,13hr,0,1,1
+Scratch,EdU,L. crispatus,13hr,0,1,2
+Scratch,EdU,L. crispatus,13hr,0,1,3
+Scratch,EdU,L. crispatus,13hr,0,1,4
+Scratch,EdU,L. crispatus,13hr,0,1,5
+Scratch,EdU,L. crispatus,13hr,0,2,1
+Scratch,EdU,L. crispatus,13hr,0,2,2
+Scratch,EdU,L. crispatus,13hr,0,2,3
+Scratch,EdU,L. crispatus,13hr,0,2,4
+Scratch,EdU,L. crispatus,13hr,0,2,5
+Scratch,EdU,L. iners,13hr,0.986842105,1,1
+Scratch,EdU,L. iners,13hr,3.405572755,1,2
+Scratch,EdU,L. iners,13hr,5.5,1,3
+Scratch,EdU,L. iners,13hr,2.688172043,1,4
+Scratch,EdU,L. iners,13hr,5.732484076,1,5
+Scratch,EdU,L. iners,13hr,1.550387597,2,1
+Scratch,EdU,L. iners,13hr,2.252252252,2,2
+Scratch,EdU,L. iners,13hr,2.008032129,2,3
+Scratch,EdU,L. iners,13hr,2.777777778,2,4
+Scratch,EdU,L. iners,13hr,1.25,2,5
+Scratch,EdU,Cell Culture Medium,13hr,39.94778068,1,1
+Scratch,EdU,Cell Culture Medium,13hr,32.1875,1,2
+Scratch,EdU,Cell Culture Medium,13hr,51.34328358,1,3
+Scratch,EdU,Cell Culture Medium,13hr,48.12030075,1,4
+Scratch,EdU,Cell Culture Medium,13hr,49.53846154,1,5
+Scratch,EdU,Cell Culture Medium,13hr,36.45833333,2,1
+Scratch,EdU,Cell Culture Medium,13hr,52.21518987,2,2
+Scratch,EdU,Cell Culture Medium,13hr,44.41340782,2,3
+Scratch,EdU,Cell Culture Medium,13hr,50,2,4
+Scratch,EdU,Cell Culture Medium,13hr,38.83792049,2,5
+Scratch,EdU,L. jensenii,13hr,2.380952381,1,1
+Scratch,EdU,L. jensenii,13hr,2.218430034,1,2
+Scratch,EdU,L. jensenii,13hr,2.429149798,1,3
+Scratch,EdU,L. jensenii,13hr,0.185873606,1,4
+Scratch,EdU,L. jensenii,13hr,4.424778761,1,5
+Scratch,EdU,L. jensenii,13hr,5.642633229,2,1
+Scratch,EdU,L. jensenii,13hr,8.910891089,2,2
+Scratch,EdU,L. jensenii,13hr,7.518796992,2,3
+Scratch,EdU,L. jensenii,13hr,5.167173252,2,4
+Scratch,EdU,L. jensenii,13hr,3.68852459,2,5
+Infection,Proliferation,Cell Culture Medium,13hr,21.42857143,1,1
+Infection,Proliferation,Cell Culture Medium,13hr,33.33333333,2,1
+Infection,Proliferation,Cell Culture Medium,13hr,24.29906542,3,1
+Infection,Proliferation,Cell Culture Medium,13hr,25.22522523,4,1
+Infection,Proliferation,Cell Culture Medium,13hr,57.14285714,5,1
+Infection,Proliferation,Cell Culture Medium,13hr,59.30232558,6,1
+Infection,Proliferation,Cell Culture Medium,13hr,61.3636364,7,1
+Infection,Proliferation,Cell Culture Medium,13hr,59.43396226,8,1
+Infection,Proliferation,Cdk4 400nM,13hr,NA,1,1
+Infection,Proliferation,Cdk4 400nM,13hr,NA,2,1
+Infection,Proliferation,Cdk4 400nM,13hr,NA,3,1
+Infection,Proliferation,Cdk4 400nM,13hr,7.96460177,4,1
+Infection,Proliferation,Cdk4 400nM,13hr,NA,5,1
+Infection,Proliferation,Cdk4 400nM,13hr,NA,6,1
+Infection,Proliferation,Cdk4 400nM,13hr,4.761904762,7,1
+Infection,Proliferation,Cdk4 400nM,13hr,11.76470588,8,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,1,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,2,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,3,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,13.04347826,4,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,18.75,5,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,6.12244898,6,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,16.83168317,7,1
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,8,1
+Infection,Infectivity,Cell Culture Medium,13hr,54.54545455,1,1
+Infection,Infectivity,Cell Culture Medium,13hr,40.96385542,2,1
+Infection,Infectivity,Cell Culture Medium,13hr,36.98630137,3,1
+Infection,Infectivity,Cell Culture Medium,13hr,38.73873874,4,1
+Infection,Infectivity,Cell Culture Medium,13hr,NA,5,1
+Infection,Infectivity,Cell Culture Medium,13hr,72.09302326,6,1
+Infection,Infectivity,Cell Culture Medium,13hr,90.90909091,7,1
+Infection,Infectivity,Cell Culture Medium,13hr,85.8490566,8,1
+Infection,Infectivity,Cdk4 400nM,13hr,NA,1,1
+Infection,Infectivity,Cdk4 400nM,13hr,NA,2,1
+Infection,Infectivity,Cdk4 400nM,13hr,NA,3,1
+Infection,Infectivity,Cdk4 400nM,13hr,2.654867257,4,1
+Infection,Infectivity,Cdk4 400nM,13hr,NA,5,1
+Infection,Infectivity,Cdk4 400nM,13hr,NA,6,1
+Infection,Infectivity,Cdk4 400nM,13hr,1.19047619,7,1
+Infection,Infectivity,Cdk4 400nM,13hr,5.882352941,8,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,1,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,2,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,3,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,10.14492754,4,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,5,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,5.102040816,6,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,6.930693069,7,1
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,8,1
+Infection,Proliferation,Cell Culture Medium,13hr,3.448275862,1,2
+Infection,Proliferation,Cell Culture Medium,13hr,38.1443299,2,2
+Infection,Proliferation,Cell Culture Medium,13hr,32.22222222,3,2
+Infection,Proliferation,Cell Culture Medium,13hr,43.18181818,4,2
+Infection,Proliferation,Cell Culture Medium,13hr,56.36363636,5,2
+Infection,Proliferation,Cell Culture Medium,13hr,56.15384615,6,2
+Infection,Proliferation,Cell Culture Medium,13hr,60.5263158,7,2
+Infection,Proliferation,Cell Culture Medium,13hr,40.5405405,8,2
+Infection,Proliferation,Cdk4 400nM,13hr,NA,1,2
+Infection,Proliferation,Cdk4 400nM,13hr,NA,2,2
+Infection,Proliferation,Cdk4 400nM,13hr,NA,3,2
+Infection,Proliferation,Cdk4 400nM,13hr,3.529411765,4,2
+Infection,Proliferation,Cdk4 400nM,13hr,NA,5,2
+Infection,Proliferation,Cdk4 400nM,13hr,NA,6,2
+Infection,Proliferation,Cdk4 400nM,13hr,16.27906977,7,2
+Infection,Proliferation,Cdk4 400nM,13hr,23.07692308,8,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,1,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,2,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,3,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,5.194805195,4,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,31.25,5,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,0,6,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,9.523809524,7,2
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,8,2
+Infection,Infectivity,Cell Culture Medium,13hr,50,1,2
+Infection,Infectivity,Cell Culture Medium,13hr,34.83146067,2,2
+Infection,Infectivity,Cell Culture Medium,13hr,29.7029703,3,2
+Infection,Infectivity,Cell Culture Medium,13hr,48.86363636,4,2
+Infection,Infectivity,Cell Culture Medium,13hr,NA,5,2
+Infection,Infectivity,Cell Culture Medium,13hr,72.30769231,6,2
+Infection,Infectivity,Cell Culture Medium,13hr,81.57894737,7,2
+Infection,Infectivity,Cell Culture Medium,13hr,77.02702703,8,2
+Infection,Infectivity,Cdk4 400nM,13hr,NA,1,2
+Infection,Infectivity,Cdk4 400nM,13hr,NA,2,2
+Infection,Infectivity,Cdk4 400nM,13hr,NA,3,2
+Infection,Infectivity,Cdk4 400nM,13hr,0,4,2
+Infection,Infectivity,Cdk4 400nM,13hr,NA,5,2
+Infection,Infectivity,Cdk4 400nM,13hr,NA,6,2
+Infection,Infectivity,Cdk4 400nM,13hr,0,7,2
+Infection,Infectivity,Cdk4 400nM,13hr,7.692307692,8,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,1,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,2,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,3,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,5.194805195,4,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,5,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,0,6,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,11.9047619,7,2
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,8,2
+Infection,Proliferation,Cell Culture Medium,13hr,72.72727273,1,3
+Infection,Proliferation,Cell Culture Medium,13hr,43.47826087,2,3
+Infection,Proliferation,Cell Culture Medium,13hr,40.35087719,3,3
+Infection,Proliferation,Cell Culture Medium,13hr,36.36363636,4,3
+Infection,Proliferation,Cell Culture Medium,13hr,62.5,5,3
+Infection,Proliferation,Cell Culture Medium,13hr,57.33333333,6,3
+Infection,Proliferation,Cell Culture Medium,13hr,62.3376623,7,3
+Infection,Proliferation,Cell Culture Medium,13hr,61.44578313,8,3
+Infection,Proliferation,Cdk4 400nM,13hr,NA,1,3
+Infection,Proliferation,Cdk4 400nM,13hr,NA,2,3
+Infection,Proliferation,Cdk4 400nM,13hr,NA,3,3
+Infection,Proliferation,Cdk4 400nM,13hr,9.708737864,4,3
+Infection,Proliferation,Cdk4 400nM,13hr,NA,5,3
+Infection,Proliferation,Cdk4 400nM,13hr,NA,6,3
+Infection,Proliferation,Cdk4 400nM,13hr,12.34567901,7,3
+Infection,Proliferation,Cdk4 400nM,13hr,8.108108108,8,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,1,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,2,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,3,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,10.38961039,4,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,29.72972973,5,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,47.45762712,6,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,14.08450704,7,3
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,8,3
+Infection,Infectivity,Cell Culture Medium,13hr,47.5308642,1,3
+Infection,Infectivity,Cell Culture Medium,13hr,34.95145631,2,3
+Infection,Infectivity,Cell Culture Medium,13hr,34.65346535,3,3
+Infection,Infectivity,Cell Culture Medium,13hr,57.95454545,4,3
+Infection,Infectivity,Cell Culture Medium,13hr,NA,5,3
+Infection,Infectivity,Cell Culture Medium,13hr,65.33333333,6,3
+Infection,Infectivity,Cell Culture Medium,13hr,81.81818182,7,3
+Infection,Infectivity,Cell Culture Medium,13hr,83.13253012,8,3
+Infection,Infectivity,Cdk4 400nM,13hr,NA,1,3
+Infection,Infectivity,Cdk4 400nM,13hr,NA,2,3
+Infection,Infectivity,Cdk4 400nM,13hr,NA,3,3
+Infection,Infectivity,Cdk4 400nM,13hr,0.970873786,4,3
+Infection,Infectivity,Cdk4 400nM,13hr,NA,5,3
+Infection,Infectivity,Cdk4 400nM,13hr,NA,6,3
+Infection,Infectivity,Cdk4 400nM,13hr,3.703703704,7,3
+Infection,Infectivity,Cdk4 400nM,13hr,8.108108108,8,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,1,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,2,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,3,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,7.792207792,4,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,5,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,28.81355932,6,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,22.53521127,7,3
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,8,3
+Infection,Proliferation,Cell Culture Medium,13hr,57.14285714,1,4
+Infection,Proliferation,Cell Culture Medium,13hr,36.89320388,2,4
+Infection,Proliferation,Cell Culture Medium,13hr,41.09589041,3,4
+Infection,Proliferation,Cell Culture Medium,13hr,33.69565217,4,4
+Infection,Proliferation,Cell Culture Medium,13hr,51.85185185,5,4
+Infection,Proliferation,Cell Culture Medium,13hr,68.8172043,6,4
+Infection,Proliferation,Cell Culture Medium,13hr,53.125,7,4
+Infection,Proliferation,Cell Culture Medium,13hr,52.17391304,8,4
+Infection,Proliferation,Cdk4 400nM,13hr,NA,1,4
+Infection,Proliferation,Cdk4 400nM,13hr,NA,2,4
+Infection,Proliferation,Cdk4 400nM,13hr,NA,3,4
+Infection,Proliferation,Cdk4 400nM,13hr,8.088235294,4,4
+Infection,Proliferation,Cdk4 400nM,13hr,NA,5,4
+Infection,Proliferation,Cdk4 400nM,13hr,NA,6,4
+Infection,Proliferation,Cdk4 400nM,13hr,6.18556701,7,4
+Infection,Proliferation,Cdk4 400nM,13hr,14.81481481,8,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,1,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,2,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,3,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,11.25,4,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,35.59322034,5,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,0,6,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,16.66666667,7,4
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,8,4
+Infection,Infectivity,Cell Culture Medium,13hr,40,1,4
+Infection,Infectivity,Cell Culture Medium,13hr,54,2,4
+Infection,Infectivity,Cell Culture Medium,13hr,35.13513514,3,4
+Infection,Infectivity,Cell Culture Medium,13hr,40.2173913,4,4
+Infection,Infectivity,Cell Culture Medium,13hr,NA,5,4
+Infection,Infectivity,Cell Culture Medium,13hr,64.51612903,6,4
+Infection,Infectivity,Cell Culture Medium,13hr,79.16666667,7,4
+Infection,Infectivity,Cell Culture Medium,13hr,81.52173913,8,4
+Infection,Infectivity,Cdk4 400nM,13hr,NA,1,4
+Infection,Infectivity,Cdk4 400nM,13hr,NA,2,4
+Infection,Infectivity,Cdk4 400nM,13hr,NA,3,4
+Infection,Infectivity,Cdk4 400nM,13hr,0.735294118,4,4
+Infection,Infectivity,Cdk4 400nM,13hr,NA,5,4
+Infection,Infectivity,Cdk4 400nM,13hr,NA,6,4
+Infection,Infectivity,Cdk4 400nM,13hr,2.06185567,7,4
+Infection,Infectivity,Cdk4 400nM,13hr,5.555555556,8,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,1,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,2,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,3,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,20,4,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,5,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,0,6,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,13.33333333,7,4
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,8,4
+Infection,Proliferation,Cell Culture Medium,13hr,5.882352941,1,5
+Infection,Proliferation,Cell Culture Medium,13hr,31,2,5
+Infection,Proliferation,Cell Culture Medium,13hr,39.78494624,3,5
+Infection,Proliferation,Cell Culture Medium,13hr,31.70731707,4,5
+Infection,Proliferation,Cell Culture Medium,13hr,66.26506024,5,5
+Infection,Proliferation,Cell Culture Medium,13hr,58.25242718,6,5
+Infection,Proliferation,Cell Culture Medium,13hr,53.4883721,7,5
+Infection,Proliferation,Cell Culture Medium,13hr,51.42857143,8,5
+Infection,Proliferation,Cdk4 400nM,13hr,NA,1,5
+Infection,Proliferation,Cdk4 400nM,13hr,NA,2,5
+Infection,Proliferation,Cdk4 400nM,13hr,NA,3,5
+Infection,Proliferation,Cdk4 400nM,13hr,6.611570248,4,5
+Infection,Proliferation,Cdk4 400nM,13hr,NA,5,5
+Infection,Proliferation,Cdk4 400nM,13hr,NA,6,5
+Infection,Proliferation,Cdk4 400nM,13hr,11.49425287,7,5
+Infection,Proliferation,Cdk4 400nM,13hr,18.42105263,8,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,1,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,2,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,3,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,14.28571429,4,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,13.57142857,5,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,31.50684932,6,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,24.76190476,7,5
+Infection,Proliferation,Fascaplysin 350nM,13hr,NA,8,5
+Infection,Infectivity,Cell Culture Medium,13hr,30.53892216,1,5
+Infection,Infectivity,Cell Culture Medium,13hr,42.69662921,2,5
+Infection,Infectivity,Cell Culture Medium,13hr,18.4,3,5
+Infection,Infectivity,Cell Culture Medium,13hr,50,4,5
+Infection,Infectivity,Cell Culture Medium,13hr,NA,5,5
+Infection,Infectivity,Cell Culture Medium,13hr,68.93203883,6,5
+Infection,Infectivity,Cell Culture Medium,13hr,76.74418605,7,5
+Infection,Infectivity,Cell Culture Medium,13hr,71.42857143,8,5
+Infection,Infectivity,Cdk4 400nM,13hr,NA,1,5
+Infection,Infectivity,Cdk4 400nM,13hr,NA,2,5
+Infection,Infectivity,Cdk4 400nM,13hr,NA,3,5
+Infection,Infectivity,Cdk4 400nM,13hr,0,4,5
+Infection,Infectivity,Cdk4 400nM,13hr,NA,5,5
+Infection,Infectivity,Cdk4 400nM,13hr,NA,6,5
+Infection,Infectivity,Cdk4 400nM,13hr,2.298850575,7,5
+Infection,Infectivity,Cdk4 400nM,13hr,3.947368421,8,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,1,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,2,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,3,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,4.081632653,4,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,5,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,34.24657534,6,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,6.666666667,7,5
+Infection,Infectivity,Fascaplysin 350nM,13hr,NA,8,5
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,52.59899507,NA,1
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,55.27951544,NA,2
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,47.64899062,NA,3
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,51.65473676,NA,4
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,52.81998565,NA,5
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,29.65854005,NA,6
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,37.44707376,NA,7
+Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,40.4877909,NA,8
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,61.15289129,NA,1
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,51.81803238,NA,2
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,51.001081,NA,3
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,21.42293803,NA,4
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,72.6573325,NA,5
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,48.26670963,NA,6
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,53.41182589,NA,7
+Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,45.905435,NA,8
+Scratch,Proliferation,G. vaginalis,16hr,57.36852374,NA,1
+Scratch,Proliferation,G. vaginalis,16hr,46.8332966,NA,2
+Scratch,Proliferation,G. vaginalis,16hr,63.74371413,NA,3
+Scratch,Proliferation,G. vaginalis,16hr,55.28347001,NA,4
+Scratch,Proliferation,G. vaginalis,19hr,87.08820506,NA,1
+Scratch,Proliferation,G. vaginalis,19hr,55.81054923,NA,2
+Scratch,Proliferation,G. vaginalis,19hr,93.83013918,NA,3
+Scratch,Proliferation,G. vaginalis,19hr,63.46168946,NA,4
+Scratch,Proliferation,G. vaginalis,8hr,65.2240194,NA,1
+Scratch,Proliferation,G. vaginalis,8hr,54.24458632,NA,2
+Scratch,Proliferation,G. vaginalis,8hr,53.25899978,NA,3
+Scratch,Proliferation,G. vaginalis,8hr,63.32816986,NA,4
+Scratch,Proliferation,L. crispatus,16hr,4.185076405,NA,1
+Scratch,Proliferation,L. crispatus,16hr,-3.665202179,NA,2
+Scratch,Proliferation,L. crispatus,16hr,3.456410956,NA,3
+Scratch,Proliferation,L. crispatus,16hr,-0.353116184,NA,4
+Scratch,Proliferation,L. crispatus,19hr,4.636783149,NA,1
+Scratch,Proliferation,L. crispatus,19hr,4.356202795,NA,2
+Scratch,Proliferation,L. crispatus,19hr,-1.627484566,NA,3
+Scratch,Proliferation,L. crispatus,19hr,1.151580388,NA,4
+Scratch,Proliferation,L. crispatus,8hr,-0.559239977,NA,1
+Scratch,Proliferation,L. crispatus,8hr,3.791540973,NA,2
+Scratch,Proliferation,L. crispatus,8hr,0.846407702,NA,3
+Scratch,Proliferation,L. crispatus,8hr,2.913155519,NA,4
+Scratch,Proliferation,L. iners,16hr,7.122656383,NA,1
+Scratch,Proliferation,L. iners,16hr,10.8686196,NA,2
+Scratch,Proliferation,L. iners,16hr,11.22847176,NA,3
+Scratch,Proliferation,L. iners,16hr,14.93850789,NA,4
+Scratch,Proliferation,L. iners,19hr,10.51062859,NA,1
+Scratch,Proliferation,L. iners,19hr,9.237294448,NA,2
+Scratch,Proliferation,L. iners,19hr,6.839753412,NA,3
+Scratch,Proliferation,L. iners,19hr,8.512224398,NA,4
+Scratch,Proliferation,L. iners,8hr,6.713996708,NA,1
+Scratch,Proliferation,L. iners,8hr,6.292838844,NA,2
+Scratch,Proliferation,L. iners,8hr,4.19023335,NA,3
+Scratch,Proliferation,L. iners,8hr,8.463948878,NA,4
+Scratch,Proliferation,L. jensenii,16hr,-1.128696637,NA,1
+Scratch,Proliferation,L. jensenii,16hr,2.564214443,NA,2
+Scratch,Proliferation,L. jensenii,16hr,-1.066786486,NA,3
+Scratch,Proliferation,L. jensenii,16hr,1.055372015,NA,4
+Scratch,Proliferation,L. jensenii,19hr,0.344694359,NA,1
+Scratch,Proliferation,L. jensenii,19hr,4.532187339,NA,2
+Scratch,Proliferation,L. jensenii,19hr,-0.434783995,NA,3
+Scratch,Proliferation,L. jensenii,19hr,3.94827838,NA,4
+Scratch,Proliferation,L. jensenii,8hr,-0.117141057,NA,1
+Scratch,Proliferation,L. jensenii,8hr,3.07131396,NA,2
+Scratch,Proliferation,L. jensenii,8hr,-2.201459571,NA,3
+Scratch,Proliferation,L. jensenii,8hr,1.145621151,NA,4
+Scratch,Proliferation,Cell Culture Medium,16hr,65.41511756,NA,1
+Scratch,Proliferation,Cell Culture Medium,16hr,52.40088075,NA,2
+Scratch,Proliferation,Cell Culture Medium,16hr,71.36210723,NA,3
+Scratch,Proliferation,Cell Culture Medium,16hr,65.51200012,NA,4
+Scratch,Proliferation,Cell Culture Medium,19hr,88.76161656,NA,1
+Scratch,Proliferation,Cell Culture Medium,19hr,82.02387116,NA,2
+Scratch,Proliferation,Cell Culture Medium,19hr,99.7662385,NA,3
+Scratch,Proliferation,Cell Culture Medium,19hr,93.23658325,NA,4
+Scratch,Proliferation,Cell Culture Medium,8hr,57.48256445,NA,1
+Scratch,Proliferation,Cell Culture Medium,8hr,71.65173298,NA,2
+Scratch,Proliferation,Cell Culture Medium,8hr,71.59224103,NA,3
+Scratch,Proliferation,Cell Culture Medium,8hr,81.91685203,NA,4
+Scratch,Proliferation,P1PCTLA,8hr,5.188675993,NA,2
+Scratch,Proliferation,P1PCTLA,8hr,7.16,NA,3
+Scratch,EdU,G. vaginalis,16hr,32.66475645,1,1
+Scratch,EdU,G. vaginalis,16hr,26.31578947,1,2
+Scratch,EdU,G. vaginalis,16hr,28.33876222,1,3
+Scratch,EdU,G. vaginalis,16hr,21.13821138,1,4
+Scratch,EdU,G. vaginalis,16hr,20.57291667,1,5
+Scratch,EdU,L. crispatus,16hr,1.208459215,1,1
+Scratch,EdU,L. crispatus,16hr,0,1,2
+Scratch,EdU,L. crispatus,16hr,0,1,3
+Scratch,EdU,L. crispatus,16hr,0.319488818,1,4
+Scratch,EdU,L. crispatus,16hr,0,1,5
+Scratch,EdU,L. iners,16hr,2.542372881,1,1
+Scratch,EdU,L. iners,16hr,2.339181287,1,2
+Scratch,EdU,L. iners,16hr,1.242236025,1,3
+Scratch,EdU,L. iners,16hr,1.46627566,1,4
+Scratch,EdU,L. iners,16hr,0.547945205,1,5
+Scratch,EdU,L. jensenii,16hr,0,1,1
+Scratch,EdU,L. jensenii,16hr,0,1,2
+Scratch,EdU,L. jensenii,16hr,0,1,3
+Scratch,EdU,L. jensenii,16hr,0,1,4
+Scratch,EdU,L. jensenii,16hr,0,1,5
+Scratch,EdU,Cell Culture Medium,16hr,48.54111406,1,1
+Scratch,EdU,Cell Culture Medium,16hr,39.95157385,1,2
+Scratch,EdU,Cell Culture Medium,16hr,45.64102564,1,3
+Scratch,EdU,Cell Culture Medium,16hr,47.08994709,1,4
+Scratch,EdU,Cell Culture Medium,16hr,42.21105528,1,5
+Scratch,EdU,G. vaginalis,19hr,28.15789474,1,1
+Scratch,EdU,G. vaginalis,19hr,23.33333333,1,2
+Scratch,EdU,G. vaginalis,19hr,31.87660668,1,3
+Scratch,EdU,G. vaginalis,19hr,20.11661808,1,4
+Scratch,EdU,G. vaginalis,19hr,21.64179104,1,5
+Scratch,EdU,L. crispatus,19hr,0,1,1
+Scratch,EdU,L. crispatus,19hr,0,1,2
+Scratch,EdU,L. crispatus,19hr,0,1,3
+Scratch,EdU,L. crispatus,19hr,1.2,1,4
+Scratch,EdU,L. crispatus,19hr,0,1,5
+Scratch,EdU,L. iners,19hr,5.202312139,1,1
+Scratch,EdU,L. iners,19hr,0.524934383,1,2
+Scratch,EdU,L. iners,19hr,2.083333333,1,3
+Scratch,EdU,L. iners,19hr,2.659574468,1,4
+Scratch,EdU,L. iners,19hr,0.950118765,1,5
+Scratch,EdU,L. jensenii,19hr,0,1,1
+Scratch,EdU,L. jensenii,19hr,0,1,2
+Scratch,EdU,L. jensenii,19hr,0,1,3
+Scratch,EdU,L. jensenii,19hr,0,1,4
+Scratch,EdU,L. jensenii,19hr,0,1,5
+Scratch,EdU,Cell Culture Medium,19hr,47.71689498,1,1
+Scratch,EdU,Cell Culture Medium,19hr,40.22988506,1,2
+Scratch,EdU,Cell Culture Medium,19hr,51.84275184,1,3
+Scratch,EdU,Cell Culture Medium,19hr,40.42105263,1,4
+Scratch,EdU,Cell Culture Medium,19hr,35.1039261,1,5
+Scratch,EdU,G. vaginalis,8hr,33.62573099,1,1
+Scratch,EdU,G. vaginalis,8hr,19.14357683,1,2
+Scratch,EdU,G. vaginalis,8hr,32.16374269,1,3
+Scratch,EdU,G. vaginalis,8hr,31.90789474,1,4
+Scratch,EdU,G. vaginalis,8hr,24.59893048,1,5
+Scratch,EdU,L. crispatus,8hr,0,1,1
+Scratch,EdU,L. crispatus,8hr,0,1,2
+Scratch,EdU,L. crispatus,8hr,0,1,3
+Scratch,EdU,L. crispatus,8hr,0,1,4
+Scratch,EdU,L. crispatus,8hr,0,1,5
+Scratch,EdU,L. iners,8hr,5.431309904,1,1
+Scratch,EdU,L. iners,8hr,5.882352941,1,2
+Scratch,EdU,L. iners,8hr,2.1875,1,3
+Scratch,EdU,L. iners,8hr,0,1,4
+Scratch,EdU,L. iners,8hr,0.595238095,1,5
+Scratch,EdU,L. jensenii,8hr,0,1,1
+Scratch,EdU,L. jensenii,8hr,0,1,2
+Scratch,EdU,L. jensenii,8hr,0,1,3
+Scratch,EdU,L. jensenii,8hr,0,1,4
+Scratch,EdU,L. jensenii,8hr,0,1,5
+Scratch,EdU,Cell Culture Medium,8hr,46.81440443,1,1
+Scratch,EdU,Cell Culture Medium,8hr,36.41618497,1,2
+Scratch,EdU,Cell Culture Medium,8hr,45,1,3
+Scratch,EdU,Cell Culture Medium,8hr,28.9893617,1,4
+Scratch,EdU,Cell Culture Medium,8hr,32.95774648,1,5

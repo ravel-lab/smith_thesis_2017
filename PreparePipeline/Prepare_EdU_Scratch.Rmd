@@ -1,0 +1,26 @@
+---
+title: "Prepare_EdU_Scratch"
+author: "Steven Smith, PhD"
+date: "10/26/2017"
+output: html_document
+---
+
+```{r save_rdata, include=FALSE}
+#in_vitro_experiments<-read.csv(paste0("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/Working/R_script_input/","In_vitro_Experiments.csv")) ## Unstable location- move to preparepipline dir
+## Note that previous to OCT26 2017, in_vitro_experiments had only 1 time point (13h) which was used in the thesis. Now it contains time points more aligned with qPCR.
+## This was also included in the Smith_Thesis.Rmd file, but moved to Prepare_EdU_Scratch to be more in line with qPCR prep data. 
+
+root_directory<-"~/Documents/smith_thesis_2017/PreparePipeline/"
+R_script_input_directory<-"~/Documents/smith_thesis_2017/AnalysisPipeline/Script_input/"
+
+## In vitro experiments is a csv file created manually by compiling the EdU percentages from Cell Prolifer output or scratch area filled from scrach assay data. 
+
+##FIXME
+## See XXXX for more information on Cellprofiler and scratch assay. 
+
+in_vitro_experiments<-read.csv(paste0(root_directory,"In_vitro_Experiments.csv")) ## pre-compiled csv datatable. 
+
+
+save(in_vitro_experiments,file=paste0(R_script_input_directory,"In_Vitro_Experiments.Rdata"))
+
+```
