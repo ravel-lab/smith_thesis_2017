@@ -1,0 +1,14 @@
+Sample,Sample Description,RINe,Conc_ng_ul,PercentProliferate,amount_inpuit
+LcrispBCM_30mins,102416_VK2_30min_LcrispBCM,9.8,58.1,,406.7
+GvagBCM_30mins,102416_VK2_30min_GvagBCM,7.9,75.8,,530.6
+VK2Media_30mins,102416_VK2_30min_VK2Media,8.9,69.3,,485.1
+LacticAcid_30mins,102416_VK2_30min_LacticAcid,8.3,35.9,,251.3
+LcrispBCM_4h,102416_VK2_4hrs_LcrispBCM,7.1,80.2,,561.4
+GvagBCM_4h,102416_VK2_4hrs_GvagBCM,5,91.6,,641.2
+VK2Media_4h,102416_VK2_4hrs_VK2Media,4.3,63.9,,447.3
+LacticAcid_4h,102416_VK2_4hrs_LacticAcid,5.9,55.9,,391.3
+LcrispBCM_11h,102416_VK2_11hrs_LcrispBCM,7.7,98.3,0.087201589,688.1
+GvagBCM_11h,102416_VK2_11hrs_GvagBCM,7,85.4,0.289060925,597.8
+VK2Media_11h,102416_VK2_11hrs_VK2Media,8.4,103,0.564275384,721
+LacticAcid_11h,102416_VK2_11hrs_LacticAcid,2.7,43.6,0.01,305.2
+LinersBCM_11h,102416_VK2_11hrs_LinersBCM,8.1,72.2,0.0525623,505.4
