@@ -24,7 +24,7 @@ Primer choices are:
 * hsa-miR-221   
 * hsa-miR-RNU6   
 
-```{r}
+```{r prepare_libs,eval=T}
 library(ggplot2)
 library(reshape)
 library(tidyr)
@@ -34,9 +34,11 @@ library(plyr)
 
 ```
 ## Load & format data
-```{r,load_data}
+```{r load_data, eval=T}
 LCM<-NULL
-root<-"/Volumes/HD-PATU3/StevenSmith_ComputerRecords_2012_2017/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Proliferation/"
+#root<-"/Volumes/HD-PATU3/StevenSmith_ComputerRecords_2012_2017/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Proliferation/"
+root<-"~/Documents/smith_thesis_2017/PreparePipeline/"
+final_dir<-"~/Documents/smith_thesis_2017/AnalysisPipeline/Script_input/" #"/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/"
 
 lcm.list<-c("100916_101016_A2EN_VK2_CM_miScript","101616_LActicAcid","102016_VK2_phrange","102416/102416_VK2_miScript","110116_BCM_1_5_22hr","110816/110816_vK2_run2","110816/110816_vk2_HiFlex_CCND1","112816_BCM","112816_run2_BCM","011217_BCM","011717_BCM_LA","012017_BCM","012617_BCM","022017_BCS","022017_finale","022017_LacticAcid_4hr","042417/042417_LacticAcid","093017_BCS")
 for(l in lcm.list){
@@ -64,7 +66,7 @@ LCM$BCM<-factor(LCM$BCM,ordered = T,levels = c("LCRISP","LINERS","LJENS","GVAG",
 
 ```
 ## Analyze & Plot
-```{r,sublook,eval=F}
+```{r sublook,eval=F}
 LCM.tmp<-read.csv(paste0(root,"110816/110816_vK2",".csv"))
 ggplot(filter(LCM.tmp,!LA_CONC==""))+geom_point(aes(x=LA_CONC,y=-Ct,col=PrimerPair))+facet_wrap(~LA_ISOMER)
 
@@ -100,7 +102,7 @@ ggplot(LCM)+geom_point(aes(x=RNA_Input,y=-Ct,col=Study),size=3)+theme_bw()+theme
 ggplot(LCM)+geom_point(aes(x=RINe,y=-Ct,col=PrimerPair),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))+xlab("RINe")+  ggtitle("All Results BCM & LacticAcid exposed A2EN & VK2s")
 ```
 
-```{r analyze}
+```{r analyze, eval=F}
 LCM.spread<-spread(select(LCM,c(Study,PrimerPair,Study,Sample,Ct,Replicate,CellLine,BCM,pH,RINe,ExposureTime,RNA_Input,LacticAcid_D_g_L,LacticAcid_L_g_L)),key = PrimerPair,value = Ct)
 
 LCM.spread.summary<-ddply(LCM.spread,c("Sample"),summarise,
@@ -116,7 +118,7 @@ LCM.spread.summary$deltaCt.CCND1.sd<-sqrt(LCM.spread.summary$sd_CCND1^2+LCM.spre
 LCM.spread.summary<-inner_join(LCM.spread.summary,unique(select(LCM,c(Study,Sample, pH, BCM, CellLine, RNA_Input,ExposureTime,LacticAcid_D_g_L,LacticAcid_L_g_L))))
 ```
 ## Prepare table for manuscript
-```{r prep_manuscript}
+```{r prep_manuscript, eval=T}
   #"042417","022017_run_0424"
   qPCR_time_course<-filter(LCM.spread,!BCM %in% c("negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017","22017_rerunMarch","042417","022017_run_0424","93017","52917") ) %>% select(c(Study,Sample,Replicate,BCM,ExposureTime,`miR-193b`,RNU6))
 qPCR_time_course[qPCR_time_course$Study %in% c("93017","52917"),]
@@ -149,9 +151,8 @@ qPCR_time_course<-filter(qPCR_time_course,!(Study=="study_2" & BCS %in% c("L. cr
 qPCR_time_course<-filter(qPCR_time_course,!BCS=="0_06_DL")
 qPCR_time_course
 
-final_dir<-"/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/"
 save(qPCR_time_course,file=paste0(final_dir,"qPCR_time_course.Rdata"))
-save(qPCR_time_course,file=paste0(root,"qPCR_time_course.Rdata"))
+#save(qPCR_time_course,file=paste0(root,"qPCR_time_course.Rdata"))
 
   
 qpcr_sigtest<-data.frame(
@@ -174,11 +175,11 @@ qpcr_sigtest[ grepl(qpcr_sigtest$comparison,pattern = "0_06") ,  c("Study.comp",
 qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(comparison=c("D_10","D_10","D_10","L_10","L_10","PH_766","PH_766"),reference=c("L_10","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium"),ExposureTime="4hr",Study.comp="study_4",Study.ref=c("study_4","study_3","study_3","study_3","study_3","study_3","study_3")))
 qpcr_sigtest[qpcr_sigtest$ExposureTime %in% c("8hr","16hr","19hr") ,c("Study.ref","Study.comp")]<-"study_5"
 
-save(qpcr_sigtest,file="/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/qpcr_sigtest.Rdata")
+save(qpcr_sigtest,file=paste0(final_dir,"qpcr_sigtest.Rdata"))
   
 ```
 
-```{r other}
+```{r other,eval=F}
 
   ggplot(filter(LCM.spread.summary,Study %in% CCDN1_studies))+geom_point(aes(x=BCM,y=-deltaCt.RNU6,fill=BCM,col=BCM,pch=Study),size=6,show.legend = T)+theme_bw()+facet_wrap(~ExposureTime)+ggtitle("miR-193b in CCND1 studies")
   
@@ -457,7 +458,7 @@ plot(ph_vs_deltaCt.sub)
 ```
 
 ## Write plots to disk
-```{r,write_plots}
+```{r write_plots, eval=F}
 postscript("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/100916_101026_VK2_A2EN_1_1_1HR/100916_101026_VK2_A2EN_1_1_1HR_BCM_plots.ps")
 plot(sample_vs_deltaCt)
 plot(ph_vs_deltaCt)
@@ -466,7 +467,7 @@ dev.off()
 
 ```
 ##092316, 092916 with RNU6
-```{r}
+```{r, eval=F}
 LCM<-read.csv("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/092316_LCM_8hr_092916_12hr_193b_RNU_miScript.csv")
 LCM.spread<-spread(select(LCM,c(Sample,PrimerPair,Ct,Replicate)),key = PrimerPair,value = Ct)
             #      pH=LCM.spread$pH
@@ -478,7 +479,7 @@ ggplot(deltaCts)+geom_point(aes(x=Sample,y=-deltaCt.RNU6))+theme(title=element_t
 ```
 
 ## Load & format data
-```{r,load_data}
+```{r load_data, eval=F}
 
 #LCM.ph<-read.csv("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/100916_101026_VK2_A2EN_1_1_1HR/100916_101016_A2EN_VK2_CM_miScript_ph.csv")
 #LCM.RNA<-read.csv("~/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Migration/100916_101026_VK2_A2EN_1_1_1HR/100916_101016_A2EN_VK2_CM_miScript_RNA.csv")
@@ -514,7 +515,7 @@ plot(ph_vs_deltaCt.sub)
 
 ```
 
-```{r proliferation}
+```{r proliferation, eval=F}
 proliferation<-read.csv("~/Dropbox (IGS)/Jacques_Steve_Shared/Manuscript/miRNA/Working/R_script_input/Proliferation_Area.csv",stringsAsFactors = T)
 EdU<-filter(proliferation,grepl(proliferation$type,pattern = "edu"))
 proliferation<-filter(proliferation,!grepl(proliferation$type,pattern = "edu"))
@@ -572,8 +573,8 @@ deltaCts.melt$BCM
 ```
 
 
-```{r LA}
-<-filter(LCM.spread.summary, BCM %in% c("L_0_06","L_0_08","DL_0_06","DL_0_08")  & CellLine=="VK2") 
+```{r LA, eval=F}
+df<-filter(LCM.spread.summary, BCM %in% c("L_0_06","L_0_08","DL_0_06","DL_0_08")  & CellLine=="VK2") 
              #Study %in% c("102416","110116","110816","11217","12617"))# %>% select(Study)
 
 
