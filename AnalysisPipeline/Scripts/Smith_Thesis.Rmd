@@ -1,7 +1,7 @@
 ---
-title: "Smith PhD Thesis"
+title: "Smith et al Manuscript"
 author: "Steven Smith"
-date: "August 29, 2017"
+date: "October 26, 2017"
 output:
   word_document:
     toc: yes
@@ -12,7 +12,7 @@ output:
 ---
 # Analysis Script
 **The following markdown serves as a record for analysis performed in Smith et al., 2017.**   
-**Change the root directory to point to where "Script_input" and "Scripts" directories reside.**  
+**Change the root directory to point to where "Script_input" and "Scripts" directories reside. This is currently hardcoded as the Git repo **  
 This script will automatically create the following directories, if not present already:  
 1.  Tables- Tables associated with manuscript, in .csv or .txt  
 2.  Figures - Figures associated with manuscript, in .eps  
