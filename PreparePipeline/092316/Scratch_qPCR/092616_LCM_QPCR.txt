@@ -1,0 +1,71 @@
+WellN	Row	Column	PrimerPair	Sample	Replciate	InputRNA	InputcDNA	Well	Detector Name	Reporter	Task	Ct	Tm Value	Tm Type	Quantity	Qty Mean	Qty StdDev	Ct Median	Ct Mean	Ct StdDev	Ct Type	Template Name	Baseline Type	Baseline Start	Baseline Stop	Threshold Type	Threshold	FOS	HMD	LME	EW	BPR	NAW	HNS	HRN	EAF	BAF	TAF	CAF
+358	O	22	miR-103a	061016_Lcrisp	1	7	3	O22	sybr	SYBR	Unknown	17.760754	76.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+359	O	23	miR-103a	061016_Lcrisp	2	7	3	O23	sybr	SYBR	Unknown	18.49741	76.1	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+360	O	24	miR-103a	061016_Lcrisp	3	7	3	O24	sybr	SYBR	Unknown	19.422037	76.1	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+262	K	22	miR-103a	Gvag	1	0.7	3	K22	sybr	SYBR	Unknown	22.643885	77	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+263	K	23	miR-103a	Gvag	2	0.7	3	K23	sybr	SYBR	Unknown	22.83649	76.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+264	K	24	miR-103a	Gvag	3	0.7	3	K24	sybr	SYBR	Unknown	22.590307	76.6	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+118	E	22	miR-103a	Gvag	1	7	3	E22	sybr	SYBR	Unknown	20.313766	77	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+119	E	23	miR-103a	Gvag	2	7	3	E23	sybr	SYBR	Unknown	20.360281	76.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+120	E	24	miR-103a	Gvag	3	7	3	E24	sybr	SYBR	Unknown	20.3128	76.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+310	M	22	miR-103a	Lcrisp	1	7	0.3	M22	sybr	SYBR	Unknown	24.817934	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+311	M	23	miR-103a	Lcrisp	2	7	0.3	M23	sybr	SYBR	Unknown	25.01231	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+312	M	24	miR-103a	Lcrisp	3	7	0.3	M24	sybr	SYBR	Unknown	24.91185	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+214	I	22	miR-103a	Lcrisp	1	0.7	3	I22	sybr	SYBR	Unknown	22.651953	77	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+215	I	23	miR-103a	Lcrisp	2	0.7	3	I23	sybr	SYBR	Unknown	22.422373	76.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+216	I	24	miR-103a	Lcrisp	3	0.7	3	I24	sybr	SYBR	Unknown	22.698374	76.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+22	A	22	miR-103a	Lcrisp	1	7	3	A22	sybr	SYBR	Unknown	20.185785	76.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+23	A	23	miR-103a	Lcrisp	2	7	3	A23	sybr	SYBR	Unknown	20.281202	76.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+24	A	24	miR-103a	Lcrisp	3	7	3	A24	sybr	SYBR	Unknown	20.124193	76.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+70	C	22	miR-103a	Liners	1	7	3	C22	sybr	SYBR	Unknown	20.071898	76.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+71	C	23	miR-103a	Liners	2	7	3	C23	sybr	SYBR	Unknown	19.967842	76.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+72	C	24	miR-103a	Liners	3	7	3	C24	sybr	SYBR	Unknown	20.021214	76.6	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+166	G	22	miR-103a	Media	1	7	3	G22	sybr	SYBR	Unknown	21.092695	77	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+167	G	23	miR-103a	Media	2	7	3	G23	sybr	SYBR	Unknown	21.10901	76.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+168	G	24	miR-103a	Media	3	7	3	G24	sybr	SYBR	Unknown	21.161516	76.9	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+356	O	20	miR-103a	NTC	1	7	3	O20	sybr	SYBR	Unknown	NA	62.7	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+357	O	21	miR-103a	NTC	2	7	3	O21	sybr	SYBR	Unknown	NA	62.2	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+337	O	1	miR-193b	061016_Lcrisp	1	7	3	O1	sybr	SYBR	Unknown	14.86074	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+338	O	2	miR-193b	061016_Lcrisp	2	7	3	O2	sybr	SYBR	Unknown	16.417976	62.1	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+339	O	3	miR-193b	061016_Lcrisp	3	7	3	O3	sybr	SYBR	Unknown	17.619482	62.1	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+241	K	1	miR-193b	Gvag	1	0.7	3	K1	sybr	SYBR	Unknown	24.94031	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+242	K	2	miR-193b	Gvag	2	0.7	3	K2	sybr	SYBR	Unknown	24.92221	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+243	K	3	miR-193b	Gvag	3	0.7	3	K3	sybr	SYBR	Unknown	25.008944	77.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+97	E	1	miR-193b	Gvag	1	7	3	E1	sybr	SYBR	Unknown	23.000431	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+98	E	2	miR-193b	Gvag	2	7	3	E2	sybr	SYBR	Unknown	23.31245	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+99	E	3	miR-193b	Gvag	3	7	3	E3	sybr	SYBR	Unknown	23.15949	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+289	M	1	miR-193b	Lcrisp	1	7	0.3	M1	sybr	SYBR	Unknown	27.231049	76.3	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+290	M	2	miR-193b	Lcrisp	2	7	0.3	M2	sybr	SYBR	Unknown	26.969612	76.3	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+291	M	3	miR-193b	Lcrisp	3	7	0.3	M3	sybr	SYBR	Unknown	27.341686	76.3	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+193	I	1	miR-193b	Lcrisp	1	0.7	3	I1	sybr	SYBR	Unknown	25.34563	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+194	I	2	miR-193b	Lcrisp	2	0.7	3	I2	sybr	SYBR	Unknown	25.124863	77.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+195	I	3	miR-193b	Lcrisp	3	0.7	3	I3	sybr	SYBR	Unknown	24.889975	77.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+1	A	1	miR-193b	Lcrisp	1	7	3	A1	sybr	SYBR	Unknown	22.823992	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+2	A	2	miR-193b	Lcrisp	2	7	3	A2	sybr	SYBR	Unknown	22.837664	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+3	A	3	miR-193b	Lcrisp	3	7	3	A3	sybr	SYBR	Unknown	22.807955	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+49	C	1	miR-193b	Liners	1	7	3	C1	sybr	SYBR	Unknown	22.731153	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+50	C	2	miR-193b	Liners	2	7	3	C2	sybr	SYBR	Unknown	22.800596	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+51	C	3	miR-193b	Liners	3	7	3	C3	sybr	SYBR	Unknown	22.868008	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+145	G	1	miR-193b	Media	1	7	3	G1	sybr	SYBR	Unknown	23.851387	77.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+146	G	2	miR-193b	Media	2	7	3	G2	sybr	SYBR	Unknown	23.900606	77.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+147	G	3	miR-193b	Media	3	7	3	G3	sybr	SYBR	Unknown	23.686111	77.7	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+340	O	4	miR-193b	NTC	1	7	3	O4	sybr	SYBR	Unknown	NA	62	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+341	O	5	miR-193b	NTC	2	7	3	O5	sybr	SYBR	Unknown	NA	62.8	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+10	A	10	miR-221	Lcrisp	1	7	3	A10	sybr	SYBR	Unknown	18.271423	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+58	C	10	miR-221	Lcrisp	1	0.7	3	C10	sybr	SYBR	Unknown	20.73379	77	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+106	E	10	miR-221	Lcrisp	1	7	3	E10	sybr	SYBR	Unknown	22.906136	76	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+154	G	10	miR-221	Lcrisp	2	7	3	G10	sybr	SYBR	Unknown	22.71901	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+202	I	10	miR-221	Lcrisp	1	7	0.3	I10	sybr	SYBR	Unknown	20.147259	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+250	K	10	miR-221	Lcrisp	2	7	0.3	K10	sybr	SYBR	Unknown	23.45748	77	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+11	A	11	miR-221	Lcrisp	2	7		A11	sybr	SYBR	Unknown	18.51171	77	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+59	C	11	miR-221	Lcrisp	2	0.7		C11	sybr	SYBR	Unknown	20.425207	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+107	E	11	miR-221	NULL				E11	sybr	SYBR	Unknown	NA	62.6	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+155	G	11	miR-221	NULL				G11	sybr	SYBR	Unknown	NA	67.8	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+203	I	11	miR-221	NULL				I11	sybr	SYBR	Unknown	NA	73.3	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE						
+251	K	11	miR-221	NULL				K11	sybr	SYBR	Unknown	NA	75.4	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+15	A	15	RNU6	Lcrisp	1	7	3	A15	sybr	SYBR	Unknown	18.917393	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+16	A	16	RNU6	Lcrisp	1	7	3	A16	sybr	SYBR	Unknown	18.852205	62	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+63	C	15	RNU6	Lcrisp	2	7	3	C15	sybr	SYBR	Unknown	20.854439	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+64	C	16	RNU6	Lcrisp	2	7	3	C16	sybr	SYBR	Unknown	20.550135	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.2												
+111	E	15	RNU6	NTC	1	7	3	E15	sybr	SYBR	Unknown	NA	92	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			
+112	E	16	RNU6	NTC	2	7	3	E16	sybr	SYBR	Unknown	NA	72	Auto Tm							Manual Ct		Automatic			Manual	0.2				TRUE		TRUE			TRUE			

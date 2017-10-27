@@ -1,0 +1,39 @@
+SDS 2.4	AQ Results	1.0
+Filename	091216_LCM_miscript
+PlateID	
+Assay Type	Absolute Quantification
+Run DateTime	9/20/16 2:39:31 PM
+Operator	
+ThermalCycleParams	
+
+Sample Information
+
+Well	Sample Name	Detector Name	Reporter	Task	Ct	Tm Value	Tm Type	Quantity	Qty Mean	Qty StdDev	Ct Median	Ct Mean	Ct StdDev	Ct Type	Template Name	Baseline Type	Baseline Start	Baseline Stop	Threshold Type	Threshold	FOS	HMD	LME	EW	BPR	NAW	HNS	HRN	EAF	BAF	TAF	CAF	
+1	A1	sybr	SYBR	Unknown	Undetermined	62.0	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+2	A2	sybr	SYBR	Unknown	35.944683	78.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422													
+20	A20	sybr	SYBR	Unknown	Undetermined	93.4	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+21	A21	sybr	SYBR	Unknown	Undetermined	63.7	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+22	A22	sybr	SYBR	Unknown	Undetermined	62.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+23	A23	sybr	SYBR	Unknown	Undetermined	61.8	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+24	A24	sybr	SYBR	Unknown	Undetermined	61.8	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+3	A3	sybr	SYBR	Unknown	Undetermined	84.9	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+4	A4	sybr	SYBR	Unknown	Undetermined	62.0	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+5	A5	sybr	SYBR	Unknown	35.994354	75.2	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422													
+49	C1	sybr	SYBR	Unknown	Undetermined	62.0	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+50	C2	sybr	SYBR	Unknown	36.38416	76.3	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422													
+68	C20	sybr	SYBR	Unknown	Undetermined	63.7	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+69	C21	sybr	SYBR	Unknown	Undetermined	69.5	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+70	C22	sybr	SYBR	Unknown	Undetermined	84.2	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+71	C23	sybr	SYBR	Unknown	Undetermined	61.8	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+72	C24	sybr	SYBR	Unknown	Undetermined	73.4	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+51	C3	sybr	SYBR	Unknown	Undetermined	63.8	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+52	C4	sybr	SYBR	Unknown	Undetermined	62.8	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+53	C5	sybr	SYBR	Unknown	Undetermined	92.6	Auto Tm							Automatic Ct		Automatic			Automatic	0.6397422				true		true			true				
+Slope		cycles/log decade
+Y-Intercept		
+R^2		
+
+
+
+NAP	LPL
+	

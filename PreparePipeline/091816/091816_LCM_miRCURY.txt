@@ -1,0 +1,47 @@
+SDS 2.4	AQ Results	1.0
+Filename	091816_LCM_miRCURY
+PlateID	
+Assay Type	Absolute Quantification
+Run DateTime	9/19/16 1:39:19 PM
+Operator	
+ThermalCycleParams	
+
+Sample Information
+
+Well	Sample Name	Detector Name	Reporter	Task	Ct	Tm Value	Tm Type	Quantity	Qty Mean	Qty StdDev	Ct Median	Ct Mean	Ct StdDev	Ct Type	Template Name	Baseline Type	Baseline Start	Baseline Stop	Threshold Type	Threshold	FOS	HMD	LME	EW	BPR	NAW	HNS	HRN	EAF	BAF	TAF	CAF	
+1	A1	sybr	SYBR	Unknown	26.000086	69.6	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+12	A12	sybr	SYBR	Unknown	23.75964	69.5	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+13	A13	sybr	SYBR	Unknown	23.833048	69.5	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+2	A2	sybr	SYBR	Unknown	26.029814	69.6	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+23	A23	sybr	SYBR	Unknown	19.645584	71.5	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+24	A24	sybr	SYBR	Unknown	19.602865	71.5	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+49	C1	sybr	SYBR	Unknown	24.69008	69.8	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+60	C12	sybr	SYBR	Unknown	22.564259	69.7	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+61	C13	sybr	SYBR	Unknown	22.493355	69.7	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+50	C2	sybr	SYBR	Unknown	24.60214	69.8	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+71	C23	sybr	SYBR	Unknown	Undetermined	62.0	Auto Tm							Manual Ct		Automatic			Manual	0.1						true			true				
+72	C24	sybr	SYBR	Unknown	Undetermined	62.0	Auto Tm							Manual Ct		Automatic			Manual	0.1						true			true				
+97	E1	sybr	SYBR	Unknown	26.766178	70.1	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+108	E12	sybr	SYBR	Unknown	24.400223	70.0	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+109	E13	sybr	SYBR	Unknown	24.323626	70.0	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+98	E2	sybr	SYBR	Unknown	26.499254	70.1	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+145	G1	sybr	SYBR	Unknown	22.880756	70.4	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+156	G12	sybr	SYBR	Unknown	21.0251	70.0	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+157	G13	sybr	SYBR	Unknown	21.028896	70.0	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+146	G2	sybr	SYBR	Unknown	22.843094	70.4	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+193	I1	sybr	SYBR	Unknown	23.54432	70.4	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+204	I12	sybr	SYBR	Unknown	21.591389	70.0	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+205	I13	sybr	SYBR	Unknown	21.533112	70.0	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+194	I2	sybr	SYBR	Unknown	23.653751	70.4	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+241	K1	sybr	SYBR	Unknown	25.863962	70.1	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+252	K12	sybr	SYBR	Unknown	23.69985	69.7	Auto Tm							Manual Ct		Automatic			Manual	0.1													
+253	K13	sybr	SYBR	Unknown	Undetermined	65.0	Auto Tm							Manual Ct		Automatic			Manual	0.1						true			true				
+242	K2	sybr	SYBR	Unknown	Undetermined	62.2	Auto Tm							Manual Ct		Automatic			Manual	0.1						true			true				
+Slope		cycles/log decade
+Y-Intercept		
+R^2		
+
+
+
+NAP	LPL
+	

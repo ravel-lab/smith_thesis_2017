@@ -1,0 +1,44 @@
+SDS 2.4	AQ Results	1.0
+Filename	091816_LCM_1hr_miRCURY
+PlateID	
+Assay Type	Absolute Quantification
+Run DateTime	9/19/16 8:50:28 PM
+Operator	
+ThermalCycleParams	
+
+Sample Information
+
+Well	Sample Name	Detector Name	Reporter	Task	Ct	Tm Value	Tm Type	Quantity	Qty Mean	Qty StdDev	Ct Median	Ct Mean	Ct StdDev	Ct Type	Template Name	Baseline Type	Baseline Start	Baseline Stop	Threshold Type	Threshold	FOS	HMD	LME	EW	BPR	NAW	HNS	HRN	EAF	BAF	TAF	CAF	
+1	A1	sybr	SYBR	Unknown	24.820717	69.7	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+12	A12	sybr	SYBR	Unknown	22.97218	69.6	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+13	A13	sybr	SYBR	Unknown	22.86111	69.6	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+2	A2	sybr	SYBR	Unknown	24.836943	69.7	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+23	A23	sybr	SYBR	Unknown	26.400421	69.5	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+49	C1	sybr	SYBR	Unknown	24.501925	69.7	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+60	C12	sybr	SYBR	Unknown	22.572483	69.6	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+61	C13	sybr	SYBR	Unknown	22.523787	69.8	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+50	C2	sybr	SYBR	Unknown	24.887814	69.7	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+71	C23	sybr	SYBR	Unknown	25.891584	69.7	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747					true								
+97	E1	sybr	SYBR	Unknown	23.906525	70.2	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+108	E12	sybr	SYBR	Unknown	22.359928	70.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+109	E13	sybr	SYBR	Unknown	22.254377	70.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+98	E2	sybr	SYBR	Unknown	23.969995	70.2	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+119	E23	sybr	SYBR	Unknown	25.302073	70.2	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+145	G1	sybr	SYBR	Unknown	24.298882	70.5	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+156	G12	sybr	SYBR	Unknown	22.380312	70.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+157	G13	sybr	SYBR	Unknown	22.633821	70.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+146	G2	sybr	SYBR	Unknown	24.25042	70.4	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+167	G23	sybr	SYBR	Unknown	25.53469	70.2	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+193	I1	sybr	SYBR	Unknown	25.171883	70.2	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+204	I12	sybr	SYBR	Unknown	23.327082	70.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+205	I13	sybr	SYBR	Unknown	23.198442	70.6	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+194	I2	sybr	SYBR	Unknown	28.07874	71.5	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747													
+215	I23	sybr	SYBR	Unknown	35.173794	67.1	Auto Tm							Automatic Ct		Automatic			Automatic	0.0943747				true		true		true					
+Slope		cycles/log decade
+Y-Intercept		
+R^2		
+
+
+
+NAP	LPL
+	

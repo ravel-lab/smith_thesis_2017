@@ -1,0 +1,103 @@
+SDS 2.4	AQ Results	1.0
+Filename	102416_VK2_miScript
+PlateID	
+Assay Type	Absolute Quantification
+Run DateTime	10/25/16 5:35:06 PM
+Operator	
+ThermalCycleParams	
+
+Sample Information
+
+Well	Sample Name	Detector Name	Reporter	Task	Ct	Tm Value	Tm Type	Quantity	Qty Mean	Qty StdDev	Ct Median	Ct Mean	Ct StdDev	Ct Type	Template Name	Baseline Type	Baseline Start	Baseline Stop	Threshold Type	Threshold	FOS	HMD	LME	EW	BPR	NAW	HNS	HRN	EAF	BAF	TAF	CAF	
+1	A1	sybr	SYBR	Unknown	23.227535	76.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+12	A12	sybr	SYBR	Unknown	23.619669	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+13	A13	sybr	SYBR	Unknown	23.671215	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+15	A15	sybr	SYBR	Unknown	23.432896	75.7	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+16	A16	sybr	SYBR	Unknown	23.725536	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+2	A2	sybr	SYBR	Unknown	23.399855	76.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+20	A20	sybr	SYBR	Unknown	20.22927	75.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+21	A21	sybr	SYBR	Unknown	20.350014	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+23	A23	sybr	SYBR	Unknown	19.920193	61.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+24	A24	sybr	SYBR	Unknown	20.113195	74.8	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+4	A4	sybr	SYBR	Unknown	22.599041	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+5	A5	sybr	SYBR	Unknown	22.52081	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+49	C1	sybr	SYBR	Unknown	22.747952	76.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+60	C12	sybr	SYBR	Unknown	23.372143	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+61	C13	sybr	SYBR	Unknown	23.391129	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+63	C15	sybr	SYBR	Unknown	23.487322	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+64	C16	sybr	SYBR	Unknown	23.481491	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+50	C2	sybr	SYBR	Unknown	22.576883	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+68	C20	sybr	SYBR	Unknown	19.435848	75.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+69	C21	sybr	SYBR	Unknown	19.318819	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+71	C23	sybr	SYBR	Unknown	19.571512	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+72	C24	sybr	SYBR	Unknown	19.516785	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+52	C4	sybr	SYBR	Unknown	22.769482	62.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+53	C5	sybr	SYBR	Unknown	22.92604	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+97	E1	sybr	SYBR	Unknown	24.664572	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+108	E12	sybr	SYBR	Unknown	24.485575	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+109	E13	sybr	SYBR	Unknown	24.21704	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+111	E15	sybr	SYBR	Unknown	23.404303	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+112	E16	sybr	SYBR	Unknown	23.488478	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+98	E2	sybr	SYBR	Unknown	24.492174	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+116	E20	sybr	SYBR	Unknown	19.038942	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+117	E21	sybr	SYBR	Unknown	18.87627	75.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+119	E23	sybr	SYBR	Unknown	22.335358	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+120	E24	sybr	SYBR	Unknown	22.464523	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+100	E4	sybr	SYBR	Unknown	23.089207	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+101	E5	sybr	SYBR	Unknown	22.893923	77.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+145	G1	sybr	SYBR	Unknown	24.05975	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+156	G12	sybr	SYBR	Unknown	24.237646	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+157	G13	sybr	SYBR	Unknown	24.443317	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+159	G15	sybr	SYBR	Unknown	26.099167	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+160	G16	sybr	SYBR	Unknown	26.003149	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+146	G2	sybr	SYBR	Unknown	24.754616	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+164	G20	sybr	SYBR	Unknown	22.112183	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+165	G21	sybr	SYBR	Unknown	22.09663	75.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+167	G23	sybr	SYBR	Unknown	19.965641	75.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+168	G24	sybr	SYBR	Unknown	20.182928	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+148	G4	sybr	SYBR	Unknown	25.535656	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+149	G5	sybr	SYBR	Unknown	25.590315	77.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+193	I1	sybr	SYBR	Unknown	24.59291	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+204	I12	sybr	SYBR	Unknown	24.986502	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+205	I13	sybr	SYBR	Unknown	24.647532	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+207	I15	sybr	SYBR	Unknown	23.86899	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+208	I16	sybr	SYBR	Unknown	23.813246	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+194	I2	sybr	SYBR	Unknown	24.672499	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+212	I20	sybr	SYBR	Unknown	20.187252	75.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+213	I21	sybr	SYBR	Unknown	20.150581	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+215	I23	sybr	SYBR	Unknown	21.607489	61.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+216	I24	sybr	SYBR	Unknown	21.561398	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+196	I4	sybr	SYBR	Unknown	23.441685	77.4	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+197	I5	sybr	SYBR	Unknown	23.38364	77.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+241	K1	sybr	SYBR	Unknown	22.398458	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+252	K12	sybr	SYBR	Unknown	23.205666	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+253	K13	sybr	SYBR	Unknown	23.34723	76.2	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+255	K15	sybr	SYBR	Unknown	Undetermined	76.5	Auto Tm							Manual Ct		Automatic			Manual	0.3				true		true			true				
+256	K16	sybr	SYBR	Unknown	Undetermined	92.0	Auto Tm							Manual Ct		Automatic			Manual	0.3				true		true			true				
+242	K2	sybr	SYBR	Unknown	22.509455	77.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+260	K20	sybr	SYBR	Unknown	Undetermined	61.9	Auto Tm							Manual Ct		Automatic			Manual	0.3				true		true			true				
+261	K21	sybr	SYBR	Unknown	Undetermined	66.6	Auto Tm							Manual Ct		Automatic			Manual	0.3				true		true			true				
+263	K23	sybr	SYBR	Unknown	18.676226	75.9	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+264	K24	sybr	SYBR	Unknown	18.242592	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+244	K4	sybr	SYBR	Unknown	Undetermined	62.0	Auto Tm							Manual Ct		Automatic			Manual	0.3				true		true			true				
+245	K5	sybr	SYBR	Unknown	36.50624	76.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+289	M1	sybr	SYBR	Unknown	22.986206	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+300	M12	sybr	SYBR	Unknown	23.853731	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+301	M13	sybr	SYBR	Unknown	23.841866	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+290	M2	sybr	SYBR	Unknown	23.210438	76.8	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+311	M23	sybr	SYBR	Unknown	18.446896	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+312	M24	sybr	SYBR	Unknown	18.172623	75.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+337	O1	sybr	SYBR	Unknown	23.646936	76.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+348	O12	sybr	SYBR	Unknown	24.109892	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+349	O13	sybr	SYBR	Unknown	23.920975	76.0	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+338	O2	sybr	SYBR	Unknown	23.658077	76.6	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+359	O23	sybr	SYBR	Unknown	17.506817	75.3	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+360	O24	sybr	SYBR	Unknown	17.47509	75.1	Auto Tm							Manual Ct		Automatic			Manual	0.3													
+Slope		cycles/log decade
+Y-Intercept		
+R^2		
+
+
+
+NAP	LPL
+	
