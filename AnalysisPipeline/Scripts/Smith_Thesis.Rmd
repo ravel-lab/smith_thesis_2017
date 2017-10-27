@@ -46,7 +46,7 @@ timestamp()
 rm(list=ls())
 
 ## Set the root directory here:
-root_directory<-"~/Documents/thesis/smith_thesis_2017/AnalysisPipeline/"#"~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/Thesis_pipeline/AnalysisPipeline/"
+root_directory<-"~/Documents/smith_thesis_2017/AnalysisPipeline/"#"~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/Thesis_pipeline/AnalysisPipeline/"
 
 ## Supress warnings to make knit PDF shorter... but turn these back on since there may be some weird behaviors
 knitr::opts_chunk$set(warning=FALSE, message=T,size=8)
@@ -1470,40 +1470,20 @@ Primers:
 * hsa-miR-RNU6 (normalization control)   
 ```{r qPCR_time_course,eval=T}
 
-load("/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/qPCR_time_course.Rdata")
-load("/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/qpcr_sigtest.Rdata")
-
 # Calculate mean & s.d. Ct values for each BCS/time point. 
-####load(file=paste0(R_script_input_directory,"qPCR_time_course.Rdata")) ## Ct values
-####load(file=paste0(R_script_input_directory,"qpcr_sigtest.Rdata")) ## Container for holding sig testing comparisons/results
+load(file=paste0(R_script_input_directory,"qPCR_time_course.Rdata")) ## Ct values
+load(file=paste0(R_script_input_directory,"qpcr_sigtest.Rdata")) ## Container for holding sig testing comparisons/results
 
 qPCR_time_course.summary<-ddply(qPCR_time_course,c("Study","ExposureTime","BCS"),summarise,m_193b=mean(miR193b_Ct,na.rm = T),sd_193b=sd(miR193b_Ct,na.rm = T),
                                 m_R6=mean(RNU6_Ct,na.rm = T),sd_R6=sd(RNU6_Ct,na.rm = T))
 ##qPCR_time_course.summary m, sd of Cts 
 qPCR_time_course$ExposureTime.n<-as.numeric(gsub(qPCR_time_course$ExposureTime,pattern = "hr",replacement = ""))
-write.csv(qPCR_time_course,"~/all_qpcr.csv",quote = F,row.names = F)
-ggplot()+geom_point(data=dplyr::filter(qPCR_time_course,BCS %in% c("L. crispatus","L. jensenii","L. iners", "G. vaginalis","Cell Culture Medium") & Study %in% c("study_6", "study_5")),aes(x=ExposureTime.n,y=miR193b_Ct,col=BCS,pch=Study))#+
-#  geom_jitter(data=dplyr::filter(qPCR_time_course,BCS %in% c("L. crispatus","L. jensenii","L. iners", "G. vaginalis","Cell Culture Medium")),aes(x=ExposureTime.n,y=miR193b_Ct,col=BCS))+facet_wrap(~Study)
+
 ## Calcualte delta Ct using RNU6 as endogenous control. Calcualte standard deviation using propagation of error
 qPCR_time_course.summary$deltaCt.RNU6<-qPCR_time_course.summary$m_193b-qPCR_time_course.summary$m_R6
 qPCR_time_course.summary$deltaCt.RNU6.sd<-sqrt(qPCR_time_course.summary$sd_193b^2+qPCR_time_course.summary$sd_R6^2)
 
-# 
-## sd delta Ct =deltaCt.RNU6.sd
 dev.off()
-
-
-#qpcr_sigtest<-rbind.fill(qpcr_sigtest,
-#data.frame(reference="Cell Culture Medium",
- #          ExposureTime=c(rep(c("8hr","16hr","19hr"),each=2)),
-  #                 #  ExposureTime.n=c(rep(c(8,16,19),each=3)),
-   #        comparison=rep(c("L. jensenii","L. iners"),times=3),
-          
-           #ref="Cell Culture Medium",
-           
-    #       Study.ref="study_6",Study.comp="study_6"
-     #      ))
-
 
 rm_rows<-qPCR_time_course.summary[is.na(qPCR_time_course.summary$sd_193b),c("ExposureTime","BCS")]
 qpcr_sigtest<-qpcr_sigtest[!(qpcr_sigtest$comparison %in% rm_rows$BCS & qpcr_sigtest$ExposureTime %in% rm_rows$ExposureTime),]
@@ -1591,7 +1571,7 @@ PLOT_QPCR_TIMECOURSE<-
   geom_point(size=6,show.legend = F)+ 
   ylab(expression(paste(-Delta,Delta,"Ct")))+
   xlab("Exposure Time (hours)")+
-  #####scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
+  scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
   scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
   scale_linetype_manual(name=expression(paste("Reference ",Delta,"Ct")),values=as.numeric(qpcr_sigtest$lt))+
   geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
