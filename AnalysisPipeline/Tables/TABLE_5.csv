@@ -1,0 +1,13 @@
+comparison,num_cycle.p,num_cycle.n,num_immune.p,num_immune.n,num_immune_pro.n,num_immune_pro.p,comp,ExposureTime,L,ref
+GVM.13,1,0,8,0,0,3,GVM,13,GV,M
+GVM.22,0,0,2,0,0,1,GVM,22,GV,M
+GVM.4,3,1,18,0,0,8,GVM,4,GV,M
+LCM.13,1,4,2,0,0,1,LCM,13,LC,M
+LCM.22,0,3,0,1,0,0,LCM,22,LC,M
+LCM.4,3,2,11,0,0,5,LCM,4,LC,M
+LIM.13,0,0,7,0,0,4,LIM,13,LI,M
+LIM.22,0,1,3,0,0,1,LIM,22,LI,M
+LIM.4,4,0,16,0,0,7,LIM,4,LI,M
+LJM.13,0,2,1,1,0,1,LJM,13,LJ,M
+LJM.22,0,2,1,1,0,1,LJM,22,LJ,M
+LJM.4,1,1,2,0,0,2,LJM,4,LJ,M
