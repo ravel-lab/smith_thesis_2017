@@ -1,0 +1,2740 @@
+---
+title: "Smith et al Manuscript"
+author: "Steven Smith"
+date: "October 26, 2017"
+output:
+  word_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+---
+# Analysis Script
+**The following markdown serves as a record for analysis performed in Smith et al., 2017.**   
+**Change the root directory to point to where "Script_input" and "Scripts" directories reside. This is currently hardcoded as the Git repo **  
+This script will automatically create the following directories, if not present already:  
+1.  Tables- Tables associated with manuscript, in .csv or .txt  
+2.  Figures - Figures associated with manuscript, in .eps  
+3.  Script_output - anything else output that is not a figure or table   
+
+A sessionsInfo log file will be included in Script_output.  
+
+Script_input contains static data used by script (previously generated and formatted for use as input). Also includes a data dictionary for sample metadata. 
+
+Some library installation may be required (e.g., install.packages("PACKAGE"))
+
+** Some packages may mask fucntions from other packages. Not sure how to remedy this, except for explicilty calling all functions with the package name. 
+** cairo_ps may not function proportly on macOS systems without XQuartz (https://www.xquartz.org). Either download Xquartz or subsititue cairo_ps for postscript(). Note that postscript() is not able to print transparency. 
+
+
+Need to followup
+
+-Figure 2_2_X
+-Ref Gvag vs Media-- RNAseq vs qPCR
+-GO figure
+-Figure_3_4 and 5?
+-Sctaych area vs EdU
+-Drop RF figure
+-Choose only one filtering metric for RF
+-Long plots- only the Lacto RA 
+
+
+```{r timestamp1}
+timestamp()
+# Clear enviornment variables, set root 
+rm(list=ls())
+
+## Set the root directory here:
+root_directory<-"~/Documents/smith_thesis_2017/AnalysisPipeline/"#"~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/Thesis_pipeline/AnalysisPipeline/"
+
+## Supress warnings to make knit PDF shorter... but turn these back on since there may be some weird behaviors
+knitr::opts_chunk$set(warning=FALSE, message=T,size=8)
+
+```
+# Prepare Enviornment    
+
+1. Setup environment, variables, etc   
+2. Define custom functions   
+```{r setup,eval=TRUE,warning=FALSE}
+## Load libraries 
+## Note that some packages mask others. This might be a problem for, e.g., rename. 
+
+## Load libraries.
+## Note that some override/mask functions from others. Had to explicitly use the "dplyr" package for all "select" statements
+library(reshape)
+library(ggbiplot)
+library(plyr)
+library(grid)
+library(scales)
+library(gridExtra)
+library(edgeR) 
+library(RColorBrewer)
+library(psych)
+library(randomForest) 
+library(rfPermute)
+library(tidyverse)
+library(squash)
+library(stringr)
+library(plotly)
+library(gPCA)
+library(nlme)
+library(gplots)
+library(Biobase)
+library(caret)
+
+## Source the Random Forest wrapper script
+source(paste0(root_directory,"Scripts/rfSubjectSpecific.R"))
+
+## Set output directories for tables, figures and data structures. 
+if(!dir.exists(file.path(root_directory, "Figures"))){
+  dir.create(file.path(root_directory, "Figures"))  
+}
+if(!dir.exists(file.path(root_directory, "Tables"))){
+  dir.create(file.path(root_directory, "Tables"))  
+}
+if(!dir.exists(file.path(root_directory, "Script_output"))){
+  dir.create(file.path(root_directory, "Script_output"))  
+}
+
+R_script_output_directory<-paste0(root_directory,"Script_output/")
+R_script_input_directory<-paste0(root_directory,"Script_input/") ## Contains Rdata files created outside of this script. These data are static. 
+thesis_tables_directory<-paste0(root_directory,"Tables/")
+thesis_figures_directory<-paste0(root_directory,"Figures/")
+
+##Set global variables
+seed_val<-4543 ## Needed for exact results obtained in manuscript
+pval_threshold<-0.05 ## Signifgance value threshold
+npermutes<-500 ## Number of permutations to generate emperical null distribution in RF models
+nfolds<-10 #Number of cross-fold validation in customized RF script
+training_prop<-0.7 ## Proportion of input data for use in training models
+nSpecies<-9 ## Max # of species to plot in Fig 1
+sizes<-1 ## Default sizes for plots
+raThreshold <-0.02 ## Min relative abundance threshold to plot in Fig 1
+margins<-unit(c(-2.5,40,-2.5,5),units="points") ## Default margins for plots
+ph_normalization_factor<-3 ## rescales y axis so that plot doesn't bein at 0
+alpha_rect<-0.7 ## Fig 1 greyed out rectangle opacity
+rect_fill<-"grey" ## Fig 1 greyed out color
+removed_samples<-data.frame(Pre_QC_ID=NULL,QC_removal_stage=NULL)## Keep a list of removed samples, and the stage of removal
+
+## Set global plot theme
+mBio <- theme_bw() + theme(text = element_text(family = "Arial", colour = "black",size=12))
+
+## Set standardized color table
+load(file=paste0(R_script_input_directory,"subject_long_taxa_colors.Rdata"))
+color_scheme_BCS<- c("L. crispatus"= unname(subject_long_taxa_colors["Lactobacillus_crispatus"]),
+                     "L. jensenii" = unname(subject_long_taxa_colors["Lactobacillus_jensenii"]),
+                     "L. iners" = unname(subject_long_taxa_colors["Lactobacillus_iners"]),
+                     "G. vaginalis" = unname(subject_long_taxa_colors["Gardnerella_vaginalis"]),
+                     "Cell Culture Medium"='blue'
+) #c("L. crispatus"='red1',"G. vaginalis"='lightseagreen',"L. iners"='orange',"Cell Culture Medium"='blue',"L. jensenii"='#8c510a')
+
+cst.colors<-c("I-A"="red1",
+              "I-B"="#990000",
+              "I" = unname(subject_long_taxa_colors["Lactobacillus_crispatus"]),
+              "II"=unname(subject_long_taxa_colors["Lactobacillus_gasseri"]),
+              "III-A"="darkorange" ,
+              "III-B"="#cc7a00" ,
+              "III"=unname(subject_long_taxa_colors["Lactobacillus_iners"]),
+              "IV-A"="lightseagreen",
+              "IV-B"="mediumblue",
+              "V"=unname(subject_long_taxa_colors["Lactobacillus_jensenii"]),
+              "DUMMY"='grey'
+)
+
+
+## Table and figure names
+TABLE_SEQSUMMARY<-"TABLE_1.csv"
+TABLE_TOPMIRS<-"TABLE_2.txt"
+TABLE_TRL_ALIGNSTATS<-"TABLE_3.csv"
+TABLE_TRL_NUMDEGENES<-"TABLE_4.csv"
+TABLE_TRL_SUMMARY_PATHWAYS<-"TABLE_5.csv"
+
+TABLE_COUNTS_RAW<-"TABLE_S1.csv"
+TABLE_MODEL_INPUT<-"TABLE_S2.csv"
+TABLE_SRL_METADATA<-"TABLE_S3.csv"
+#TABLE_PROXY_AMSEL_INPUT<-"TABLE_S4.csv"
+#TABLE_RF_SUMMARY.CV<-"TABLE_S5.csv"
+#TABLE_PROXY_AMSEL_SRL<-"TABLE_S6.csv"
+TABLE_RF_SUMMARY<-"TABLE_S7.csv"
+TABLE_MIR_TARGETS<-"TABLE_S8.txt"
+TABLE_QPCR_TIMECOURSE<-"TABLE_S9.csv"
+TABLE_EDU_SCRATCH_QUANT<-"TABLE_S10.csv"
+TABLE_CT_QUANT<-"TABLE_S11.csv"
+TABLE_TRL_COUNTS_RAW<-"TABLE_S12.csv"
+TABLE_EDGER_RESULTS<-"TABLE_S13.csv"
+TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S14.csv"
+
+FIGURE_SUBJECT_PLOTS<-"FIGURE_1_"
+#FIGURE_RF_IMPORTANCE_AMSEL<-"FIGURE_2_A.eps"
+FIGURE_RF_IMPORTANCE_NUGENT<-"FIGURE_2_B.eps"
+FIGURE_TOPMIRS<-"FIGURE_2_C.eps"
+FIGURE_QPCR_TIMECOURSE<-"FIGURE_3.eps"
+FIGURE_EDU_QUANT<-"FIGURE_4_D.eps"
+FIGURE_SCRATCH_QUANT<-"FIGURE_4_C.eps"
+FIGURE_CT_INFECT_QUANT<-"Figure_4_G.eps"
+FIGURE_CT_EDU_QUANT<-"Figure_4_F.eps"
+FIGURE_TRANSFECT<-"Figure_5.eps"
+FIGURE_COMBINED_PATHWAYS_CYCLE<-"Figure_6.eps"
+FIGURE_LONGITDUINAL_GENEEXP.cycle<-"Figure_7.eps"
+FIGURE_FINAL_MODEL<-"Figure_8.eps" ##Placeholder
+
+FIGURE_QC<-"FIGURE_S1_"
+FIGURE_QC_RIN_v_READS.PROP<-paste0(FIGURE_QC,"1.eps")
+FIGURE_QC_RIN_v_READS.ABS<-paste0(FIGURE_QC,"2.eps")
+FIGURE_QC_PCA.PREQC.BYBATCH<-paste0(FIGURE_QC,"3.eps")
+FIGURE_QC_PCA.PREQC.BYSUBJ<-paste0(FIGURE_QC,"4.eps")
+FIGURE_QC_PCA.RMLOW.BYBATCH<-paste0(FIGURE_QC,"5.eps")
+FIGURE_QC_PCA.RMLOW.BYSUBJ<-paste0(FIGURE_QC,"6.eps")
+FIGURE_QC_PCA.NORMAL.BYBATCH<-paste0(FIGURE_QC,"7.eps")
+FIGURE_QC_PCA.NORMAL.BYSUBJ<-paste0(FIGURE_QC,"8.eps")
+FIGURE_MIR_TARGETS_GO<-"Figure_S2.eps"
+FIGURE_DL_LACTICACID_QPCR<-"Figure_S3.eps"
+FIGURE_nyc_v_tsb<-"Figure_S5.eps"
+#FIGURE_TRL_RIN_HIST<-"Figure_S6.eps"
+#FIGURE_COMBINED_PATHWAYS_IMMUNE<-"Figure_S7.eps"
+#FIGURE_LONGITDUINAL_GENEEXP.immune<-"FIGURE_S9.eps"
+
+setwd(paste0(R_script_output_directory))
+
+## SRL_meta and SRL_counts were prepared in separate script- 
+load(file=paste0(R_script_input_directory,"SRL_counts_meta.RData"))
+
+## Extract counts data from ExpressionSet
+SRL_counts_table<-exprs(SRL_counts_meta)
+SRL_meta_table<-pData(SRL_counts_meta)
+
+##Write SRL Raw Counts to disk
+write.csv(SRL_counts_table,file=paste0(thesis_tables_directory,TABLE_COUNTS_RAW),row.names=T,quote=F)
+
+```
+
+Custom functions
+
+```{r custom_functions,eval=TRUE}
+###########
+## remove_poorQC_samples function
+###########
+
+## Adds samples in sample_list to running removed_samples data.frame. Tracks the reaon for removal
+remove_poorQC_samples<-function(removed_samples=removed_samples,
+                                sample_list=c(""),
+                                reason=""){
+  
+  removed_samples<-unique(rbind(removed_samples,data.frame(Pre_QC_ID=sample_list,QC_removal_stage=reason)))
+  return(removed_samples)
+}
+
+###########
+## End remove_poorQC_samples function
+###########
+
+
+###########
+## plot_pca function
+###########
+
+## Plots PCA and calcualtes gPCA-based p value. Outputs a list with PCA plot object and p value (if plotly=F). Otherwise, just a plotly plot object 
+
+plot_pca<-function(ES, ## Expression Set object
+                   plot_title="", ## Title for PCA plot
+                   center=TRUE, ## pcrcomp centering?
+                   scale=TRUE, ##prcomp scaling?
+                   color_by='SID', ## What to color plots by
+                   logt=TRUE, #Whether counts in ES should be log transformed
+                   obs.scale = 1, ##prcomp scale factor
+                   var.scale = 1, ##prcomp var scaling
+                   ellipse = FALSE, ## draw ellipse around groups in PCA plot
+                   circle = FALSE, ## or circle
+                   var.axes=FALSE, ##option for prcomp
+                   ploly=FALSE, ##whether to generate a ploty interactive plot. This option will not return gPCA p value
+                   margins=unit(c(0,0,0,0),units = "points"),
+                   seed_val=4543, ## seed needed for gPCA
+                   ...){ 
+  
+  ## es = ExpressionSet object  
+  ## ** Assumes ES counts data is log transformed. Set logt=FALSE to logt data first. 
+  ## **Assumes columns named "Batch", "SID" ,"BVGroup" and "NUGENT_CLASS" exist in pData in ES. 
+  
+  set.seed(seed_val) ## Repeatable results in Guided PCA
+  ##calcualte variance of counts
+  variable_counts<-t(exprs(ES))[,apply(t(exprs(ES)), 2, var, na.rm=TRUE) != 0]
+  
+  ## log transform data if needed
+  if(logt){
+    cnts <- log(variable_counts+1,base = 2)
+  }else{
+    cnts<-variable_counts
+  }
+  
+  ## extract metadata from ES to decorate tree. Assumes these variables are present
+  batch <- as.numeric(pData(ES)[, 'Batch']) 
+  sid<-pData(ES)[, 'SID']
+  bvgroup<-pData(ES)[,'BVGroup']
+  bvclass<-pData(ES)[,'NUGENT_CLASS']
+  ##color mappings for different metadata
+  if(color_by=="SID"){
+    group<-as.character(sid)
+    group.gpca<-as.numeric(as.factor(group))
+  }else if(color_by=="Batch"){
+    group<-as.character(batch)
+    group.gpca<-batch
+  }else if (color_by=="NugentC"){
+    group<-as.character(bvclass)
+    group.gpca<-as.numeric(as.factor(group))
+  }
+  else{
+    group<-as.character(bvgroup)
+    group.gpca<-as.numeric(as.factor(group))
+  }
+  
+  ##PCA
+  counts.pca <- prcomp(cnts,center = center, scale. = scale) 
+  
+  #PCA plot
+  pca.p <- ggbiplot(counts.pca, groups = group, 
+                    obs.scale = obs.scale, var.scale = var.scale , 
+                    ellipse = ellipse, 
+                    circle = circle,var.axes =var.axes, ...)
+  pca.p <- pca.p + 
+    scale_color_discrete(name = '')+
+    mBio+
+    theme(plot.margin = margins)
+  
+  gPCA.result<-gPCA.batchdetect(dist(cnts),group.gpca)
+  
+  ##Optional plotly functionality... returns a list with plot object in an element otherwise (with gPCA p value)
+  if(ploly){ggplotly(pca.p)}else{return(list(pca.p=pca.p,gPCA.result=gPCA.result))}
+}
+
+###########
+## End plot_pca definition
+###########
+
+###########
+## subset_ExpressionSet function
+###########
+
+## Function to subset ExpressionSet objects based on vector of sample/rows names to remove. Returns an expression set without filterout samples
+
+subset_ExpressionSet<-function(expSet, ##expression set
+                               filterOut=c(""), ##vector of samples to drop from expSet
+                               samples=TRUE){ ## filter samples names or row names
+  
+  ## Drop sample (columns) from expSet
+  if(samples){
+    ## Remove count data in filterOut vector
+    counts_meta<-exprs(expSet)[,!colnames(exprs(expSet)) %in% filterOut]
+    ## Remove metadata in filterOut vector
+    design.subset<-pData(expSet)[!row.names(pData(expSet)) %in% filterOut,]
+    ## Return a re-packaged filtered count and metadata into ExpressionSet
+  }
+  else{## Drop miRNAs (rows) from expSet
+    counts_meta<-exprs(expSet)[!row.names(exprs(expSet)) %in% filterOut,]
+    design.subset<-pData(expSet)[,!colnames(pData(expSet)) %in% filterOut]
+    
+  }
+  return(ExpressionSet(assayData = as.matrix(counts_meta),
+                       phenoData = AnnotatedDataFrame(design.subset)))  
+}
+
+###########
+## End subset_ExpressionSet 
+###########
+
+###########
+## plot_accuracy 
+###########
+
+## Generates predicted vs acutal tables and plots the predicted vs actual values on plot
+
+plot_accuracy<-function(rfp, ## Random Forest object
+                        testing_fullset, ## vector of sample names that were held out of training/used for testing
+                        index_of_response=match("NUGENT_SCORE",names(testing_fullset)), ## index corresponding to response variable in input data
+                        index_of_sid=match("SID",names(testing_fullset)),## index corresponding to subject ID in input data (if subj_spec=T)
+                        subj_spec=TRUE, ## whether RF was run with 'subject_spec' option
+                        nfold=10) # number of k folds in RF if subj_spec=T
+{ 
+  
+  
+  accuracy_table<-data.frame(fold=0,predicted=0,actual=0) ## hold values for actual, predicted values
+  
+  ## Subject specific rfp have a model for each cross fold, so need to loop through and aggregate each fold
+  if(subj_spec){
+    
+    for(m in 1:nfold){
+      #m<-1
+      ## Compare predicted to hold out set
+      p1<-predict(rfp$mdl[[m]], 
+                  testing_fullset[,-c(index_of_response,index_of_sid)], type='response')
+      
+      accuracy_table<-rbind(accuracy_table,data.frame(fold=m,predicted=p1,actual=testing_fullset[,index_of_response]))
+    }
+  }else{
+    p1<-predict(rfp,testing_fullset[,-c(index_of_response,index_of_sid)], type='response')
+    accuracy_table<-data.frame(fold="NA",predicted=p1,actual=testing_fullset[,index_of_response])
+  }
+  
+  accuracy_table<-filter(accuracy_table,!fold==0) ## drop the initialization row
+  
+  plot_a<-ggplot()+geom_point(data=accuracy_table,aes(y=predicted,x=actual,col=as.factor(fold)))+
+    ggtitle("Predicted vs Actual Values from plot_accuracy")+
+    mBio+
+    scale_x_continuous(limits=c(0,10),breaks = 1:10)+
+    scale_y_continuous(limits=c(0,10),breaks = 1:10)
+  print(plot_a)
+  
+  return(accuracy_table)
+  
+}
+
+###########
+## End plot_accuracy definition
+###########
+
+###########
+## run_randomForest definition
+###########
+
+## Wrapper to run Random Forest model building. Can run RandomForest, rfPermute or rfSubjectSpecific. Takes care of subsetting data for training/testing and outputting accuracy/error/etc etstimates. Saves/loads previous models. 
+#Note if load_prev=T, most of the parameters are ignored
+run_randomForest<-function(predictors_response_table,
+                           response_variable_name,
+                           nfold=10,
+                           nreps=105,
+                           permute=TRUE,
+                           save_model=FALSE,
+                           load_prev_model=TRUE,
+                           file_n="rf_model",
+                           verbose=TRUE,
+                           pval_thres=pval_threshold,
+                           subj_spec=TRUE,
+                           importance_thres=10,
+                           training_prop=0.7,
+                           seed=seed_val,
+                           R_script_output_directory,
+                           ...)
+{
+  
+  # predictors_response_table - data frame of predictors + response variable. If it contains a column called 'SID', sets subj_spec=TRUE
+  # response_variable_name    - column name as string of response variable (as found in predictors_response_table)
+  # nfold                     - number of k-fold validations to run
+  # nreps                     - number of permutations to run to compute null distribution. Ignored if permute=FALSE
+  # permute                   - whether or not to run rfPermute (generate null distribution permutation p-values for each feature)
+  # save_model                - save model as Rdata to outout directory? Uses 'file_n' as file name
+  # load_prev_model           - load model outout directory? Uses 'file_n' as file name
+  # file_n                    - file name to use when reading or writing a model to disk
+  # verbose                   - detailed output of model results, etc
+  # pval_thres                -p value threshold to call signifigant 
+  # subj_spec                 - whether or not to run rfSubjectSpecific.R. Looks for a column called 'SID' in predictors_response_table
+  # importance_thres          -
+  #training_prop              - proportion of input data to use as training. remaining is used as hold out set for testing
+  # seed                      -seed value to produce repeatable results
+  # R_script_output_directory - root output directory for read/write model files
+  
+  nrep<-nreps
+  set.seed(seed)
+  ## First major control point: loading from previously saved model, or generating a new trained model? 
+  
+  #### ///////
+  # Start New Model
+  #### //////
+  
+  if(!load_prev_model){
+    
+    #Find the column index corresponding to response & subject ID
+    index_of_response<-match(response_variable_name,names(predictors_response_table))
+    index_of_sid<-match("SID",names(predictors_response_table))
+    if(is.na(index_of_sid) & subj_spec){
+      print("SID could not be found. Setting to non-subject specific")
+      subj_spec<-FALSE
+      index_of_sid<-0
+    }else if (is.na(index_of_sid)){
+      index_of_sid<-0
+    } else if(index_of_sid>0 & !subj_spec){
+      print("Found a SID column. Setting to subject-spefic. ")
+      subj_spec<-TRUE
+    }
+    
+    #Partition input data into training and testing
+    
+    inTrain<-createDataPartition(y=predictors_response_table[,index_of_response],p =training_prop,list = F)
+    if(is.character(predictors_response_table[,index_of_response])){
+      predictors_response_table[,index_of_response]<-as.factor(predictors_response_table[,index_of_response])
+    }
+    
+    ##Subjet training and testing data
+    training_fullset<-predictors_response_table[inTrain,]
+    testing_fullset<-predictors_response_table[-inTrain,]
+    table(predictors_response_table[,index_of_response])
+    table(training_fullset[,index_of_response])
+    table(testing_fullset[,index_of_response])
+    response<-training_fullset[,index_of_response]
+    
+    # Determine whether to run classification or regression depending on response variable type
+    if(is.numeric(predictors_response_table[,index_of_response])){# regression
+      rf_type<-"regression"
+    }else{
+      rf_type<-"classification"
+    }
+    
+    #Determine whether to run rfSubjectSpecific.R
+    if(subj_spec){
+      print(paste0("Starting subject-specific rfSubjectSpecific with permute set to : ",permute))
+      rfp<-rfSubjectSpecific(training_fullset[,-c(index_of_response,index_of_sid)],response,subjID = as.character(training_fullset[,index_of_sid],nrep=nrep),nfolds = nfold,verbose=verbose,nrep = nreps,permute=permute) ## This will be sourced at the setup section. It is an external script.
+    }else{
+      print("Starting non subject-specific rfPermute")
+      rfp<-rfPermute(training_fullset[,-c(index_of_response)],response,nrep = nreps,...)
+    }
+    
+    ## The accuracy, etc output varies depending on whether which combination of RF were run
+    
+    ## /////
+    ## Regression + Subject-Specific
+    ## ////
+    
+    if(rf_type=="regression" & subj_spec){ ## If it's a regression model
+      accuracy_table<-plot_accuracy(rfp,testing_fullset = testing_fullset,index_of_response = index_of_response, index_of_sid = index_of_sid,subj_spec = subj_spec,nfold = nfold) ## see above for this function
+      
+      ## /////
+      ## Classification + Non Subject-Specific
+      ## ////
+      
+    }else if (rf_type=="classification" & !subj_spec){
+      p1<-predict(rfp, testing_fullset[,-c(index_of_response,index_of_sid)], subj_spec = subj_spec,type='response')
+      (accuracy_table<-table(Var1=p1,Var2=testing_fullset[,index_of_response]))
+      
+      ## /////
+      ## Classification + Subject-Specific
+      ## ////
+      
+    }else if (rf_type=="classification" & subj_spec){
+      p1<-predict(rfp$mdl, testing_fullset[,-c(index_of_response,index_of_sid)], subj_spec = subj_spec,type='response')
+      (accuracy_table<-lapply(p1, function(x) table(x,testing_fullset[,c(index_of_response)])))
+      
+      ## /////
+      ## All else (Regression + Non Subject-Specific)
+      ## ////
+      
+    }else{
+      accuracy_table<-NULL
+    }
+    
+    ## Write model to file + accuracy table and training/testing info
+    
+    if(save_model){
+      save(rfp,file=paste0(R_script_output_directory,file_n,".RData"))
+      save(accuracy_table,file=paste0(R_script_output_directory,file_n,"_accuracyTable.RData"))
+      training_testing<-list(training_fullset=training_fullset,testing_fullset=testing_fullset)
+      save(training_testing,file=paste0(R_script_output_directory,file_n,"_training_testing.RData"))
+    }
+    
+    #### ///////
+    # Load Previous Model
+    #### //////
+  }else{
+    
+    rfp.pointer<-load(file=paste0(R_script_output_directory,file_n,".RData"))
+    rfp<-get(rfp.pointer)
+    
+    accuracy_table.pointer<-load(file=paste0(R_script_output_directory,file_n,"_accuracyTable.RData"))
+    accuracy_table<-get(accuracy_table.pointer)
+    
+    training_testing.pointer<-load(file=paste0(R_script_output_directory,file_n,"_training_testing.RData"))
+    training_testing<-get(training_testing.pointer)
+    training_fullset<-training_testing$training_fullset
+    testing_fullset<-training_testing$testing_fullset
+  }
+  if(verbose){
+    print(rfp)
+    print(rfp$mdl)
+  }
+  
+  if(permute & subj_spec){
+    importance<-data.frame(rfp$importance) ##only happens if rfSubjectSpecific is run with permute
+    importance.pval<-dplyr::select(importance,ends_with("pval"))
+  }else{
+    if(!subj_spec){
+      importance<-data.frame(rp.importance(rfp))
+    }else{
+      importance<-data.frame(rfp$imp)
+    }
+  }
+  return(list(rfp=rfp, ##model
+              accuracy_table=accuracy_table,
+              importance=importance,
+              training_ids=row.names(training_fullset),
+              testing_ids=row.names(testing_fullset))) 
+}
+
+###########
+## END run_randomForest function
+###########
+
+
+###########
+## plot_RIN
+###########
+
+## Is there an effect due to RIN and number of reads miRNAs?
+### # Wrapper for plot of reads miRNAs vs RIN
+
+plot_RIN_meta<-function(SRL_meta_table, ## Table containing SRL metadata
+                        y_series="reads_surviving.percent", ## y axis column name to be plotted
+                        col_by="Batch", ## color by
+                        vjust = 0,  ## vertical justification
+                        nudge_y = 0.05, ## nudge y by...
+                        angle = 0, ## y axis angle
+                        hjust = 0, ## hortizontal adjustment
+                        nudge_x = 0.05, ## nudge x by..
+                        check_overlap = FALSE, ## check for points overlap- try to minimize
+                        y_series_label=y_series # y label on plot
+){
+  ## Plot for RIN vs a measure of read mapping
+  p.RIN<-ggplot(SRL_meta_table,aes(x=RIN,y=SRL_meta_table[,y_series],col=as.factor(SRL_meta_table[,col_by]),label=SRL_meta_table$Pre_QC_ID),label = Pre_QC_ID)+
+    geom_point()+
+    ylab(y_series_label)+
+    xlab("RINe")+
+    # ggtitle(paste(y_series," vs RIN"))+
+    geom_text(check_overlap = check_overlap,vjust = vjust, nudge_y = nudge_y,angle = angle,hjust = hjust, nudge_x = nudge_x)+
+    mBio+
+    guides(col=guide_legend(title=col_by))
+  return(p.RIN)
+}
+
+###########
+## end plot_RIN
+###########
+
+###########
+## mapping_stats
+###########
+
+## Generate simple mapping stats given an Expression Set pData object
+mapping_stats<-function(column=pData(counts_meta.qc)$number_reads_mirs){
+  return(data.frame(min=min(column,na.rm = T),median=median(column,na.rm = T),max=max(column,na.rm = T)))
+}
+
+###########
+## end mapping_stats
+###########
+
+
+###########
+## plot_importance
+###########
+
+## Plot RF Importance variables. Output is a plot
+
+plot_importance<-function(importance_df=Lacto_RF$importance, ## Data frame holding importance results
+                          ntopfeats=length(Lacto_RF$top_features$top_features.all), ## number of features to plot
+                          nfeats=25,#max # of features to plot
+                          rankBy="IncMSE", ## Importance variable to rank by
+                          model_name="",
+                          size_font=12,
+                          size_points=5
+){
+  if(nfeats<ntopfeats){
+    stop("Number of top features less than total # of features plotted")
+  }
+  names(importance_df)<-gsub(pattern = "X\\.",replacement  = "",x = names(importance_df))
+  importance_df<-importance_df[order(importance_df[,rankBy],decreasing = T),]
+  importance_df.cut<-importance_df[1:nfeats,]
+  importance_df.cut$features<-factor(row.names(importance_df.cut),levels = rev(row.names(importance_df.cut)),ordered = T)
+  
+  importance_df.cut.tmp<-separate(melt(importance_df.cut,id.vars = c("features")),col = variable,into=c("metric","SUFFIX"),sep = "\\.",fill = "right")
+  
+  importance_df.cut.tmp[is.na(importance_df.cut.tmp$SUFFIX),"SUFFIX"]<-"metric_val"
+  importance_df.cut<-spread(data=importance_df.cut.tmp,key = SUFFIX,value = value)
+  cutoff<-nfeats+0.5-ntopfeats 
+  
+  ggplot(importance_df.cut)+
+    geom_point(aes(y=features,x=metric_val,col=-log(pval,10),pch=metric),size=size_points)+    
+    xlab("Importance Metric")+
+    ylab("Predictor")+
+    scale_colour_gradient(high="red", low="blue",guide = guide_legend(title = "-Log(p-value)"))+
+    mBio+
+    theme(text=element_text(size = size_font),panel.border = element_rect(size=1))+
+    ggtitle(paste(model_name," RF Importance Plot for the First",nfeats,"Ranked Features (by",rankBy,")"))
+  
+}
+
+###########
+## end plot_importance
+###########
+
+###########
+## t.test2
+###########
+
+## A t test using sumamry statistics ( and not the entire sample dataset as with t.test)
+## Returns p value, difference of means, standard error and t statistc
+t.test2 <- function(m1, ## mean of sample set 1
+                    m2, ## mean of sample set 2
+                    s1, ## standard dev of sample set 1
+                    s2, ## standard dev of sample set 2
+                    n1, ## number of samples in sample set 1
+                    n2, ## number of samples in sample set 1
+                    m0=0, ## the null for hypothesis to test (mean value)=
+                    equal.variance=FALSE) #whether to assume equal variance between sample sets
+  
+{
+  if( equal.variance==FALSE ) 
+  {
+    ## "normalize" standard deviations if unequal variance to compute standard error
+    se <- sqrt( (s1^2/n1) + (s2^2/n2) )
+    # welch-satterthwaite df
+    df <- ( (s1^2/n1 + s2^2/n2)^2 )/( (s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1) )
+  } else
+  {
+    # pooled standard deviation, scaled by the sample sizes
+    se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*s1^2 + (n2-1)*s2^2)/(n1+n2-2) )
+    
+    df <- n1+n2-2
+  }      
+  t <- (m1-m2-m0)/se## calcualte t statistic
+  dat <- c(m1-m2, se, t, 2*pt(-abs(t),df))    ## calculate p value based on Student's t distribution
+  names(dat) <- c("Difference of means", "Std Error", "t", "p-value")
+  return(dat) 
+}
+
+###########
+## end t.test2
+###########
+
+
+###########
+## apply_ttest
+###########
+
+apply_ttest<-function(sigtest_results=proliferation_sigtest,pval_threshold=pval_threshold,summary_stats,test_function="t.test",value="value",obs=""){
+  
+  ## Loop through each test comparison and apply stat test. Store in dataframe
+  for(sigtest in 1:nrow(sigtest_results)){
+    print(sigtest)
+    #sigtest<-1
+    x1<-as.character(sigtest_results[sigtest,"xref"]) 
+    y1<-as.character(sigtest_results[sigtest,"reference"])
+    
+    ## Apply a t test to x1 vs y1
+    if(test_function=="t.test"){
+      tes<-t.test(x=filter(summary_stats,BCS==x1 )$percent_cells,y=filter(summary_stats,BCS==y1)$percent_cells,alternative = "two.sided") 
+      delta_mean<-tes$estimate[2]-tes$estimate[1]
+      pval<-tes$p.value
+    }else if(test_function=="t.test2"){
+      obs<-as.character(sigtest_results[sigtest,"Observation"])
+      m1<-filter(summary_stats,Observation==obs & Treatment==x1 )$grand_mean
+      m2<-filter(summary_stats,Observation==obs & Treatment==y1 )$grand_mean
+      s1<-filter(summary_stats,Observation==obs & Treatment==x1 )$grand_sd
+      s2<-filter(summary_stats,Observation==obs & Treatment==y1 )$grand_sd
+      n1<-filter(summary_stats,Observation==obs & Treatment==x1 )$n
+      n2<-filter(summary_stats,Observation==obs & Treatment==y1 )$n
+      print(obs)
+      tes<-t.test2(m1 = m1,s1 = s1, m2=m2,s2=s2,n1=n1,n2=n2) #less
+      print(tes)
+      delta_mean<-tes["Difference of means"]
+      pval<-tes["p-value"]
+      
+      
+    }else{
+      print(paste0(test_function," not found"))
+    }
+    
+    ## Store p value and difference of means
+    sigtest_results[sigtest,"pval"]<-pval
+    sigtest_results[sigtest,"mean_diff"]<-delta_mean
+  }
+  
+  ## Denote signifigant tests with "*"
+  sigtest_results[sigtest_results$pval<=pval_threshold,"sig"]<-"*"
+  return(sigtest_results)
+}
+
+###########
+## end apply ttest
+###########
+
+###########
+## setup_sigtest
+###########
+#pval_threshold = pval_threshold;raw_data = proliferation.m;test_function = "t.test";Experiment = "Scratch"
+
+setup_sigtest<-function(pval_threshold = pval_threshold,raw_data = raw_data,test_function = "t.test",Experiment="Scratch"){
+  ## Set up a significance test df to store inference testing data
+  if(Experiment=="Scratch"){
+    sigtest<-data.frame(xref=c(rep("L. crispatus",times=4),rep("L. jensenii",times=3),rep("L. iners",times=2),"G. vaginalis"),reference=c("L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","L. iners","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium","Cell Culture Medium"))
+    
+    ## Factor labels
+    sigtest$xref<-factor(sigtest$xref,levels =c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"),ordered = T)
+    sigtest$reference<-factor(sigtest$reference,levels = c("L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"),ordered = T)
+    
+    sigtest<-apply_ttest(sigtest_results = sigtest,pval_threshold = pval_threshold,summary_stats = raw_data,test_function = "t.test")
+    ## Summarize scratch assay data with mean and sd
+    summary_stats<-ddply(dplyr::select(raw_data,c(BCS,percent_cells)),c("BCS"),summarise,mean=mean(percent_cells),sd=sd(percent_cells))
+    
+  }else if(Experiment=="Infection"){
+    
+    sigtest<-data.frame(Observation=rep(c("Proliferation","Infectivity"),each=3),xref=c(rep("CAS 546102-60-7",times=2),rep("Fascaplysin",times=1)),reference=c("Fascaplysin","Cell Culture Medium","Cell Culture Medium"))
+    
+    sigtest$xref<-factor(sigtest$xref,ordered = T,levels = c("CAS 546102-60-7","Fascaplysin"))
+    sigtest$reference<-factor(sigtest$reference,ordered = T,levels = c("Fascaplysin","Cell Culture Medium"))
+    
+    
+    raw_data.spread<-spread(raw_data,key = Observation,value = percent_cells)
+    plot(raw_data.spread$Infectivity,raw_data.spread$Proliferation,col=raw_data.spread$Treatment)
+    
+    summary_stats.pre<-ddply(raw_data,c("Observation","Treatment","Coverslip"),summarise,mean=mean(percent_cells,na.rm = T),sd=sd(percent_cells,na.rm = T))
+    
+    summary_stats<-ddply(summary_stats.pre,c("Treatment","Observation"),summarise,grand_mean=mean(mean,na.rm = T))
+    
+    for(obs in c("Infectivity","Proliferation")){
+      for(treat in unique(summary_stats$Treatment)){
+        #treat<-"Control"
+        gm<-summary_stats[summary_stats$Observation==obs & summary_stats$Treatment==treat,"grand_mean"]
+        means<-summary_stats.pre[summary_stats.pre$Treatment==treat & summary_stats.pre$Observation==obs,"mean"]
+        n<- length(means[!is.na(means)])
+        summary_stats[summary_stats$Treatment==treat & summary_stats$Observation==obs,"grand_sd"]<-sqrt(sum((means-gm)^2,na.rm = T)/(n-1))
+        summary_stats[summary_stats$Observation==obs & summary_stats$Treatment==treat,"n"]<-n
+      }
+    }
+    
+    sigtest<-apply_ttest(sigtest_results = sigtest,pval_threshold = pval_threshold,summary_stats = summary_stats,test_function = "t.test2")
+    
+    
+  }else{
+    print("Experiment must be Infection or Scratch")
+  }
+  
+  
+  statbars<-data.frame(xref=sigtest$xref,reference=sigtest$reference,
+                       x=as.numeric(sigtest$xref)+.05,
+                       xend=(as.numeric(sigtest$reference)+1)-.05)
+  if(Experiment=="Scratch"){
+    
+    statbars[statbars$reference=="Cell Culture Medium","y"]<-rep(seq(100,91,-3),times=1)
+    statbars[statbars$reference=="G. vaginalis","y"]<-rep(seq(91,by=-3,length.out = 3),times=1)
+    statbars[statbars$reference=="L. iners","y"]<-rep(c(85,94),times=1)
+    statbars[statbars$reference=="L. jensenii","y"]<-rep(94,times=1)
+    statbars[statbars$reference=="Cell Culture Medium" & statbars$xref=="L. iners","y"]<-85
+    statbars[statbars$reference=="G. vaginalis" & statbars$xref=="L. iners","y"]<-94
+    
+  }else if(Experiment=="Infection"){
+    
+    statbars[statbars$reference=="Cell Culture Medium","y"]<-rep(seq(100,97,-3),times=2)
+    statbars[statbars$reference=="Fascaplysin","y"]<-rep(c(91,94),times=1)
+    statbars[statbars$reference=="CAS 546102-60-7","y"]<-rep(90,times=2)
+    statbars[statbars$xref=="CAS 546102-60-7" &statbars$reference=="Fascaplysin" ,"y"] <-97
+    
+  }else{
+    print("Experiment must be Infection or Scratch")
+  }
+  
+  
+  statbars$yend<-statbars$y
+  statbars2<-data.frame(x=c(statbars$x,statbars$xend),
+                        y=rep(statbars$y,times=2),
+                        yend=rep(statbars$y-1.5,times=1))
+  statbars2$xend<-statbars2$x
+  
+  sigtest<-merge(statbars,sigtest,by = c("xref","reference"))
+  
+  sigtest$midpoints<-((sigtest$xend-sigtest$x)/2)+sigtest$x
+  sigtest$y.sig<-sigtest$y+1
+  sigtest$sig[is.na(sigtest$sig)]<-"N.S."
+  
+  return(list(sigtest=sigtest,statbars=statbars,statbars2=statbars2,summary_stats=summary_stats))
+}
+
+###########
+## end setup_sigtest
+###########
+
+###########
+## plot_replicates
+###########
+
+
+plot_replicates<-function(eset,BCS.selection=c(""),ExposureTime.selection=c(""),logt=F,rmlow=F,lowcnt=10){
+  
+  if(logt){
+    cnts<-log(exprs(eset)+1,base = 2)
+  }else{
+    cnts<-exprs(eset)
+  }
+  if(rmlow){
+    
+    cnts<-cnts[rowSums(cnts>lowcnt)==ncol(cnts),]
+  }
+  
+  pairs.panels(cnts[, pData(eset)$BCS %in% c(BCS.selection) & pData(eset)$ExposureTime %in% c(ExposureTime.selection)])
+}
+
+
+###########
+## end plot_replicates
+###########
+
+###########
+## subset_ExpressionSet
+###########
+
+
+```
+# Summary Statistics & Quality Control   
+
+## Alignment Stats   
+Summarize the SmallRNA seq alignments
+
+```{r alignment_stats,eval=TRUE}
+
+## Stats on # reads hg (% surviving), # reads miRNA (% survibing, hg)
+SRL_meta_table_summary_table<-data.frame(matrix(0,nrow=3,ncol=3));names(SRL_meta_table_summary_table)<-c("min","median","max");row.names(SRL_meta_table_summary_table)<-c("trimmed","hg19","miRNome")
+
+SRL_meta_table_summary_table["trimmed",]<-summarise(SRL_meta_table,min=min(reads_surviving),median=median(reads_surviving),max=max(reads_surviving))
+SRL_meta_table_summary_table["hg19",]<-summarise(SRL_meta_table,min=min(hg19.mapped),median=median(hg19.mapped),max=max(hg19.mapped))
+SRL_meta_table_summary_table["miRNome",]<-summarise(SRL_meta_table,min=min(number_reads_mirs),median=median(number_reads_mirs),max=max(number_reads_mirs))
+print(SRL_meta_table_summary_table)
+
+```
+
+## Quality Control (QC) small RNA-seq count data
+
+```{r QC,eval=TRUE}
+print(paste("Number of samples in inital counts table:",ncol(SRL_counts_table)))
+print(paste("Number of miRNAs in inital counts table:",nrow(SRL_counts_table)))
+
+## Determine number of miRNAs without any counts across all samples 
+missing<-rowSums(SRL_counts_table)==0 #rowSums(is.na(SRL_counts_table))==ncol(SRL_counts_table) | 
+print(paste("Number of miRNAs without any counts across all",ncol(SRL_counts_table),"samples:",sum(missing)))
+print(paste0("which leaves ",100*(1-sum(missing)/nrow(SRL_counts_table))," percent of all annotated miRNAs with at least 1 read"))
+
+
+#print("...and the names of the miRNAs without any reads across all samples: ")
+#names(missing)[missing]
+
+##FIXME
+# plot_QC.preQC.batch<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "Batch",ploly = F,seed_val = seed_val)##FIGURE
+# plot(plot_QC.preQC.batch$pca.p)
+# plot_QC.preQC.batch$gPCA.result$p.val
+# plot_QC.preQC.sid<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
+# plot(plot_QC.preQC.sid$pca.p)
+# plot_QC.preQC.sid$gPCA.result$p.val
+# plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "BVGroup",seed_val = seed_val)$pca.p##FIGURE
+# plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "NugentC",seed_val = seed_val)$pca.p##FIGURE
+##END FIXME
+
+## Get a *ROUGH* idea of miRNA coverage by dividing counts by # of annotated miRNAs in genome 
+(number_mirs_genome<-nrow(SRL_counts_meta)) ## number of annotated miRNAs
+#SRL_counts_table<-SRL_counts_table[!missing,] ## non missing counts only 
+SRL_counts_meta<-SRL_counts_meta[!missing]
+sum(missing)
+## Number of miRNAs completley removed due to non-detection
+nrow(SRL_counts_meta)
+
+(plot_QC.RIN.percent.batch<-plot_RIN_meta(SRL_meta_table,"number_reads_mirs.percent_hgmapped",col_by="Batch",y_series_label = "Percentage of miRNA Reads of All hg19 Mapped Reads"))##FIGURE
+(plot_QC.RIN.percent.sid<-plot_RIN_meta(SRL_meta_table,"number_reads_mirs.percent_hgmapped",col_by="SID",y_series_label = "Percentage of miRNA Reads of All hg19 Mapped Reads"))
+(plot_QC.RIN.number.batch<-plot_RIN_meta(SRL_meta_table,"number_reads_mirs",col_by="Batch",y_series_label = "Number of miRNA Reads"))##FIGURE
+(plot_QC.RIN.number.sid<-plot_RIN_meta(SRL_meta_table,"number_reads_mirs",col_by="SID",y_series_label = "Number of miRNA Reads"))
+
+## Range of miRNA coverage based on simple reads/#annotated miRNAs
+print(summary(colSums(SRL_counts_table))/number_mirs_genome)
+
+## Avergae coverage
+data.frame(Pre_QC_ID=SRL_meta_table$Pre_QC_ID,avg_coverage=SRL_meta_table$number_reads_mirs/number_mirs_genome)
+
+hist(log(colSums(SRL_counts_table)/number_mirs_genome,10),main="Log10 Total miRNA Counts/# miRNAs")
+abline(v = log(100,10))
+.1*number_mirs_genome
+## Samples with "low coverage", i.e., less than 1E4 reads/#miRs
+low_coverage<-(colSums(SRL_counts_table))<=(125)*number_mirs_genome ##125
+sum(low_coverage)
+125 * 1869 
+## An idea of the samples with "low coverage":
+print(head(SRL_counts_table[,low_coverage]))
+
+(removed_samples<-remove_poorQC_samples(removed_samples = removed_samples,sample_list =unique(colnames(SRL_counts_table[,low_coverage])),reason = "Low_Coverage"))
+
+## Remove those samples with low coverage 
+counts_meta.qc<-subset_ExpressionSet(expSet = SRL_counts_meta,filterOut = c(as.character(removed_samples$Pre_QC_ID)))
+
+nrow(pData(counts_meta.qc))
+ncol(exprs(counts_meta.qc))
+
+ncol(pData(counts_meta.qc))
+nrow(exprs(counts_meta.qc))
+##FIXME
+# 
+# ## Re-plot after QC
+# plot_QC.postQC.batch<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by ="Batch",ploly = F,seed_val = seed_val)##FIGURE
+# plot_QC.postQC.batch$pca.p
+# 
+# plot_QC.postQC.sid<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
+# plot_QC.postQC.sid$pca.p
+# 
+# plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "BVGroup",ploly = F,seed_val = seed_val)$pca.p##FIGURE
+# plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "NugentC",ploly = F,seed_val = seed_val)$pca.p##FIGURE
+# 
+# plot_RIN_meta(pData(counts_meta.qc),"hg.mapped.percent",col_by = "Batch")##FIGURE
+# plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_hgmapped",col_by = "Batch")##FIGURE
+# plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_surviving",col_by = "Batch")##FIGURE
+# dev.off()
+median_RIN<-median(pData(counts_meta.qc)$RIN,na.rm = T)
+
+print(paste0("The median RINe score was ",median_RIN,", with ",round(100*sum(pData((counts_meta.qc))$RIN<7,na.rm = T)/length(pData((counts_meta.qc))$RIN),digits = 1),"% of the samples having a RINe greater than 7."))
+
+number_miRNAs<-mapping_stats(pData(counts_meta.qc)$number_reads_mirs)
+percent_miRNAs.hg<-round(mapping_stats(pData(counts_meta.qc)$number_reads_mirs.percent_hgmapped),1)
+percent_miRNAs.oftrimmed<-round(mapping_stats(pData(counts_meta.qc)$number_reads_mirs.percent_surviving),1)
+
+print(paste0("The median (minimum/maximum) percentage of post-QC miRNA reads relative to all hg19 mapped and total reads was ",percent_miRNAs.hg$median,"% (",percent_miRNAs.hg$min,"%/",percent_miRNAs.hg$max,"%) and ",percent_miRNAs.oftrimmed$median,"% (",percent_miRNAs.oftrimmed$min,"%/",percent_miRNAs.oftrimmed$max,"%), respectively. However, the  median number of post-QC hg19 mapped miRNA reads was ",number_miRNAs$median,", with a minimum ",number_miRNAs$min," and maximum ",number_miRNAs$max,". Thus, despite low relative miRNA read counts, the estimated coverage ranged from ",round(number_miRNAs$min/number_mirs_genome,digits = 0),"X-",round(number_miRNAs$max/number_mirs_genome,digits = 0),"X across the entire miRnome (",number_mirs_genome," annotated miRNAs)."))
+
+sum(pData((counts_meta.qc))$number_reads_mirs<10^6,na.rm = T)/length(pData((counts_meta.qc))$number_reads_mirs)
+
+##FIXME
+
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.PREQC.BYBATCH),width = 8,height = 5.5)
+# plot(plot_QC.preQC.batch$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.PREQC.BYSUBJ),width = 8,height = 5.5)
+# plot(plot_QC.preQC.sid$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.RMLOW.BYBATCH),width = 8,height = 5.5)
+# plot(plot_QC.postQC.batch$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_PCA.RMLOW.BYSUBJ),width = 8,height = 5.5)
+# plot(plot_QC.postQC.sid$pca.p)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_RIN_v_READS.PROP),width = 8,height = 5.5)
+# plot(plot_QC.RIN.percent.batch)
+# dev.off()
+# cairo_ps(file = paste0(thesis_figures_directory,FIGURE_QC_RIN_v_READS.ABS),width = 8,height = 5.5)
+# plot(plot_QC.RIN.number.batch)
+# dev.off()
+
+```
+# Discovery of miRNAs Associated w/ Lactobacillus spp. vs CST-IV/BV  
+
+## Normalize & log2 transform small RNA-Seq counts for use in models   
+
+```{r normalize,eval=TRUE,warning=FALSE}
+## Calcualte size factors for normalization using calcNormFactors function
+hist(log(exprs(counts_meta.qc),base = 2))
+expSet.sizeDisp<-calcNormFactors(method = "TMM",DGEList(counts = exprs(counts_meta.qc)),logratioTrim = 0.10,sumTrim = 0.05) 
+
+## Normalize counts using size dispersions and norm factors, store as Expression Set
+expSet.normalized<-ExpressionSet(assayData = as.matrix(1E6*expSet.sizeDisp$counts*expSet.sizeDisp$samples$norm.factors/expSet.sizeDisp$samples$lib.size),phenoData = AnnotatedDataFrame(pData(counts_meta.qc)))
+
+## Store log-transformed QC *NON NORMALIZED* count table for PCA. This is not used for anything but PCA. 
+expSet_log<-ExpressionSet(assayData = log(exprs(counts_meta.qc),base=2),phenoData = AnnotatedDataFrame(pData(counts_meta.qc)))
+
+## Store log-transformed QC normalized count table. This is the small RNAseq count table used in all downstream analysis
+expSet_log.normalized<-ExpressionSet(assayData = log(exprs(expSet.normalized)+1,base=2),
+                                     phenoData = AnnotatedDataFrame(pData(expSet.normalized))) ## add pseuo counts... so that when take log(), all 0 reads become 0 normalized reads log(raw + 1)=log(1)=0. LIttle effect on other counts. This makes it esier to drop raw 0 counts later. Also store count table annotation from original Expression Set
+
+
+##FIXME
+# 
+# ## PCA plots after normalization, colored by batch, SID and "BV group"
+# plot_QC.normalized.batch<-plot_pca(expSet.normalized,color_by = "Batch",margins = unit(c(0,-200,0,-200),units = "points"),seed_val = seed_val)
+# plot_QC.normalized.batch$pca.p
+# plot_QC.normalized.sid<-plot_pca(expSet_log.normalized,color_by = "SID",ploly = F,logt = F,margins = unit(c(0,30,0,5),units = "pt"),seed_val = seed_val)
+# plot_QC.normalized.sid$pca.p
+# plot_pca(expSet_log.normalized,color_by = "BVGroup",logt = F)$pca.p
+# plot_pca(expSet_log.normalized,color_by = "NugentC",logt = F)$pca.p
+# 
+# ## Print for text
+# print(paste0("PCA plots before and after sample removal and after normalization do not support batch effects (guided PCA p-values ",plot_QC.preQC.batch$gPCA.result$p.val,", ",plot_QC.postQC.batch$gPCA.result$p.val,", and ",plot_QC.normalized.batch$gPCA.result$p.val,", respectively), or subject-specific effects (guided PCA p-values ",plot_QC.preQC.sid$gPCA.result$p.val,", ",plot_QC.postQC.sid$gPCA.result$p.val,", and ",plot_QC.normalized.sid$gPCA.result$p.val,", respectively, Figure S1)."))
+
+## Store counts data as "features"
+features<-exprs(expSet_log.normalized)
+head(features)[,1:3]
+
+## Replace NA values with half the minimum normalized count values so that modelling works with algorithms
+(min_normalized_count<-2^min(features,na.rm = T))
+features[is.na(features)]<-log(min_normalized_count/2,base = 2)
+
+## Remove low count miRNAs
+hist(features,main="Histogram of Normlized Read Counts",xlab="Log (Normlized read count)")
+abline(v = -2,col='red')
+nrow(features)
+keep_features<-rowSums(features>log(min_normalized_count/2,base = 2))>=(.5*ncol(features))
+sum(keep_features)
+features<-features[keep_features,] ## At least half of normalized miRNA counts should be >1. 
+hist(features,main="Histogram of Normlized Read Counts",xlab="Log (Normlized read count)")
+abline(v = 1,col='red')
+
+## Write PCA plots to file
+cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYBATCH),width=8,height=5.5)
+plot_QC.normalized.batch$pca.p
+dev.off()
+cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYSUBJ),width=8,height=5.5)
+plot_QC.normalized.sid$pca.p
+dev.off()
+
+```
+
+## Prepare & Analyze the Nugent input tables (predictors) to RF model   
+
+```{r prepare_model_input,eval=T}
+load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
+load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
+SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
+#LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
+LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
+##LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Gardnerella_vaginalis)))
+
+
+## Join the existing metdadata and predicted Amsel diagnosis
+joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(LACTO_PROP),LACTO_PROP=LACTO_PROP),by="Pre_QC_ID")
+row.names(joined_meta_amselPred)<-joined_meta_amselPred$Pre_QC_ID
+
+##Store the joined data as features_metadata
+features_metadata<-ExpressionSet(features,phenoData = AnnotatedDataFrame(joined_meta_amselPred))
+
+## Summarize postQC counts data/metadata
+summary_sid.group<-ddply(pData(counts_meta.qc),c("SID","BVGroup"),summarise,N=length(SID))
+(summary_group.sid<-ddply(pData(counts_meta.qc),c("BVGroup","SID"),summarise,N=length(SID)))
+(summary_group<-ddply(pData(counts_meta.qc),c("BVGroup"),summarise,N=length(SID)))
+(summary_group.uniqSID<-ddply(unique(dplyr::select(pData(counts_meta.qc),c(SID,BVGroup))),c("BVGroup"),summarise,N=length(SID)))
+(summary_group.race<-ddply(unique(dplyr::select(pData(counts_meta.qc),c(BVGroup,Race,SID))),c("BVGroup","Race"),summarise,N=length(SID)))
+
+print(paste0("A total of ",sum(summary_sid.group$N)," samples, representing ",sum(summary_group.uniqSID$N)," unique subjects from one of 3 longitudinal groups were used in the final analysis"))
+
+## Subset metadata for easier handling downstream
+selected_metadata<-dplyr::select(pData(features_metadata),c(SID,NUGENT_SCORE,LACTO_PROP,Pre_QC_ID,CST)) 
+#selected_metadata<-dplyr::select(pData(features_metadata),c(SID,VAG_INT,FING_PEN,contains("SEX"),symptoms,symptoms_nonBV,BirthControl,NUGENT_SCORE,LACTO_PROP,Pre_QC_ID,MENSTRUATION_NORMALIZED_PHASED,CST)) ## CSTs are *NOT* used in model input, but are instead passed along to top mir expression plot/table downstream. Remove CST from running in model.  
+
+##Store only counts expressed 'above 0' to reduce noise in RF models
+min(exprs(features_metadata))
+expressed_above_0<-exprs(features_metadata)[rowSums(exprs(features_metadata)!=0)>=(1*ncol(exprs(features_metadata))),] 
+
+## Combine non zero log transformed normalized counts with selected metadata as input into RF models (predictors + responses)
+model_input<-data.frame(t(expressed_above_0),selected_metadata)
+row.names(model_input)<-model_input$Pre_QC_ID
+model_input<-dplyr::select(model_input,-Pre_QC_ID)
+model_input$LACTO_PROP<-as.numeric(model_input$LACTO_PROP)
+##model_input$LACTO_PROP<-as.character(model_input$LACTO_PROP)
+names(model_input)<-gsub(gsub(gsub(names(model_input),pattern = "mir.",replacement = "miR-"),pattern = "hsa.",replacement = ""),replacement ="-",pattern = "\\.")
+
+##/// Subset model_input into the inputs for Amsel and Nugent RF
+model_input_Lactobacillus<-dplyr::select(model_input[!is.na(model_input$LACTO_PROP),],-c(NUGENT_SCORE,CST))## Keep CSTs in model_input, just not Amsel or Nugent input
+#model_input_Nugent<-dplyr::select(model_input[!is.na(model_input$NUGENT_SCORE),],-c(LACTO_PROP,CST)) ## Keep CSTs in model_input, just not Amsel or Nugent input
+
+model_input_Lactobacillus[is.na(model_input_Lactobacillus)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
+#model_input_Nugent[is.na(model_input_Nugent)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
+
+##ADD QC STAGE TO SRL_meta_table, then write to disk
+SRL_meta_table<-left_join(SRL_meta_table,removed_samples,by="Pre_QC_ID")
+print(paste0("There were 5 samples removed due to insufficient library material or failure to sequence, and ",sum(!is.na(SRL_meta_table$QC_removal_stage) & SRL_meta_table$QC_removal_stage %in% c("Low_Coverage","Visual Outlier"))," samples were removed due to low total miRNA reads or outliers."))
+
+write.csv(SRL_meta_table,file=paste0(thesis_tables_directory,TABLE_SRL_METADATA),row.names=F,quote=F)
+SRL_seq_summary<-ddply(SRL_meta_table,c("BVGroup","SID"),summarise,PreQC=length(QC_removal_stage),PostQC=length(QC_removal_stage)-sum(as.numeric(QC_removal_stage),na.rm = T))
+SRL_seq_summary<-SRL_seq_summary[order(SRL_seq_summary$BVGroup),]
+write.csv(SRL_seq_summary,file=paste0(thesis_tables_directory,TABLE_SEQSUMMARY),row.names=F,quote=F)
+
+```
+## Run Random Forest Models   
+Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities vs CST-IV (BV-associated communities)   
+* Amsel- Random Forest (using predicted Amsel diagnoses as response variable)  
+* Nugent- Random Forest (using Nugent score as response variable)   
+
+```{r run_model,eval=T}
+## //////////
+### Random Forest
+## //////////
+## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
+
+Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus,
+                           response_variable_name = "LACTO_PROP",
+                           subj_spec =T,
+                           nfold = nfolds,
+                           nreps = npermutes,
+                           permute = T,
+                           save_model = T,
+                           file_n = "Lacto_RF",
+                           load_prev_model = T,
+                           verbose = F,
+                           training_prop = training_prop,
+                           R_script_output_directory=R_script_output_directory) 
+
+##Store op Nugent RF features
+Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = F),]
+(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$importance[Lacto_RF$importance$X.IncMSE>=2,]))
+Lacto_RF$rfp$importance_w_pval
+
+## Winner -5 miRNAs
+(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold & Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold ,]))
+
+##Calculate accuracy/mean abs error
+accuracy_table.Nugent<-Lacto_RF$accuracy_table
+(mean_absolute_error.Nugent<-sum(abs(accuracy_table.Nugent$predicted- accuracy_table.Nugent$actual))/nrow(accuracy_table.Nugent))
+hist(abs(accuracy_table.Nugent$predicted- accuracy_table.Nugent$actual))
+plot(accuracy_table.Nugent$predicted, accuracy_table.Nugent$actual)
+print(paste0("The Nugent-RF model correctly predicted the Nugent score within ",round(mean_absolute_error.Nugent,digits = 2)," values on average. There were ",length(Lacto_RF$top_features$top_features.all)," significant miRNAs using Nugent-RF."))
+
+## //////////
+### Output Model Results
+## //////////
+
+### Tables
+## Write model input table to file, keeping only variables that were used in either Nugent-RF or Amsel-RF
+model_input.out<-model_input[,names(model_input) %in% unique(c(names(model_input_Lactobacillus)))]
+
+predictor_names<-names(dplyr::select(model_input.out,-c(LACTO_PROP,SID)))
+predictor_names.miRs<-sum(grepl(predictor_names,pattern = "miR|let"))
+print(paste0("The Lacto-RF models used ",length(predictor_names)," predictors including ",predictor_names.miRs," non-zero log2 transformed miRNA read counts and ",length(predictor_names)-predictor_names.miRs," metadata variables as inputs to rank feature importance (",TABLE_MODEL_INPUT,")."))
+
+## Record which variables were used in training and testing
+model_input.out[row.names(model_input.out) %in% Lacto_RF$training_ids,"Lacto_RF_trainingTestingSet"]<-"training"
+model_input.out[row.names(model_input.out) %in% Lacto_RF$testing_ids,"Lacto_RF_trainingTestingSet"]<-"testing"
+
+write.csv(model_input.out,paste0(thesis_tables_directory,TABLE_MODEL_INPUT),row.names=T,quote=F)
+
+## Combine both RF models' importance information as a single table
+TABLE_RF_SUMMARY_output<-data.frame(features=names(model_input %>% dplyr::select(-c(LACTO_PROP,NUGENT_SCORE,SID))))
+TABLE_RF_SUMMARY_output<-data.frame(features=row.names(Lacto_RF$rfp$importance_w_pval),AMSEL=Lacto_RF$rfp$importance_w_pval)
+
+write.csv(TABLE_RF_SUMMARY_output,file=paste0(thesis_tables_directory,TABLE_RF_SUMMARY),row.names=F,quote=F)
+write.csv(dplyr::select(Clinical_Visit_RF$importance,-contains("BV")),file=paste0(thesis_tables_directory,TABLE_RF_SUMMARY.CV),row.names=T,quote=F)
+
+##Store the top miRNAs for later use
+top_mirs_table<-data.frame(miRNA=Lacto_RF$top_features$top_features.all)
+
+## Text
+print(paste0("A total of ",length(top_mirs_table$miRNA)," miRNAs were identified uing Lactobacillus RA.: ", str_c(top_mirs_table$miRNA,collapse=", "),"."))
+
+
+### Figures
+Lacto_RF.plot<-plot_importance(dplyr::select(data.frame(Lacto_RF$rfp$importance_w_pval)[row.names(Lacto_RF$rfp$importance_w_pval) %in% top_mirs_table$miRNA,],contains("MSE")),ntopfeats =  11,rankBy = "IncMSE",nfeats = 11,model_name = "Lacto",size_font = 20)
+
+plot(Lacto_RF.plot)
+
+cairo_ps(file=paste0(thesis_figures_directory,FIGURE_RF_IMPORTANCE_AMSEL), width=11, height=8.5)
+plot(Lacto_RF.plot)
+dev.off()
+
+
+topmir_plot_data<-model_input[!is.na(model_input$NUGENT_SCORE),names(model_input) %in% c("NUGENT_SCORE","LACTO_PROP","CST",as.character(top_mirs_table$miRNA))]
+topmir_plot_data$CST<-as.character(topmir_plot_data$CST)
+
+topmir_plot_data<-melt(topmir_plot_data,id.vars = c("NUGENT_SCORE","LACTO_PROP","CST"))
+
+topmir_plot_data$variable<-gsub(topmir_plot_data$variable,pattern = "hsa.mir.",replacement = "miR-")
+
+## Calcualte linear model fit for miRNA expression data vs Nugent score to rank miR expression plots in figure
+
+fitness<-apply(model_input[,names(model_input) %in% unique(topmir_plot_data$variable)],MARGIN = 2,function(s) summary(lm(model_input$NUGENT_SCORE~s)))
+
+fitness.r2<-data.frame(adjr2=unlist(lapply(fitness,function(x) round(x$adj.r.squared,digits = 3))))
+fitness.r2$variable<-row.names(fitness.r2)
+
+print(fitness.r2[order(abs(fitness.r2$adjr2),decreasing = T),])
+
+topmir_plot_data<-join(topmir_plot_data,fitness.r2)
+
+topmir_plot_data$variable<-factor(x=topmir_plot_data$variable,levels = unique(topmir_plot_data[order(abs(topmir_plot_data$adjr2),decreasing = T),c("variable")]),ordered = T)
+
+## Liner correlation coeff for miRNA expression data:
+paste(apply(unique(dplyr::select(topmir_plot_data,c(variable,adjr2))),MARGIN = 1,FUN = function(x) paste(sep =":" ,x[1],x[2])),sep=",")
+
+## Collapse CSTs to a single CST super type
+topmir_plot_data[topmir_plot_data$CST %in% c("III-A","III-B"),"CST"]<-"III"
+topmir_plot_data[topmir_plot_data$CST %in% c("I-A","I-B"),"CST"]<-"I"
+
+##FIXME make sure NA samples weren't use in RF-- samples without a lacto prop. 
+
+## Plot the miRNA expression figure
+PLOT_EXPRESSION<-
+  ggplot(topmir_plot_data,aes(x=100*LACTO_PROP,y=value))+
+  stat_smooth(method = "lm",col='#FF5733',se=F)+ #
+  geom_point(aes(col=as.factor(CST)),size=3,show.legend = T)+
+  facet_wrap(~variable,scales = "free_y",nrow=2)+
+  ylab("Normalized Expression")+xlab("Lactobacillus spp. relative abundance (%)")+
+  mBio+
+  theme(text = element_text(size=20),axis.text.x = element_text(size=15))+
+  scale_x_continuous(breaks=seq(from = 0,to=100,by=20))+
+  scale_color_manual(values = cst.colors,guide = guide_legend(title = "CST"))
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_TOPMIRS),width = 16,height = 8) #
+plot(PLOT_EXPRESSION)
+dev.off()
+
+
+library(Boruta)
+
+postscript(paste0(R_script_output_directory,"Boruta_optimization.ps"))
+Lacto_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID,LACTO_PROP)),y=model_input_Lactobacillus$LACTO_PROP)
+plot(Lacto_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
+Lacto_RF.Boruta$finalDecision[Lacto_RF.Boruta$finalDecision=="Confirmed"]
+
+
+dev.off()
+```
+
+
+## Map miRNAs to Gene Targets and GO Process (miR-GO-Target) (Table 2)
+
+Using experimentally validated miRNA targets, map to direct GO processes to discover common & unique functions of top miRNAs. 
+1.   Output gene target list for each top miRNA.    
+2.   Count the frequency of each target for each GO process & miRNA. Plot. 
+```{r miRGoTarget,eval=T}
+
+### miRNA <-> Taget (gene) <-> Gene Ontology Process (direct)
+### miRNA <- - - - - - - -- >  Gene Ontology Process (direct)
+
+## Read in miRTarBase Experimentally Validated Target List
+mir_targets<-read.table(paste0(R_script_input_directory,"miRTarBase_SE_WR_homosapiens.txt"),header = T,sep="\t",stringsAsFactors = F) %>% filter(Species..miRNA.=="Homo sapiens")
+nrow(mir_targets)
+
+## Format targets list,pattern = "hsa.",replacement = "")
+mir_targets$miRNA.format<-gsub(gsub(gsub(mir_targets$miRNA,pattern = "mir.",replacement = "miR-"),replacement ="-",pattern = "\\."),pattern = "-.p",replacement = "-")
+
+## Map miRNA names to target List
+for(mir in as.character(top_mirs_table$miRNA)){
+  
+  target_list<-mir_targets[grep(mir_targets$miRNA.format,pattern = paste0("hsa-",mir,"-"),ignore.case = T,perl = T),c("miRNA","Target.Gene","References..PMID.")]
+  #if(!nrow(target_list)==0){target_list$source<-"canonical"}
+  if(!nrow(target_list)==0 ){
+    top_mirs_table[top_mirs_table$miRNA==mir,"targets"]<-str_c(sort(unique(target_list$Target.Gene)),collapse = ",")
+    top_mirs_table[top_mirs_table$miRNA==mir,"sanityCheck"]<-str_c(sort(unique(target_list$miRNA)),collapse = ",")
+    top_mirs_table[top_mirs_table$miRNA==mir,"PMID"]<-str_c(sort(unique(target_list$References..PMID.)),collapse = ",")
+  }
+}
+
+write.table(top_mirs_table,file=paste0(thesis_tables_directory,TABLE_MIR_TARGETS),sep="\t",quote = F,row.names = F) ## Needs to be tab delimited due to "," separating gene targets. 
+
+### Read in miR-Go-Gene mapping table mapping targets/miRNAs to GO processes. Gene targets mapped to miRNAs using a Python script. 
+mir_go<-read.csv(paste0(R_script_input_directory,"miR_GODirect_Gene_Map.csv"),stringsAsFactors = F) 
+
+
+## Filter just the miR-GO map to 'top' miRNAs discovered above belonging to both RF model results 
+mir_go<-mir_go[mir_go$mir %in% as.character(top_mirs_table$miRNA),]
+ddply(unique(dplyr::select(mir_go,c(mir,gene))),c("mir"),summarise,n=length(gene))
+
+## Read in miR-target counts, created in outside script. 
+mir_targetCnt<-read.csv(paste0(R_script_input_directory,"miR_Target_Counts.csv"),stringsAsFactors = F)
+mir_targetCnt[mir_targetCnt$mir %in% top_mirs_table$miRNA,]
+## Determine the number of genes associated with each miRNA- need to determine how many GO processes to plot in figure
+mir_go.counts<-data.frame(table(dplyr::select(mir_go,c(mir,GO))))
+mir_go.miR193b<-mir_go[mir_go$mir=="miR-193b",]
+
+mir_go.counts<-merge(mir_go.counts,mir_targetCnt)
+mir_go.counts$Freq_Targets<-mir_go.counts$Freq/mir_go.counts$number_targets
+
+hist(mir_go.counts$Freq_Targets[!mir_go.counts$Freq_Targets==0],main="Historgam of Non-zero miRNA Target Frequency",xlab="Proportion of Targets")
+
+## Somewhere above 0.2 might capture the interesting/common GO processes across miRNAS. 
+
+## Make miR-GO counts into wide format (i.e., each GO process is a column, miRNAs are rows, values are proportion of targets in that GO/miRNA combination)
+mir_go.wide<-tidyr::spread(dplyr::select(mir_go.counts,-c(Freq,number_targets)),key = GO,value = Freq_Targets)
+
+row.names(mir_go.wide)<-mir_go.wide$mir
+mir_go.wide<-dplyr::select(mir_go.wide,-mir)
+
+## Get a better idea of how to plot common GO processes by determining cutoffs for target proportions
+## Balanace between proportion of targets across all miRNAs and total # across targets
+
+## create dummy dataframe- i and j hold the tuning parameters
+df1<-data.frame(i=rep(seq(0,max(mir_go.wide),max(mir_go.wide)/10),each=10),j=rep(seq(0,1,.1),times=10))
+
+## Calcualte number of columns (nc) for i and j cutoffs
+for(a in 1:nrow(df1)){
+  i<-df1[a,"i"]
+  j<-df1[a,"j"]
+  ## number of columns w/ propotion >i and of those, number greater than j of total miRNAs
+  nc<-ncol(mir_go.wide[,colSums(mir_go.wide>i)>=j*nrow(mir_go.wide)])
+  if(is.null(nc)){nc<-0}
+  df1[a,"ncol"]<-nc
+}
+(optimal_cutoffs<-df1[df1$ncol==max(df1[df1$ncol<=25 & df1$ncol>=5,"ncol"]),]) ## What are the optimal cutoffs for somewhere between 5 and 25 GO processes on the plot?
+
+## Take the max i/j pair as the cutoffs:
+i<-0.1904762 # 0.2285714 #0
+j<-0.3 #0.8
+## Note that 19 in the "nc" column is the number of GO processes that will be plotted
+
+## Therefore, the proportion of genes should be >0 across at least 0.8*6 =4.8 miRNAs. 
+hist(as.matrix(mir_go.wide))
+
+## Apply optimal cutoffs to miR-GO (wide) data
+mir_go.wide.filtered<-mir_go.wide[,colSums(mir_go.wide>i)>=j*nrow(mir_go.wide)]
+
+mir_go.wide.mir193b<-mir_go.wide[row.names(mir_go.wide)=="miR-193b",]
+
+## The names of the GO processes to be used in plot:
+names(mir_go.wide.filtered[,order(colSums(mir_go.wide.filtered>0),decreasing = T)])
+
+mir_go.wide.filtered$mir<-row.names(mir_go.wide.filtered)
+mir_go.wide.filtered.m<-melt(mir_go.wide.filtered,id.vars = c("mir"))
+mir_go.wide.filtered.m$GO_only<-gsub(mir_go.wide.filtered.m$variable,pattern = "~.*",replacement = "") ## Store the GO number only in case needed
+
+## For this plot, summarize the mean gene target proprotion and # of miRNAs for each GO process. Use this to rank GO processes in plot
+(mir_go.wide.filtered.summary<-ddply(mir_go.wide.filtered.m,c("variable"),summarise,s=sum(value),n=sum(value>0)))
+
+## TO make plot simplier to read, group GO terms in logical super groupings. This is done using a map between GO group and GO term, created outside of script
+group_go_map<-read.csv(file=paste0(R_script_input_directory,"GO_Process_Grouping_Map.csv"))
+
+## Join the map with the GO process summary table. Note that the map may contain more GO processes than the summary, due to slight changes in final miRNA list. 
+group_go_map<-merge(group_go_map,mir_go.wide.filtered.summary,all=T)
+
+## How many GO terms in each super group
+(group_freq<-data.frame(table(group_go_map$Group))) 
+names(group_freq)<-c("Group","n_group")
+# MErge the super groups and data found above
+group_go_map<-merge(group_go_map,group_freq)
+
+## Order by grouping, then by mean target proportion within each group
+group_go_map<-group_go_map[order(group_go_map$n_group, group_go_map$s,decreasing = T),]
+
+#FOrmat the GO term for plot
+mir_go.wide.filtered.m$GO_format<-factor(mir_go.wide.filtered.m$variable,levels =group_go_map$variable ,ordered = T,labels = group_go_map$Go_format)
+
+## Determine order of miRs on plot according to correlation with Lactoabacillus spp prop
+miR_order<-unique(dplyr::select(topmir_plot_data,c(variable,adjr2)))
+miR_order<-miR_order[order(miR_order$adjr2,decreasing = T),]
+mir_go.wide.filtered.m$mir<-factor(mir_go.wide.filtered.m$mir,levels = miR_order$variable,ordered = T)
+
+PLOT_MIR_TARGET_GO_PROP<-ggplot(mir_go.wide.filtered.m,aes(x=GO_format,y=100*value,fill=mir))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+  mBio+
+  theme(axis.text.x = element_text(angle=45,hjust = 1,size=10),text=element_text(size=12),plot.margin = unit(c(10,25,10,170),units = "pt"))+
+  scale_fill_brewer(type = "qual",palette = "Set1")+
+  xlab("GO Term")+
+  ylab("Percentage miRNA Targets")
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR_TARGETS_GO),width = 11,height = 8.5)
+plot(PLOT_MIR_TARGET_GO_PROP)
+dev.off()
+plot(PLOT_MIR_TARGET_GO_PROP)
+
+## NOTE: the # of miR targets table is added later. See above for table. 
+
+## Output miR-Target-GO table for miR-193b only
+mir_go.wide.filtered.m.193b<-filter(mir_go.wide.filtered.m,mir=="miR-193b")
+
+write.table(dplyr::select(mir_go.wide.filtered.m.193b,c(mir,GO_format,value)),file = paste0(thesis_tables_directory,TABLE_TOPMIRS),sep="\t",quote=F,row.names = F)
+
+## Make a GO process bar chart for miR-193b only (for thesis presentation, not used in thesis document)
+mir193b_GOcount_groups<-data.frame(table(dplyr::select(unique(dplyr::select(merge(mir_go.miR193b,group_go_map,by.x="GO",by.y="variable"),c(Group,gene))),Group)))
+mir193b_GOcount_groups$Var1<-factor(mir193b_GOcount_groups$Var1,levels=mir193b_GOcount_groups[order(mir193b_GOcount_groups$Freq,decreasing = T),"Var1"],ordered = T)
+
+mir193b_GOcount_groups.plot<-ggplot(mir193b_GOcount_groups,aes(x=Var1,y=Freq))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+  mBio+
+  theme(axis.text.x = element_text(angle=45,hjust = 1),text=element_text(size=25),plot.margin = unit(c(10,25,10,170),units = "pt"))+
+  scale_fill_brewer(type = "qual",palette = "Set1")+
+  scale_y_continuous(breaks=c(2,4,6,8))+
+  xlab("GO process")+
+  ylab("Number miR-193b targets")
+
+cairo_ps(paste0(R_script_output_directory,"miR193b_GOProcess_presentation.eps"),width = 11,height = 8.5)
+plot(mir193b_GOcount_groups.plot)
+dev.off()
+
+```
+
+# Function of miR-193b and in vitro Experimentation, Implications  
+
+Perform further experimentation on miR-193b, one of the top miRNAs found in the discovery phase above.
+
+## Validate SmallRNASeq Results using qPCR
+::select 5 swabs each from NBV and PBV subjects, then measure relative hsa-mir-193b expression   
+
+```{r qPCR_Validation_SRL,eval=T}
+## Loads qPCR Data from 5 NBV and PBV subjects to Validate miRNA-Seq
+load(paste0(R_script_input_directory,"miRNA_qPCR_Validation.RData"))
+miR_qPCR_results.deltaCt<-miR_qPCR_results.deltaCt[!is.nan(miR_qPCR_results.deltaCt$deltaCt),] ## remove NA from data
+
+## Create a mixed-effects linear model as a function of BVGroup of dCt values, using subject ID as the random effect
+seq_validation.lme <- lme(deltaCt ~ BVGroup,
+                          random = ~ 1|SID,
+                          data = miR_qPCR_results.deltaCt)
+
+## Coefficient of PBV relative to NBV in model + p value
+effect_PBV<-seq_validation.lme$coefficients$fixed["BVGroupPBV"]
+dct.summary<-ddply(miR_qPCR_results.deltaCt,c("BVGroup"),summarise,mean=mean(deltaCt))
+2^(dct.summary$mean[2]-dct.summary$mean[1])
+summary(seq_validation.lme)
+
+```
+
+## miR-193b qPCR Time-Course in VK2 monolayer after BCS Exposure
+qPCR is measured with QIAGEN miScript II kit, BCSs are:   
+*  L. crispatus  
+*  L. jensenii  
+*  L. iners  
+*  G. vaginalis   
+*  Media control    
+
+20% BCSs exposed to VK2 monolayer epithelial cells for:   
+* 0.5 hours   
+* 1 hour   
+* 4 hours   
+* 8 hours   
+* 11 hours   
+* 13 hours  
+* 16 hours   
+* 19 hours   
+* 22 hours   
+
+Primers:   
+* hsa-miR-193b-3p   
+* hsa-miR-RNU6 (normalization control)   
+```{r qPCR_time_course,eval=T}
+
+## Breadcrumb: 
+# qPCR_time_course.Rdata and qpcr_sigtest.Rdata from PreparePipeline/Prepare_qPCR.Rmd, previously called PreparePipeline/BCM_Experiments.Rmd (archives in external HD or Github may be named this)
+
+# Calculate mean & s.d. Ct values for each BCS/time point. 
+load(file=paste0(R_script_input_directory,"qPCR_time_course.Rdata")) ## Ct values
+load(file=paste0(R_script_input_directory,"qpcr_sigtest.Rdata")) ## Container for holding sig testing comparisons/results. Generated so that different studies are matched with their respective controls. 
+
+qPCR_time_course.summary<-ddply(qPCR_time_course,c("Study","ExposureTime","BCS"),summarise,m_193b=mean(miR193b_Ct,na.rm = T),sd_193b=sd(miR193b_Ct,na.rm = T),
+                                m_R6=mean(RNU6_Ct,na.rm = T),sd_R6=sd(RNU6_Ct,na.rm = T))
+##qPCR_time_course.summary m, sd of Cts 
+qPCR_time_course$ExposureTime.n<-as.numeric(gsub(qPCR_time_course$ExposureTime,pattern = "hr",replacement = ""))
+
+## Calcualte delta Ct using RNU6 as endogenous control. Calcualte standard deviation using propagation of error
+qPCR_time_course.summary$deltaCt.RNU6<-qPCR_time_course.summary$m_193b-qPCR_time_course.summary$m_R6
+qPCR_time_course.summary$deltaCt.RNU6.sd<-sqrt(qPCR_time_course.summary$sd_193b^2+qPCR_time_course.summary$sd_R6^2)
+
+dev.off()
+
+rm_rows<-qPCR_time_course.summary[is.na(qPCR_time_course.summary$sd_193b),c("ExposureTime","BCS")]
+qpcr_sigtest<-qpcr_sigtest[!(qpcr_sigtest$comparison %in% rm_rows$BCS & qpcr_sigtest$ExposureTime %in% rm_rows$ExposureTime),]
+
+## calcualte signifigance using delta Ct mean + s.d., which uses a modified t.test2 function. 
+## Loop through the comparisons and test pair-wise
+for(sigtest in 1:nrow(qpcr_sigtest)){
+  timei<-as.character(qpcr_sigtest[sigtest,"ExposureTime"]) # TIme point
+  x1<-as.character(qpcr_sigtest[sigtest,"comparison"]) ## Comparison sample
+  y1<-as.character(qpcr_sigtest[sigtest,"reference"]) ## Reference sample
+  
+  ## When comparing samples, make sure to use the correct study associated with BCS
+  study.x<-as.character(qpcr_sigtest[sigtest,"Study.comp"])
+  study.y<-as.character(qpcr_sigtest[sigtest,"Study.ref"])
+  
+  # Standard deviations, as computed above (actually a delta Ct sd) 
+  sx <- filter(qPCR_time_course.summary,BCS==x1 & ExposureTime==timei & Study==study.x)$deltaCt.RNU6.sd
+  sy<-filter(qPCR_time_course.summary,BCS==y1 & ExposureTime==timei  & Study==study.y)$deltaCt.RNU6.sd
+  
+  # deltaCt mean
+  mx<-filter(qPCR_time_course.summary,BCS==x1 & ExposureTime==timei & Study==study.x)$deltaCt.RNU6
+  my<-filter(qPCR_time_course.summary,BCS==y1 & ExposureTime==timei & Study==study.y)$deltaCt.RNU6
+  
+  ## Compute t statistic/p value using mean, s.d. and sample size for two groups
+  tes<-t.test2(m1 = mx,
+               m2= my,
+               s1=sx,
+               s2=sy,
+               n1=3,
+               n2=3) 
+  
+  qpcr_sigtest[sigtest,"pval"]<-tes["p-value"]
+  qpcr_sigtest[sigtest,"mean_diff"]<-tes["Difference of means"]
+  
+  qpcr_sigtest[sigtest,"se"]<-sqrt(sy^2+sx^2)
+  
+  ## ddCt >0 implies x transcript is less abundant than y and ddCt<0 implies x is more abudnact than y. The relative magnatitude on a plot of 2^(-x) != 2(x) although the interpretability is the same (transcript is either 2^-x less abudnant than y or 2^x more abudnant than y). Therefore, take absolute ddCt before raising it to 2.   
+  ##Note ddct is actually 2^-ddct
+  
+  if(-qpcr_sigtest[sigtest,"mean_diff"]<0){
+    
+    qpcr_sigtest[sigtest,"ddct"]<-(-2^(tes["Difference of means"]))
+    qpcr_sigtest[sigtest,"ddct_se"]<-(-2^(tes["Difference of means"]+
+                                            qpcr_sigtest[sigtest,"se"]))
+    qpcr_sigtest[sigtest,"ddct_se_m"]<-(-2^(tes["Difference of means"]-
+                                              qpcr_sigtest[sigtest,"se"]))
+  }else{
+    
+    qpcr_sigtest[sigtest,"ddct"]<-2^(-tes["Difference of means"]) 
+    
+    qpcr_sigtest[sigtest,"ddct_se"]<-2^((-tes["Difference of means"])+
+                                          qpcr_sigtest[sigtest,"se"])
+    qpcr_sigtest[sigtest,"ddct_se_m"]<-2^((-tes["Difference of means"])-
+                                            qpcr_sigtest[sigtest,"se"])
+    
+  }
+}
+
+## Annotate sig tests
+qpcr_sigtest[qpcr_sigtest$pval<=pval_threshold & !is.na(qpcr_sigtest$pval),"sig"]<-"*"
+
+##convert exposure time to numeric for plot
+qpcr_sigtest$ExposureTime.n<-as.numeric(gsub(qpcr_sigtest$ExposureTime,pattern = "hr",replacement = ""))
+
+qpcr_sigtest$ref<-as.character(qpcr_sigtest$reference)
+qpcr_sigtest$comp<-as.character(qpcr_sigtest$comparison)
+
+## Assign line types
+qpcr_sigtest[qpcr_sigtest$ref=="G. vaginalis","lt"]<-1#"dashed"
+qpcr_sigtest[qpcr_sigtest$ref=="Cell Culture Medium","lt"]<-3#"solid"
+#cairo_ps(paste0(R_script_output_directory,"miR_long_plot_presentation.eps"),width = 11.5,height = 6)
+## Plot qPCR Timecourse (put lactic acid comparison in sep. figure)
+
+PLOT_QPCR_TIMECOURSE<-
+ # ggplot(filter(qpcr_sigtest,reference=="G. vaginalis" &
+   ggplot(filter(qpcr_sigtest,reference=="Cell Culture Medium" &
+                   comp %in% c("L. crispatus","L. jensenii","L. iners","G. vaginalis")&
+  !grepl(qpcr_sigtest$comparison,pattern = "_10|_766|0_")), #& qpcr_sigtest$reference== "G. vaginalis"),
+         aes(x=ExposureTime.n,y=-mean_diff,col=comp))+
+  theme_bw()+
+    mBio+
+  geom_hline(yintercept = 0,col="#9e9ac8",size=2.5)+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
+  geom_line(size=1.5,show.legend = T)+#,aes(linetype="3"))+ 
+  geom_errorbar(aes(ymax=-mean_diff+se,ymin=-mean_diff-se),size=1,show.legend = F)+
+  geom_point(size=6,show.legend = F)+ 
+  ylab(expression(paste(-Delta,Delta,"Ct")))+
+  xlab("Exposure Time (hours)")+
+  scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
+  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
+  scale_linetype_manual(name=expression(paste("Reference ",Delta,"Ct")),values=as.numeric(qpcr_sigtest$lt))+
+  geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
+
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_QPCR_TIMECOURSE),width = 9,height = 6)
+PLOT_QPCR_TIMECOURSE
+dev.off()
+
+qpcr_sigtest$comparison<-factor(qpcr_sigtest$comparison,levels = c("L. crispatus", "L. jensenii","L. iners","G. vaginalis", "PH_766","D_10","L_10","0_06_D","0_06_L"),ordered = T,labels = c("L. crispatus", "L. jensenii","L. iners","G. vaginalis", "1% lactic acid, pH 7.66","0.1% D-lactic acid","0.1% L-lactic acid","0.06% D-lactic acid","0.06% L-lactic acid"))
+
+qpcr_sigtest$reference<-factor(qpcr_sigtest$reference,levels = c("L. jensenii","L. iners","G. vaginalis", "Cell Culture Medium", "L_10","0_06_D","0_06_L"),ordered = T,labels = c( "L. jensenii","L. iners","G. vaginalis", "Cell Culture Medium","0.1% L-lactic acid","0.06% D-lactic acid","0.06% L-lactic acid"))
+
+## Show D and L lactic acid qPCR results compared to other references
+ddct_LacticAcid_plot<-
+  ggplot(filter(qpcr_sigtest,ExposureTime=="4hr" & !qpcr_sigtest$reference=="0.06% D-lactic acid"),aes(x=reference,y=-mean_diff,col=comparison))+
+  theme_bw()+
+  geom_hline(yintercept = 0,col="#9e9ac8",size=2.5)+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=14))+
+  geom_errorbar(aes(ymax=-mean_diff+se,ymin=-mean_diff-se),width=.2,show.legend = F,position = position_dodge(width = .2))+
+  geom_point(size=6,show.legend = T,position = position_dodge(width = .2))+ 
+  ylab(expression(paste(-Delta,Delta,"Ct")))+
+  xlab(expression(paste("Reference ",Delta,"Ct")))+
+  scale_color_manual(name=expression(paste("Exposure ",Delta,"Ct")),values = c(color_scheme_BCS,"0.1% D-lactic acid"="#4dac26","0.1% L-lactic acid"="#d01c8b","1% lactic acid, pH 7.66"="#386cb0","0.06% L-lactic acid"="#f1b6da","0.06% D-lactic acid"="#b8e186"))+
+  geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_DL_LACTICACID_QPCR),width = 9,height = 6)
+ddct_LacticAcid_plot
+dev.off()
+
+paste0("Additionally, the ∆∆Ct of miR-193b expression after 4 hours of exposure to 0.06% D-lactic acid relative to 0.06% L-lactic acid was found to be non-significant ( p=",qpcr_sigtest[qpcr_sigtest$comparison=="L-lactic acid" & qpcr_sigtest$reference=="D-lactic acid","pval"],").") 
+
+## Write plot as a table
+qpcr_sigtests<-dplyr::select(qpcr_sigtest[with(qpcr_sigtest,order(ExposureTime.n,comparison,reference)),],c(comparison,reference,ExposureTime,mean_diff,pval,sig))
+qpcr_sigtests$Figure<-gsub(FIGURE_QPCR_TIMECOURSE,pattern=".eps",replacement = "")
+
+write.csv(qpcr_sigtests,file=paste0(thesis_tables_directory,TABLE_QPCR_TIMECOURSE),row.names = F)
+
+```
+
+## Quantify VK2 proliferation (function of miR-193b) exposed to BCS   
+
+*  Expose VK2 cells to BCS   
+*  Measure EdU detection and filled scratch area 
+
+```{r Scratch_EDU,eval=T}
+
+
+###FIXME this should now be set up closert to qPCR given it is a time course
+
+
+## Breadcrumb: 
+# In_Vitro_Experiments.Rdata in PreparePipeline/Prepare_EdU_Scratch.Rmd
+load(file=paste0(R_script_input_directory,"In_Vitro_Experiments.Rdata")) 
+
+## Melt scratch assay data for easier handling
+scratch.m<-filter(in_vitro_experiments,Experiment=="Scratch" & Observation == "Proliferation" & !grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_")) %>% dplyr::select(-c(Experiment,Coverslip)) 
+
+
+## Re-name the melted data
+names(scratch.m)<-c("Observation","BCS","ExposureTime","percent_cells","Field")
+
+
+## //////////////
+### Scratch Assay
+## //////////////
+
+#Factor BCS so that order is enforced
+##FIXME some of this can be moved into the prepare script!
+scratch.m$BCS<-factor(scratch.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"))
+scratch_sigtest.all<-data.frame(temp<-"NA")
+scratch.summary.all<-data.frame(temp<-"NA")
+for(et in c("8hr","13hr","16hr","19hr")){
+##FIXME this is sloppy
+  ##Ignore sig tests for now since the plots are clearly sig... too many comparisons
+  ## Create a significance testing data frame to hold results
+
+setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = dplyr::filter(scratch.m,ExposureTime==et),test_function = "t.test",Experiment = "Scratch")
+
+scratch_sigtest<-setup_sigtest.data$sigtest
+scratch_sigtest$ExposureTime<-et
+scratch.summary<-setup_sigtest.data$summary_stats
+scratch.summary$ExposureTime.n<-as.numeric(gsub(et,pattern = "hr",replacement = ""))
+
+scratch_sigtest.all<-rbind.fill(scratch_sigtest,scratch_sigtest.all)
+scratch.summary.all<-rbind.fill(scratch.summary,scratch.summary.all)
+}
+
+
+
+# ggplot(scratch.summary.all)+geom_line(aes(x=ExposureTime.n,y=mean,col=BCS),show.legend = F)+
+#   geom_errorbar(aes(x=ExposureTime.n,ymin=mean-sd,ymax=mean+sd),width=.3,show.legend = F)+
+#   mBio+
+#   ylab("Filled Scratch Area (%)")+
+#   xlab("Exposure Time (hours)")+
+#   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(face="italic",angle = 45,vjust = 1,hjust = 1))+
+#   scale_y_continuous(limits=c(0,102))+
+#   scale_colour_manual(values=color_scheme_BCS)
+
+###### NEW 
+PLOT_SCRATCH.BETA<-
+   ggplot(scratch.summary.all,
+         aes(x=ExposureTime.n,y=mean,col=BCS))+
+  theme_bw()+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
+  geom_line(size=1.5,show.legend = F)+ 
+  geom_errorbar(aes(ymax=mean+sd,ymin=mean-sd),size=1,width=.5,show.legend = F)+
+  geom_point(size=6,show.legend = F)+ 
+  ylab("Filled Scratch Area (%)")+
+    mBio+
+  xlab("Exposure Time (hours)")+
+  scale_color_manual(values = color_scheme_BCS)+
+  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
+  scale_y_continuous(limits=c(0,102))
+
+######
+# 
+# 
+# ## Create Barplots for scratch assay
+# 
+# plot_scratch.prolif<-
+#   ggplot(scratch.summary)+geom_bar(aes(x=as.factor(BCS),y=mean,fill=BCS,col=BCS),stat="identity",show.legend = F)+
+#   geom_errorbar(aes(x=BCS,ymin=mean-sd,ymax=mean+sd),width=.3,show.legend = F)+
+#   mBio+
+#   ylab("Filled Scratch Area (%)")+
+#   xlab("BCS")+
+#   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(face="italic",angle = 45,vjust = 1,hjust = 1))+
+#   scale_fill_manual(values=color_scheme_BCS)+  
+#   scale_y_continuous(limits=c(0,102))+
+#   scale_colour_manual(values=color_scheme_BCS)+
+#   annotate("text",x=scratch_sigtest$midpoints,y=scratch_sigtest$y.sig,label=scratch_sigtest$sig,size=4)+
+#   geom_segment(data=setup_sigtest.data$statbars,aes(x=x,xend=xend,y=y,yend=yend),size=1)+
+#   geom_segment(data=setup_sigtest.data$statbars2,aes(x=x,xend=xend,y=y,yend=yend),size=1)
+
+##Write plot
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_SCRATCH_QUANT),width = 8,height = 5.5)
+plot(PLOT_SCRATCH.BETA) #plot(plot_scratch.prolif)
+dev.off()
+
+## //////////////
+### EdU Assay
+## //////////////
+
+##FIXME - standardize with scratch since they are basically the same plot template
+
+## Melt EdU assay data for easier handling, clean up input
+EdU.m<-filter(in_vitro_experiments,Experiment=="Scratch" & Observation == "EdU") %>% dplyr::select(-c(Experiment)) #melt(scratch)
+EdU.m<-rename(EdU.m,BCS=Treatment)
+
+#Factor BCS so that order is enforced
+EdU.m$BCS<-factor(EdU.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"))
+EdU.m$percent_cells<-EdU.m$percent_cells+abs(rnorm(nrow(EdU.m),1E-3,0.01))
+statbars<-EdU_sigtest<-statbars2<-EdU.summary<-data.frame(temp="NA")
+for(et in c("8hr","13hr","16hr","19hr")){
+## Create a significance testing data frame to hold results
+setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = dplyr::filter(EdU.m,ExposureTime==et),test_function = "t.test",Experiment = "Scratch")
+
+statbars<-rbind.fill(data.frame(setup_sigtest.data$statbars,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),statbars)
+statbars2<-rbind.fill(data.frame(setup_sigtest.data$statbars2,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),statbars2)
+EdU_sigtest<-rbind.fill(data.frame(setup_sigtest.data$sigtest,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),EdU_sigtest)
+EdU.summary<-rbind.fill(data.frame(setup_sigtest.data$summary_stats,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),EdU.summary)
+}
+
+
+###New
+PLOT_EDU.BETA<-
+   ggplot(EdU.summary,
+         aes(x=ExposureTime,y=mean,col=BCS))+
+  theme_bw()+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
+  geom_line(size=1.5,show.legend = F)+ 
+  geom_errorbar(aes(ymax=mean+sd,ymin=mean-sd),size=1,width=.5,show.legend = F)+
+  geom_point(size=6,show.legend = F)+ 
+       mBio+
+  ylab("Epithelial Cells Positive for EdU (%)")+
+  xlab("Exposure Time (hours)")+
+  scale_color_manual(values = color_scheme_BCS)+
+  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
+  scale_y_continuous(limits=c(0,102))
+
+####New
+
+
+# 
+#  ggplot(EdU.summary)+geom_line(aes(x=ExposureTime,y=mean,col=BCS), show.legend = F)+
+#   geom_errorbar(aes(x=ExposureTime,ymin=mean-sd,ymax=mean+sd),show.legend = F,width=.3)+
+#   mBio+
+#   ylab("Epithelial Cells Positive for EdU (%)")+
+#   xlab("BCS")+
+#   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(face="italic",angle = 45,vjust = 1,hjust = 1))+
+#   scale_y_continuous(limits=c(0,102))#+
+#   ####scale_colour_manual(values=color_scheme_BCS)+
+#   ####annotate("text",x=EdU_sigtest$midpoints,y=EdU_sigtest$y.sig,label=EdU_sigtest$sig,size=4)+
+#  #### geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend),size=1)+
+#   ####geom_segment(data=statbars2,aes(x=x,xend=xend,y=y,yend=yend),size=1)
+# 
+
+## Create Barplots for EdU assay
+# 
+# EdUPlot<-
+#   ggplot(EdU.summary)+geom_bar(aes(x=factor(BCS),y=mean,fill=BCS,col=BCS),stat="identity", position="dodge",show.legend = F)+
+#   geom_errorbar(aes(x=factor(BCS),ymin=mean-sd,ymax=mean+sd),position="dodge",show.legend = F,width=.3)+
+#   mBio+
+#   ylab("Epithelial Cells Positive for EdU (%)")+
+#   xlab("BCS")+
+#   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(face="italic",angle = 45,vjust = 1,hjust = 1))+
+#   scale_fill_manual(values=color_scheme_BCS)+  
+#   scale_y_continuous(limits=c(0,102))+
+#   scale_colour_manual(values=color_scheme_BCS)+
+#   annotate("text",x=EdU_sigtest$midpoints,y=EdU_sigtest$y.sig,label=EdU_sigtest$sig,size=4)+
+#   geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend),size=1)+
+#   geom_segment(data=statbars2,aes(x=x,xend=xend,y=y,yend=yend),size=1)
+
+##Write plot
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_EDU_QUANT),width = 8,height = 5.5)
+plot(PLOT_EDU.BETA)
+dev.off()
+
+## Scratch assay data for TSB and NYC media exposed cells 
+control_meds<-filter(in_vitro_experiments,grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_"))
+
+control_meds.nyc.mean<-mean(control_meds[control_meds$Treatment=="CONTROL_NYCmed_20pct","percent_cells"])
+control_meds.tsb.mean<-mean(control_meds[control_meds$Treatment=="CONTROL_TSBmed_20pct","percent_cells"])
+
+control_meds.nyc.sd<-sd(control_meds[control_meds$Treatment=="CONTROL_NYCmed_20pct","percent_cells"])
+control_meds.tsb.sd<-sd(control_meds[control_meds$Treatment=="CONTROL_TSBmed_20pct","percent_cells"])
+
+control_meds.sig<-t.test(x=filter(control_meds,Treatment=="CONTROL_NYCmed_20pct")[,"percent_cells"],y =filter(control_meds,Treatment=="CONTROL_TSBmed_20pct")[,"percent_cells"],paired = F)
+
+
+paste0("Percent cell proliferation between 20% NYC-III and TSB bacterial culture media as evaluated by scratch assay was not significant (mean +/- standard deviation NYC-III cell proliferation=",control_meds.nyc.mean,"% +/- ",control_meds.nyc.sd,"%, mean +/- standard deviation TSB  cell proliferation=,",control_meds.tsb.mean,"% +/- ",control_meds.tsb.sd,"%, p=",control_meds.sig$p.value,")")
+
+
+##FIXME no longer applicable with time course ddata
+## Combine proliferation sig tests and write to file
+###proliferation_sigtests<-rbind(data.frame(Figure=gsub(FIGURE_SCRATCH_QUANT,replacement = "",pattern = ".eps"),scratch_sigtest),data.frame(Figure=gsub(FIGURE_EDU_QUANT,replacement = "",pattern = ".eps"),EdU_sigtest))
+###proliferation_sigtests<-proliferation_sigtests[with(proliferation_sigtests, order(Figure, x,xend)),]
+###proliferation_sigtests<-dplyr::select(proliferation_sigtests,Figure,xref,reference,pval,mean_diff,sig)
+
+###proliferation_sigtests<-rbind(proliferation_sigtests,data.frame(Figure="FIGURE_S5",xref="TSB",reference="NYC",pval=control_meds.sig$p.value,mean_diff=unname(control_meds.sig$estimate[2]-control_meds.sig$estimate[1]),sig=ifelse(control_meds.sig$p.value<pval_threshold,"*","N.S.")))
+
+
+PLOT_nyc_v_tsb<-ggplot(data.frame(media=c("NYC (Lactobacillus spp.)","TSB (G. vaginalis)"),scratch.mean=c(control_meds.nyc.mean,control_meds.tsb.mean),scratch.sd=c(control_meds.nyc.sd,control_meds.tsb.sd)))+
+  geom_bar(aes(x=media,y=scratch.mean,fill=media),stat="identity",show.legend =F)+
+  geom_errorbar(aes(x=media,ymax=scratch.mean+scratch.sd,ymin=scratch.mean-scratch.sd),width=.2)+
+  mBio+ylab("Percent Scratch Area Filled")+
+  xlab("VK2 Cell Culture Medium + 20% Bacterial Culture Medium")+
+  scale_y_continuous(limits=c(0,100))+
+  annotate("text",x=1.5,y=90,label="N.S.",size=4)+
+  geom_segment(data=data.frame(x=1,xend=2,y=87,yend=87),aes(x=x,xend=xend,y=y,yend=yend),size=1)+
+  geom_segment(data=data.frame(x=c(1,2),xend=c(1,2),y=c(85,85),yend=c(87,87)),aes(x=x,xend=xend,y=y,yend=yend),size=1)
+
+cairo_ps(file=paste0(thesis_figures_directory,FIGURE_nyc_v_tsb),width = 8,height = 5.5)
+PLOT_nyc_v_tsb
+dev.off()
+
+####write.csv(proliferation_sigtests,file=paste0(thesis_tables_directory,TABLE_EDU_SCRATCH_QUANT),row.names = F)
+
+## PErcent proliferation in 1% DL lactic acid, ph buffered 7.66 expoed cells
+DL_PH766_percent_proliferation<-data.frame(DL_1pct_766=c(
+7.706708323,
+4.631917974,
+8.766697901,
+7.771365876)
+)
+mean(DL_PH766_percent_proliferation$DL_1pct_766)
+sd(DL_PH766_percent_proliferation$DL_1pct_766)
+t.test(x = scratch.m[scratch.m$BCS=="Cell Culture Medium","percent_cells"],y = DL_PH766_percent_proliferation$DL_1pct_766)
+t.test(x = scratch.m[scratch.m$BCS=="G. vaginalis","percent_cells"],y = DL_PH766_percent_proliferation$DL_1pct_766)
+
+```
+
+
+## Inhbit A2EN cell proliferation & Observe CT Infectivity  
+
+*  Expose A2EN cells to proliferation inhibitors   
+*  Infect w/ CT  
+*  Measure  EdU detection and infection 
+
+```{r CT_Infection,eval=T}
+load(file=paste0(R_script_input_directory,"In_Vitro_Experiments.Rdata"))
+
+## Melt Ct infection assay data for easier handling
+pi.m<-filter(in_vitro_experiments,Experiment=="Infection") %>% dplyr::select(-Experiment) 
+
+## Factor Treatment to enforce order and make labels
+pi.m$Treatment<-factor(pi.m$Treatment,levels = c("Cdk4 400nM","Fascaplysin 350nM","Cell Culture Medium"),ordered = T,labels = c("CAS 546102-60-7","Fascaplysin","Cell Culture Medium"))
+
+## Create a significance testing data frame to hold results
+setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = pi.m,test_function = "t.test2",Experiment = "Infection")
+
+pi.summary<-setup_sigtest.data$summary_stats
+ct_sigtest<-setup_sigtest.data$sigtest
+statbars<-setup_sigtest.data$statbars
+statbars2<-setup_sigtest.data$statbars2
+
+## Split data into infection and proliferation (EdU) data
+ct_sigtest_inf<-filter(ct_sigtest,Observation=="Infectivity")
+ct_sigtest_pro<-filter(ct_sigtest,Observation=="Proliferation")
+
+## Plot Infectivity
+Fig3_inf<-ggplot(filter(pi.summary,Observation=="Infectivity"),aes(x=Treatment,y=grand_mean))+geom_bar(aes(fill=Treatment),stat="identity",show.legend = F)+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+
+  scale_fill_manual(values=c("Cell Culture Medium"='blue',"Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+
+  mBio+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1,size=20))+scale_y_continuous(limits=c(0,102))+
+  annotate("text",x=ct_sigtest_inf$midpoints,y=ct_sigtest_inf$y.sig,label=ct_sigtest_inf$sig,size=2.5)+
+  geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend))+
+  geom_segment(data=statbars2,aes(x=x,xend=xend,y=y,yend=yend),col="Black")+ylab("Epithelial Cells with C. trachomatis Inclusion (%)")
+
+## Write plot
+
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_CT_INFECT_QUANT),width=6,height = 5.5)#,width = 8,height = 5.5)
+plot(Fig3_inf)
+dev.off()
+
+##Plot Ct Assay EdU
+
+Fig3_prolif<-ggplot(filter(pi.summary,Observation=="Proliferation"),aes(x=Treatment,y=grand_mean))+geom_bar(stat="identity",show.legend = F,aes(fill=Treatment))+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+mBio+scale_fill_manual(values=c("Cell Culture Medium"='blue',SIS3="#c2a5cf","Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+ylab("Epithelial Cells Positive for EdU (%)")+
+  theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=20),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1))+scale_y_continuous(limits=c(0,102))+
+  annotate("text",x=ct_sigtest_pro$midpoints,y=ct_sigtest_pro$y.sig,label=ct_sigtest_pro$sig,size=2.5)+
+  geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend))+
+  geom_segment(data=statbars2,aes(x=x,xend=xend,y=y,yend=yend),col="Black")
+
+##Write plot
+cairo_ps(paste0(thesis_figures_directory,FIGURE_CT_EDU_QUANT),width=6,height = 5.5)#width = 8,height = 5.5)
+plot(Fig3_prolif)
+dev.off()
+
+## Print text describing results
+
+## Create variables to hold values for printing
+ct_sigtest<-unique(ct_sigtest)
+pro_C<-ct_sigtest[ct_sigtest$Observation=="Proliferation" & ct_sigtest$reference=="Cell Culture Medium" & ct_sigtest$xref=="CAS 546102-60-7" ,c("mean_diff","pval")]
+pro_F<-ct_sigtest[ct_sigtest$Observation=="Proliferation" & ct_sigtest$reference=="Cell Culture Medium" & ct_sigtest$xref=="Fascaplysin" ,c("mean_diff","pval")]
+
+ct_C<-ct_sigtest[ct_sigtest$Observation=="Infectivity" & ct_sigtest$reference=="Cell Culture Medium" & ct_sigtest$xref=="CAS 546102-60-7" ,c("mean_diff","pval")]
+ct_F<-ct_sigtest[ct_sigtest$Observation=="Infectivity" & ct_sigtest$reference=="Cell Culture Medium" & ct_sigtest$xref=="Fascaplysin" ,c("mean_diff","pval")]
+
+
+paste0("Epithelial cell proliferation was decreased by ",-pro_C$mean_diff,"% (p=",pro_C$pval,") in CAS 546102-60-7 and ",-pro_F$mean_diff,"% (p=",pro_F$pval,") in Fascaplysin treated cells relative to Cell Culture Medium treated cells, respectively")
+
+paste0("C. trachomatis infection was decreased by ",-ct_C$mean_diff,"% (p=",ct_C$pval,") in CAS 546102-60-7 and ",-ct_F$mean_diff,"% (p=",ct_F$pval,") in Fascaplysin treated cells relative to Cell Culture Medium treated cells, respectively")
+
+## Calcualte correlation between mean infectivity and mean proliferation
+corr_mx<-spread(pi.m,Observation, value=percent_cells)
+ggplot(corr_mx,aes(y=Infectivity,x=Proliferation,col=Treatment))+geom_point()+ggtitle("Ct Infectivity vs EdU")+mBio+ylab("% Infectivity")+xlab("% EdU")+geom_point(data=spread(dplyr::select(pi.summary,-c(grand_sd,n)),Observation,grand_mean),aes(y=Infectivity,x=Proliferation,col=Treatment),size=10,pch=2)
+
+ct_pro_lm<-lm(formula = Infectivity~Proliferation,data = data.frame(corr_mx[!rowSums(is.na(corr_mx))>0,]))
+
+ct_pro_summary_lm<-lm(Infectivity~Proliferation,data=spread(dplyr::select(pi.summary,-c(grand_sd,n)),Observation,grand_mean))
+
+summary(ct_pro_lm)
+summary(ct_pro_summary_lm)
+
+
+
+## Combine proliferation sig tests and write to file
+ct_sigtests<-data.frame(Figure=paste0("FIGURE_4",ct_sigtest$Observation),ct_sigtest)
+ct_sigtests<-dplyr::select(ct_sigtests[with(ct_sigtests,order(Observation,x,xend)),],c(Figure,xref,reference,pval,mean_diff,sig))
+
+write.csv(ct_sigtests,file=paste0(thesis_tables_directory,TABLE_CT_QUANT),row.names=F,quote=F)
+
+```
+
+# Subject Longitudinal Plots (Figure 1)
+Create longitudinal plots for subjects used in study
+
+```{r plot_subject_figures,eval=T}
+### Load previously prepared 16S metataxonomic data. metatdata
+load(file=paste0(R_script_input_directory,"subject_plot_data.Rdata"))
+OTU_METADATA<-subject_plot_data$OTU_METADATA ## metadata
+rRNA_16S<-subject_plot_data$relativeAbundance ## taxa assignments/relative abundances
+sampleInfoColNames<-subject_plot_data$sampleInfoColNames ## holds which column names are associated with metadata
+
+miRNA_extractions<-SRL_meta_table[is.na(SRL_meta_table$QC_removal_stage),] ## Samples associated with miRNA libraries used in final study- i.e., don't include samples removed due to poor QC. 
+subject_plot_list<- unique(miRNA_extractions$SID) ## Subject IDs to plot
+
+global_species_list<-NULL ## Initialize a container to store all species plotted in fig 1 as a legend
+
+for(s in subject_plot_list){  ## iterate through the subject's
+  print(s)
+  #s<-"UAB008"
+  ## ////////////////////////////////// ##
+  ## ///  Subeset Data by Subject   /// ##
+  ## ////////////////////////////////// ##
+  
+  relabundance<-filter(rRNA_16S,SID==s)  ## taxa relative abundance for subject
+  otu_count<-OTU_METADATA[OTU_METADATA$SID==s,] ## Metadata for subject
+  
+  ## Drop 16S samples that have less than the threshold for high confidence taxa assignments
+  lowCountThreshold<-1000
+  low_count_samples<-otu_count[otu_count$X16S_total_counts<lowCountThreshold,"SERIAL"]
+  
+  ##Nugent score data for subject
+  nugent<-filter(OTU_METADATA,SID==s) %>% dplyr::select(SERIAL,NUGENT_SCORE)
+  nugent$color<-"grey"
+  ## Colors/handling for missing Nugent scores
+  nugent[is.na(nugent$NUGENT_SCORE),"color"]<-"red"
+  nugent[!is.na(nugent$NUGENT_SCORE),"color"]<-"black"
+  nugent[is.na(nugent$NUGENT_SCORE),"NUGENT_SCORE"]<-(-1)
+  
+  ## pH data for subject
+  ph<-filter(OTU_METADATA,SID==s) %>% dplyr::select(SERIAL,PH)
+  ## Colors/handling for missing pH values
+  ph$color<-"grey"
+  ph[is.na(ph$PH),"color"]<-"red"
+  ph[!is.na(ph$PH),"color"]<-"black"
+  ph[is.na(ph$PH),"PH"]<-2
+  
+  ##MEtadata for subject
+  dailyDiaryMetadata<-filter(OTU_METADATA,SID==s)
+  
+  ## ////////////////////////////////// ##
+  ##  Determine global plot time scale  ##
+  ## ////////////////////////////////// ##
+  
+  SERIAL_global<-sort(unique(dailyDiaryMetadata$SERIAL,relabundance$SERIAL,miRNA_extractions$SERIAL)) ## All time points
+  day<-SERIAL_global%%7 ## Day relative to all SERIALized time points
+  day[SERIAL_global%%7==0]<-7 ## the mod calcualtion causes all day 7 to be 0. Repalce w/ 7. 
+  week<-((SERIAL_global-day)/7)+1 ## Week back calculated from SERIALized time points. 
+  time_points<-data.frame(SERIAL=SERIAL_global, day=day, week=week) ## container
+  time_points$plot_label=""
+  time_points[time_points$day==7,"plot_label"]<-time_points[time_points$day==7,"week"] ## plot labels every week
+  global_min_time<-max(c(min(miRNA_extractions[miRNA_extractions$SID==s,"SERIAL"]-5),min(SERIAL_global,na.rm = T) ))
+  
+  ## min time point -  the max of the min of either miR extractions or all data
+  global_max_time<-min(c(max(miRNA_extractions[miRNA_extractions$SID==s,"SERIAL"]+5),max(SERIAL_global,na.rm = T))) ## max time point across all data
+  removed_samples
+  ## cleaner way to define as variable for X axis:
+  time_breaks<-time_points$SERIAL 
+  time_label<-time_points$plot_label
+  time_limits<-c(global_min_time-1,global_max_time+1)
+  
+  ## Determine the min & max of time points
+  rect_min<-time_breaks[!time_breaks%in% miRNA_extractions[miRNA_extractions$SID==s,"SERIAL"]]-.5
+  rect_max<-time_breaks[!time_breaks%in% miRNA_extractions[miRNA_extractions$SID==s,"SERIAL"]]+.5
+  
+  ## ////////////////////////////////// ##
+  ## / Determine most adbundant species ##
+  ## ////////////////////////////////// ##
+  
+  # ////////////////////////////////////////////////////////////////////////
+  # Most abundant species defined per subject & based on cutoff. ##
+  # All other taxa binned into "other" #
+  # ////////////////////////////////////////////////////////////////////////
+  
+  ### Grab just relative abundances, no sample info columns:
+  relabundance[is.na(relabundance)]<-0
+  relabundance<-relabundance[relabundance$SERIAL>=time_limits[1] &  relabundance$SERIAL<=time_limits[2],]
+  relabundance_for_max_calc<-relabundance[,!(names(relabundance) %in% sampleInfoColNames)]
+  
+  ### Calucalte max for each taxa
+  max_relabundances<-apply(relabundance_for_max_calc,2,max)
+  ### number of species whose rel abundance is above a certain threshold
+  numHighAbundSpecies<-sum(max_relabundances>raThreshold,na.rm = T) 
+  
+  ##### Plot either the top X most abundant species, 
+  #####   or the most abundant species above max plottable species, whichever is lesser.
+  #####   This helps prevent "taxa overload" on the plot. 
+  
+  most_abundant_species<-"" ## Will hold names of most abundant species. 
+  if(numHighAbundSpecies>nSpecies){ 
+    most_abundant_species<-names(sort(max_relabundances,decreasing = T))[1:nSpecies]
+  }else{
+    most_abundant_species<- names(max_relabundances[!is.na(max_relabundances) & max_relabundances>raThreshold])
+  }
+  
+  ##### Pull the most abundant species (defined above), bin the remainder into "other".
+  #####   Also recombine the 'sample info' onto most abundant/other species table. 
+  
+  most_abundant_relabundance<-relabundance[most_abundant_species]
+  other_relabundance<-rowSums(relabundance[!(names(relabundance) %in% most_abundant_species | 
+                                               names(relabundance) %in% sampleInfoColNames)],na.rm=T)
+  otu_count_relabundance<-cbind(relabundance[names(relabundance) %in% c("SERIAL",sampleInfoColNames)],
+                                most_abundant_relabundance,Other=other_relabundance)
+  
+  ##Update global species list with any new species
+  global_species_list<-unique(c(most_abundant_species,global_species_list,"Other"))
+  
+  
+  reshape_names<-c("Pre_QC_ID","SID","UID","SERIAL")
+  otu_count_reshape<-melt(data = otu_count_relabundance,id.vars=reshape_names)
+  names(otu_count_reshape)<-c(reshape_names,"species","count") 
+  
+  ### ///////////////////////////////////////////// ###
+  ### /////////         OTU Plot          ///////// ###
+  ### ///////////////////////////////////////////// ###
+  
+  otuPlot<- ggplot(otu_count_reshape)+
+    geom_area(aes(x=SERIAL,y=count,fill=species),
+              stat="identity",show.legend=F,position="fill")+#,width=1)+
+    mBio+
+    theme(axis.ticks = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_text(size = rel(1.5)),
+          legend.key.size=unit(8, "points"),
+          legend.title = element_blank(),
+          legend.text = element_text(size = rel(.5),face="italic"),
+          axis.title = element_text(size = rel(sizes)),
+          plot.margin=unit(c(2.5,40,2.5,10),units="points"),#margins
+          panel.grid.major.y=element_line(colour = "grey73"),
+          panel.grid.minor.x  = element_blank())+
+    ylab("Phylotype Relative\nAbundance (%)")+
+    geom_vline(xintercept = otu_count_reshape$SERIAL,size=rel(.2),col="grey")+
+    scale_fill_manual(values=subject_long_taxa_colors)+
+    ggtitle(paste0(s))+
+    annotate("rect", xmin=rect_min, xmax=rect_max, ymin=0, ymax=1, alpha=alpha_rect, fill=rect_fill)+
+    scale_x_continuous(breaks=time_breaks,label=time_label,limits=time_limits)
+  
+  ## Determine any dropped sample (post QC) time points and place an * above 
+  dropped_samples.serial<-otu_count[otu_count$Pre_QC_ID %in% removed_samples$Pre_QC_ID,"SERIAL"]
+  if(length(dropped_samples.serial)!=0){otuPlot<-otuPlot+annotate("text", x =dropped_samples.serial , y = 1.01, label = "*",size=8)}
+  
+  
+  ### ///////////////////////////////////////////// ###
+  ### /////////      Nugent Plot          ///////// ###
+  ### ///////////////////////////////////////////// ###
+  nugentPlot<-ggplot(data=nugent)+
+    geom_bar(aes(x=as.numeric(SERIAL),y=NUGENT_SCORE,width=.9,fill=color),
+             stat="identity",position = position_dodge(width=0.5))+
+    mBio+
+    geom_hline(yintercept = c(3,7),size=rel(1),col="pink")+ ## Defines Nugent score 3 & 7 (BV 
+    theme(axis.ticks = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_text(size = rel(1.5*sizes)),
+          legend.position="none",
+          plot.margin=margins,
+          panel.grid.major.y=element_line(colour = "grey73"),
+          panel.grid.minor.x  = element_blank())+
+    ylab("Nugent\nScore")+
+    scale_fill_manual(values=c('black','red'))+
+    scale_x_continuous(breaks=time_breaks,label=time_label,limits=time_limits)+
+    annotate("rect", xmin=rect_min, xmax=rect_max, ymin=0, ymax=10, alpha=alpha_rect, fill=rect_fill)+
+    scale_y_continuous(breaks=c(0,3,7,10),limits=c(-1.25,10.5))
+  
+  
+  ### ///////////////////////////////////////////// ###
+  ### /////////     Metadata Plot         ///////// ###
+  ### ///////////////////////////////////////////// ###
+  metaPlot<-ggplot(dailyDiaryMetadata, aes(x=as.numeric(SERIAL)))+
+    geom_point(aes(y=1*(as.numeric(VAG_DIS)==1),size=2),
+               pch=16,col='blue',position = position_dodge(width=0.5))+
+    geom_point(aes(y=2*(as.numeric(VAG_ODOR)==1),size=2),
+               pch=16,col='blue',position = position_dodge(width=0.5))+
+    geom_point(aes(y=3*(as.numeric(MENSTRUATION)>0),size=as.numeric(MENSTRUATION)),
+               col='red',pch=16, position = position_dodge(width=0.5))+
+    scale_size(range = c(2+2,4+2))+ ## for menstru point sizes. Bounded by 3 points on a scale. 
+    mBio+
+    theme(legend.position="none",
+          plot.title = element_text(size = rel(sizes)),
+          axis.text = element_text(size = rel(2*sizes)),
+          axis.title = element_text(size = rel(sizes)),
+          axis.title.y=element_text(vjust=.2),
+          axis.title.x=element_text(vjust=-.2),
+          axis.text.y=element_text(size=rel(0.75)), ## change back to 0.75
+          plot.margin=unit(c(-2.5,40,5,5),units="points"),
+          panel.grid.major.y=element_line(colour = "grey73"),
+          panel.grid.minor.x  = element_blank())+
+    xlab("Week")+
+    ylab("")+
+    annotate("rect", xmin=rect_min, xmax=rect_max, ymin=1, ymax=3, alpha=alpha_rect, fill=rect_fill)+
+    scale_x_continuous(breaks=time_breaks,label=time_label,limits=time_limits)+
+    scale_y_continuous(breaks=1:3,labels = c("Discharge",
+                                             "Odor",
+                                             "Menstruation"),limits=c(0.5,3.5))
+  
+  ###### Determine if subject has low qualiyt daily dairy flag and annotate plot:
+  
+  if(!sum(is.na(dailyDiaryMetadata$Diary_QUALITY_FLAG))){
+    min<-min(timeTable$SERIAL,na.rm = T)
+    max<-max(timeTable$SERIAL,na.rm = T)
+    middle.x<-(max-min)/2
+    middle.y<<-(16-1)/2
+    metaPlot<-metaPlot + annotate("text", x = middle.x, 
+                                  y = middle.y, label = "?",
+                                  size=rel(40),
+                                  col="grey")
+  }
+  
+  ### ///////////////////////////////////////////// ###
+  ### /////////          pH Plot          ///////// ###
+  ### ///////////////////////////////////////////// ###
+  ph_normalization_factor<-3.5
+  ## Notice the pH value scale is "normalized" by subtracting "ph_normalization_factor" from the actual pH value, then re-labeling the y axis. This is very dangerous, but ggplot will not permit bar plots that start from > 0 . 
+  ph[ph$PH==2,"PH"]<-ph_normalization_factor-0.5
+  
+  phPlot<-ggplot(ph,aes(x=as.numeric(SERIAL),
+                        y=as.numeric(PH)-ph_normalization_factor,width=.9,fill=color))+ 
+    geom_bar(stat="identity",position = position_dodge(width=0.5))+
+    scale_fill_manual(values=c('black','red'))+
+    mBio+
+    geom_hline(yintercept = c(4.5-ph_normalization_factor),
+               size=rel(1),col="pink")+ ## Vaginal pH>4.5 one criteria for BV. 
+    theme(axis.ticks = element_blank(),
+          axis.title.x=element_blank(),
+          axis.text.x = element_blank(),
+          axis.text = element_text(size = rel(1.5*sizes)),
+          legend.position="none",
+          plot.margin=margins,
+          panel.grid.major.y=element_line(colour = "grey73"),
+          panel.grid.minor.x  = element_blank())+
+    ylab("pH")+
+    annotate("rect", xmin=rect_min, xmax=rect_max, ymin=min(0,min(ph$PH,na.rm = T)-ph_normalization_factor-0.25), ymax= max(ph$PH,na.rm = T)+0.25-ph_normalization_factor, alpha=alpha_rect, fill=rect_fill)+
+    scale_x_continuous(breaks=time_breaks,label=time_label,limits=time_limits)+
+    scale_y_continuous(breaks=c(4,4.5,5,5.5)-ph_normalization_factor, limits=c(-0.75,5.8+0.25-ph_normalization_factor),labels=c("4","4.5","5","5.5"))
+  
+  
+  ### ///////////////////////////////////////////// ###
+  ### /////////    Tie Plots Together     ///////// ###
+  ### ///////////////////////////////////////////// ###
+  
+  ## ////////////////////////// ##
+  ## //Define plots as Grobs/// ##
+  ## ////////////////////////// ##
+  
+  grob.otuPlot <- ggplotGrob(otuPlot)
+  grob.nugentPlot <- ggplotGrob(nugentPlot)
+  grob.phPlot<-ggplotGrob(phPlot)
+  grob.metaPlot <- ggplotGrob(metaPlot)
+  
+  ## ////////////////////////// ##
+  ## ///   Find max width   /// ##
+  ## ////////////////////////// ##
+  maxWidth = grid::unit.pmax(grob.otuPlot$widths[1:6],
+                             grob.nugentPlot$widths[1:5],
+                             grob.phPlot$widths[1:5],
+                             grob.metaPlot$widths[1:5])
+  
+  ## ////////////////////////// ##
+  ## /Redefine common max width ##
+  ## ////////////////////////// ##
+  grob.nugentPlot$widths[1:6] <- as.list(maxWidth)
+  grob.otuPlot$widths[1:6] <- as.list(maxWidth)
+  grob.metaPlot$widths[1:6] <- as.list(maxWidth)
+  grob.phPlot$widths[1:6]<-as.list(maxWidth)
+  
+  ### ///////////////////////////////////////////// ###
+  ### /////////      Write/Draw Plot     ///////// ###
+  ### ///////////////////////////////////////////// ###
+  
+  cairo_ps(paste0(thesis_figures_directory,FIGURE_SUBJECT_PLOTS,s,".eps"),width = 11,height = 8.5)
+  
+  grid.arrange(grob.otuPlot,
+               grob.nugentPlot,
+               grob.phPlot,
+               grob.metaPlot, 
+               ncol=1,nrow=4,
+               heights=c(2.5,1,1,1)) 
+  dev.off()
+}
+
+## //////
+## The following plots the figure legend containing colors for all taxa plotted in for loos
+
+dummy_globalSpeciesList<-data.frame(SERIAL=1,species=global_species_list,count=1)
+dummy_globalSpeciesList_plot<-ggplot(dummy_globalSpeciesList)+
+  geom_area(aes(x=SERIAL,y=count,fill=species,order=order(as.numeric(as.factor(dummy_globalSpeciesList$species)),decreasing = F)),
+            stat="identity",show.legend=T,position="fill")+#,width=1)+
+  mBio+
+  theme(axis.ticks = element_blank(),
+        axis.title.x=element_blank(),
+        axis.text.x = element_blank(),
+        legend.key.size=unit(8, "points"),
+        legend.title = element_blank(),
+        legend.text = element_text(size = rel(.5),face="italic"),
+        axis.title = element_text(size = rel(sizes)),
+        plot.margin=unit(c(2.5,40,2.5,10),units="points"),#margins
+        panel.grid.major.y=element_line(colour = "grey73"))+
+  scale_fill_manual(values=subject_long_taxa_colors)+
+  ggtitle("Global Species List Color Codes")
+
+##Write legend to file
+cairo_ps(paste0(thesis_figures_directory,FIGURE_SUBJECT_PLOTS,"GlobalSpeciesList.eps"),width = 11,height = 8.5)
+dummy_globalSpeciesList_plot
+dev.off()
+
+```
+
+# Ribo-reduced RNA-seq Analysis
+
+```{r RNA_quality_quant}
+## RIN Quality Distribition 
+TRL_RNA_Sample_QuantQual<-read.csv(paste0(R_script_input_directory,"TRL_RNA_Sample_Quality.csv"),header = F)
+postscript(paste0(thesis_figures_directory,FIGURE_TRL_RIN_HIST))
+p<-ggplot(TRL_RNA_Sample_QuantQual,aes(x=V1))+geom_histogram()+xlab("RINe")+ylab("Number of Samples")+geom_vline(xintercept = median(TRL_RNA_Sample_QuantQual$V1),col='red')+mBio
+plot(p)
+dev.off()
+plot(p)
+summary(TRL_RNA_Sample_QuantQual$V1)
+summary(10*TRL_RNA_Sample_QuantQual[TRL_RNA_Sample_QuantQual$V1!=3.1,"V2"])
+```
+
+## Read counts data in from server   
+
+
+```{r connect_unix,eval=FALSE}
+### ---------------------------------
+## Set up unix connection using sshfs
+### ---------------------------------
+Sys.which('bash')
+Sys.which('sh')
+#echo hello world
+# 
+system("sshfs stsmith@medusa.igs.umaryland.edu:/local/projects-t2/HRBV/ ~/IGS/sshfs_medusa/", intern = FALSE,
+       ignore.stdout = FALSE, ignore.stderr = FALSE,
+       wait = TRUE, input = NULL, show.output.on.console = TRUE,
+       minimized = FALSE, invisible = F)
+
+manifest<-read.table("~/IGS/sshfs_medusa/Config/W100083533.manifest",sep = "\t",header = T)
+TRL_counts_table<-data.frame(Feature="None")
+
+for(i in 1:length(manifest$Pre_QC_ID)){
+  #i<-3
+  sample_name<-as.character(manifest[i,"Pre_QC_ID"])
+  sample_path<-paste0("~/IGS/sshfs_medusa/TRL/alignment/TRL_",sample_name,"_aln_hg19/TRL_",sample_name,".hg_counts")
+  new_table<-read.table(sample_path,header=T,sep="\t")
+  names(new_table)<-c("Feature",sample_name)
+  #sub_feature_set<-!new_table$Feature %in% c(filtered_out_features,"mirna_info")
+  ## Don't forget about ambigous/none features!
+  #new_table<-new_table[sub_feature_set,]
+  TRL_counts_table<-merge(TRL_counts_table,new_table,by.x = "Feature",by.y="Feature",all=T)
+}
+
+row.names(TRL_counts_table)<-TRL_counts_table$Feature
+TRL_counts_table<-TRL_counts_table[!TRL_counts_table$Feature=="None",]
+TRL_counts_table<-dplyr::select(TRL_counts_table,-c(Feature,POSITIVE_CONTROL))
+head(TRL_counts_table)
+write.csv(TRL_counts_table,file=paste0(R_script_output_directory,TABLE_TRL_COUNTS_RAW),row.names = T,quote=F)
+
+```
+
+
+## Create and Prepare Tables   
+
+
+```{r create_tables}
+TRL_counts_table<-read.csv(file=paste0(R_script_output_directory,TABLE_TRL_COUNTS_RAW),row.names = 1)
+write.csv(TRL_counts_table,file=paste0(thesis_tables_directory,TABLE_TRL_COUNTS_RAW),row.names = T,quote=F)
+
+## Filter out ambiguous, no feature reads. Make note of how many there are
+TRL_counts_table[row.names(TRL_counts_table) %in% c("alignment_not_unique","no_feature","ambiguous"),]
+
+## Percentage of ambiguous/no feature/non unique reads & alignment stats
+(ambig_nofeat<-colSums(TRL_counts_table[row.names(TRL_counts_table) %in% c("alignment_not_unique","no_feature","ambiguous"),]))
+(aligned<-colSums(TRL_counts_table[!row.names(TRL_counts_table) %in% c("alignment_not_unique","no_feature","ambiguous"),]))
+alignment_stats<-data.frame(aligne=aligned,non_aligned=ambig_nofeat,aligned.percent=100*aligned/colSums(TRL_counts_table))
+write.csv(alignment_stats,file = paste0(thesis_tables_directory,TABLE_TRL_ALIGNSTATS))
+
+## Look at proportion of Ambigous/no feature/non-unique
+hist(alignment_stats$aligned.percent,main="Percentage of Aligned reads",xlab="Percentage of total trimmed reads",ylab="Proportion")
+
+ambig_nofeat_readpercent.high<-alignment_stats[(100-alignment_stats$aligned.percent)>80,]
+paste0("The following samples have ambigous reads >80%: ", str_c(row.names(ambig_nofeat_readpercent.high),collapse = ", "))
+
+#Filter out ambigous reads from counts
+TRL_counts_table<-TRL_counts_table[!row.names(TRL_counts_table) %in% c("alignment_not_unique","no_feature","ambiguous"),]
+TRL_counts_table<-TRL_counts_table[,order(names(TRL_counts_table))]
+hist(log(as.matrix(TRL_counts_table)),main="log10 read counts, all samples",xlab="Log10 read count")
+
+##Create Design Table
+TRL_design<-data.frame(Sample=names(TRL_counts_table))
+row.names(TRL_design)<-TRL_design$Sample
+TRL_design<-separate(TRL_design,Sample,sep = "_",into = c("CellLine","BCS","DROP","ExposureTime","rep")) %>% dplyr::select(-c(CellLine,DROP))
+
+## Create replicate #, lactobacillus indicator. Then combine BCS and exposure time for 'group1' for eventually creating constrasts
+TRL_design$rep<-as.numeric(gsub(TRL_design$rep,pattern = "rep",replacement = ""))
+TRL_design$Lactobacillus<-grepl(TRL_design$BCS,pattern = "^L")
+TRL_design$group1 <- factor(paste(TRL_design$BCS,TRL_design$ExposureTime,sep="."))
+TRL_design$BCS<-factor(TRL_design$BCS,levels = c("LCRISPATUS","LJENSENII","LINERS","GVAGINALIS","MEDIA"),ordered = T)
+TRL_design$ExposureTime<-factor(TRL_design$ExposureTime,levels = c("4HR","13HR","22HR"),ordered=T)
+sample_order<-with(TRL_design,order(ExposureTime,BCS,rep))
+
+##Make an expression set object for coupled handling of coutns and design matrix
+TRL_design<-TRL_design[sample_order,]
+TRL_counts_table<-TRL_counts_table[,sample_order]
+TRL_counts_meta<-ExpressionSet(assayData = as.matrix(TRL_counts_table),phenoData  = AnnotatedDataFrame(TRL_design))
+
+```
+
+## Plot Replicates
+```{r plot_reps, eval=F}
+
+## THis may take a while given there are ~20,000 points to plot for each comparison. Consdier trimming the lower expresed reads by using rmlow = log(10,10) for example
+postscript(paste0(R_script_output_directory,"TRL_RNASeq_Replicate_plots.eps"),width = 10,height = 8)
+hist(colSums(exprs(TRL_counts_meta)))
+
+plot_replicates(TRL_counts_meta,BCS.selection = c("LCRISPATUS"),ExposureTime.selection = c("4HR","13HR","22HR"),logt=T)
+plot_replicates(TRL_counts_meta,BCS.selection = c("LJENSENII"),ExposureTime.selection = c("4HR","13HR","22HR"),logt=T)
+plot_replicates(TRL_counts_meta,BCS.selection = c("LINERS"),ExposureTime.selection = c("4HR","13HR","22HR"),logt=T)
+plot_replicates(TRL_counts_meta,BCS.selection = c("GVAGINALIS"),ExposureTime.selection = c("4HR","13HR","22HR"),logt=T)
+plot_replicates(TRL_counts_meta,BCS.selection = c("MEDIA"),ExposureTime.selection = c("4HR","13HR","22HR"),logt=T)
+
+dev.off()
+```
+## Drop samples
+```{r drop_samples}
+dropped_TRL_samples<-c("VK2_MEDIA_BCS_4HR_rep3","VK2_LCRISPATUS_BCS_13HR_rep3") ## determined from replciate plots and # of ambigous (rRNA) reads.
+
+##Drop poor QC samples
+TRL_counts_meta.qc<-subset_ExpressionSet(TRL_counts_meta,filterOut =dropped_TRL_samples )
+
+## Proportion of genes with at least 1 read across all samples
+sum(rowSums(exprs(TRL_counts_meta.qc)>0)>0)/nrow(exprs(TRL_counts_meta.qc))
+
+#exprs(TRL_counts_meta.qc)[rowSums(exprs(TRL_counts_meta.qc)>0)>0,]
+
+##Summary of # of samples with at least one read across all samples
+summary(rowSums(exprs(TRL_counts_meta.qc)[rowSums(exprs(TRL_counts_meta.qc)>0)>0,]>0))
+
+##Total post QC samples:
+ncol(exprs(TRL_counts_meta.qc))
+
+## Summary of remaining total read counts
+summary(colSums(exprs(TRL_counts_meta.qc)))
+
+(reps_per_treatment<-ddply(data.frame(pData(TRL_counts_meta.qc)),c("BCS","ExposureTime"),summarise,n=length(BCS)))
+
+```
+
+## Create model matrix
+This is done outside edgeR GLM as it is used by other chunks, but edgeR chunk is not evaluated
+```{r }
+## take counts table design created above and make edgeR object
+design <-model.matrix(~0+group1,data = pData(TRL_counts_meta.qc))
+```
+## edgeR GLM FIT
+Not evualted as it takes some time. Change to eval=T to re-compute edgeR results
+```{r edgeR, eval=F}
+## Estimate dispersion, calc norm facots, and fit to GLM
+y<-DGEList(exprs(TRL_counts_meta.qc))
+y<-estimateDisp(y,design)
+y<-calcNormFactors(y)
+plotBCV(y,main="BCV Plot")
+TRL_glmFit <- glmFit(y, design)
+
+save(TRL_glmFit,file = paste0(R_script_output_directory,"TRL_glmFit.RData"))
+```
+
+## Perfom edgeR LRT
+
+```{r perform_LRT}
+load(paste0(R_script_output_directory,"TRL_glmFit.RData"))
+## Go through each pait-wise comparison in constarsts and compute differential expression using glmLRT
+contr<-makeContrasts(
+  LCGV.4="group1LCRISPATUS.4HR-group1GVAGINALIS.4HR",
+  LCM.4="group1LCRISPATUS.4HR-group1MEDIA.4HR",
+  LJGV.4="group1LJENSENII.4HR-group1GVAGINALIS.4HR",
+  LJM.4="group1LJENSENII.4HR-group1MEDIA.4HR",
+  LIGV.4="group1LINERS.4HR-group1GVAGINALIS.4HR",
+  LIM.4="group1LINERS.4HR-group1MEDIA.4HR",
+  LCLJ.4="group1LCRISPATUS.4HR-group1LJENSENII.4HR",
+  LCLI.4="group1LCRISPATUS.4HR-group1LINERS.4HR",
+  LJLI.4="group1LJENSENII.4HR-group1LINERS.4HR",
+  GVM.4="group1GVAGINALIS.4HR-group1MEDIA.4HR",
+  
+  LCGV.13="group1LCRISPATUS.13HR-group1GVAGINALIS.13HR",
+  LCM.13="group1LCRISPATUS.13HR-group1MEDIA.13HR",
+  LJGV.13="group1LJENSENII.13HR-group1GVAGINALIS.13HR",
+  LJM.13="group1LJENSENII.13HR-group1MEDIA.13HR",
+  LIGV.13="group1LINERS.13HR-group1GVAGINALIS.13HR",
+  LIM.13="group1LINERS.13HR-group1MEDIA.13HR",
+  LCLJ.13="group1LCRISPATUS.13HR-group1LJENSENII.13HR",
+  LCLI.13="group1LCRISPATUS.13HR-group1LINERS.13HR",
+  LJLI.13="group1LJENSENII.13HR-group1LINERS.13HR",
+  GVM.13="group1GVAGINALIS.13HR-group1MEDIA.13HR",
+  
+  LCGV.22="group1LCRISPATUS.22HR-group1GVAGINALIS.22HR",
+  LCM.22="group1LCRISPATUS.22HR-group1MEDIA.22HR",
+  LJGV.22="group1LJENSENII.22HR-group1GVAGINALIS.22HR",
+  LJM.22="group1LJENSENII.22HR-group1MEDIA.22HR",
+  LIGV.22="group1LINERS.22HR-group1GVAGINALIS.22HR",
+  LIM.22="group1LINERS.22HR-group1MEDIA.22HR",
+  LCLJ.22="group1LCRISPATUS.22HR-group1LJENSENII.22HR",
+  LCLI.22="group1LCRISPATUS.22HR-group1LINERS.22HR",
+  LJLI.22="group1LJENSENII.22HR-group1LINERS.22HR",
+  GVM.22="group1GVAGINALIS.22HR-group1MEDIA.22HR",
+  
+  levels=design
+)
+
+desets<-list()
+comparisons<-names(data.frame(contr))
+
+#postscript(paste0(R_script_output_directory,"TRL_SmearPlots.eps"),height = 8,width = 10)
+
+for(comparison in comparisons){
+  #comparison<-"LCGV.13"
+  comp<-glmLRT(TRL_glmFit,contrast = contr[,comparison]) ## DE using constrast
+
+  de.table<-comp$table[abs(comp$table$logFC)>1 & comp$table$logCPM>1 & p.adjust(comp$table$PValue,method = "fdr")<=0.01,]
+  comp$table$PValue.adj<-p.adjust(comp$table$PValue,method = "fdr")
+  desets[[comparison]]<-list(detags=nrow(de.table),fulltable=comp$table)
+  #plotSmear(comp,de.tags = names(de.table),main=paste0(comparison,": ",length(detags)," DE genes"))
+
+}
+
+```
+
+
+Upload DE table to IPA, run IPA pathway analysis, then save the pathway comparisons to file
+Performed March-April 2017. See thesis for version/db builds. 
+
+## Read in IPA Results
+
+```{r IPA, eval=T}
+##Timecourse files are from IPA- contain pathway list and activation z values.
+
+pathway_zscore_files<-list.files(path = R_script_input_directory, pattern = "timecourse.txt")
+pathway_zscores<-data.frame(Canonical.Pathway="DROP")
+functions<-data.frame(Comparison="DROP",Categories="DROP",Diseases.or.Functions.Annotation="DROP",p.Value=1,Predicted.Activation.State="DROP",Activation.z.score=0,Flags="DROP", Molecules="DROP")
+
+for(tab in pathway_zscore_files){
+  #tab<-"LCGV_LCM_timecourse.txt"
+  newt<-  read.table(paste0(R_script_input_directory,tab),header = T,sep = "\t",skip = 1,na.strings = "N/A",stringsAsFactors = F) %>% dplyr::select(-X)
+  pathway_zscores<-merge(newt,pathway_zscores,all = T)
+}
+
+## Put pathway z scores into matricies and then split absed on G. vag or medium reference
+pathway_zscores.matrix<-as.matrix(pathway_zscores[,2:ncol(pathway_zscores)])
+row.names(pathway_zscores.matrix)<-pathway_zscores$Canonical.Pathway
+pathway_zscores.matrix<-pathway_zscores.matrix[rowSums(abs(pathway_zscores.matrix),na.rm = T)>0,colSums(abs(pathway_zscores.matrix),na.rm = T)>0]
+
+pathway_zscores.melt<-melt(pathway_zscores,id.vars = "Canonical.Pathway")
+row.names(pathway_zscores)<-pathway_zscores$Canonical.Pathway
+pathway_zscores.matrix[is.na(pathway_zscores.matrix)]<-0
+
+## Create a design table for the pathways
+Pathways_design<-data.frame(comparison=names(data.frame(pathway_zscores.matrix)))
+Pathways_design$comp<-sapply(strsplit(as.character(Pathways_design$comparison),"\\."),function(x) x[[1]])
+Pathways_design$ExposureTime<-sapply(strsplit(as.character(Pathways_design$comparison),"\\."),function(x) x[[2]])
+Pathways_design$L<-sapply(strsplit(Pathways_design$comp,split = "*"),function(x) paste0(x[[1]],x[[2]]))
+Pathways_design$ref<-sapply(strsplit(Pathways_design$comp,split = "*"),function(x) paste0(x[[3]]))
+row.names(Pathways_design)<-Pathways_design$comparison
+
+## Map mapthway names to classifications
+path_type_map<-read.csv(paste0(R_script_input_directory,"Pathway_classification.csv"),stringsAsFactors = F)
+
+
+## Subset to look at only cell culture medium references
+medium_comparisons<-names(data.frame(pathway_zscores.matrix))[grepl(names(data.frame(pathway_zscores.matrix)),pattern = "M")]
+pathway_zscores.matrix.medium<-pathway_zscores.matrix[,names(data.frame(pathway_zscores.matrix)) %in% medium_comparisons]
+
+## Summary table for pathway classification
+summary_pathways<-cbind(data.frame(num_cycle.p=colSums(pathway_zscores.matrix.medium[row.names(data.frame(pathway_zscores.matrix.medium)) %in% path_type_map[path_type_map$class=="c","pathway"],]>2)),
+                        data.frame(num_cycle.n=colSums(pathway_zscores.matrix.medium[row.names(data.frame(pathway_zscores.matrix.medium)) %in% path_type_map[path_type_map$class=="c","pathway"],]<(-2))),
+                        data.frame(num_immune.p=colSums(pathway_zscores.matrix.medium[row.names(data.frame(pathway_zscores.matrix.medium)) %in% path_type_map[path_type_map$class=="i","pathway"],]>2)),            
+                        data.frame(num_immune.n=colSums(pathway_zscores.matrix.medium[row.names(data.frame(pathway_zscores.matrix.medium)) %in% path_type_map[path_type_map$class=="i","pathway"],]<(-2))),
+
+                        data.frame(num_immune_pro.n=colSums(pathway_zscores.matrix.medium[row.names(data.frame(pathway_zscores.matrix.medium)) %in% path_type_map[path_type_map$X=="pro","pathway"],]<(-2))),
+
+                        data.frame(num_immune_pro.p=colSums(pathway_zscores.matrix.medium[row.names(data.frame(pathway_zscores.matrix.medium)) %in% path_type_map[path_type_map$X=="pro","pathway"],]>2)))
+
+summary_pathways$comparison<-row.names(summary_pathways)
+summary_pathways<-merge(summary_pathways,Pathways_design)
+
+## Write table summarizing the number of pathways above or below z score, grouped by pathway category
+write.csv(summary_pathways,paste0(thesis_tables_directory,TABLE_TRL_SUMMARY_PATHWAYS),row.names=F,quote=F)
+
+write.csv(pathway_zscores.matrix.medium,paste0(thesis_tables_directory,TABLE_TRL_PATHWAY_Z_SCORES),row.names=T,quote=F)
+
+##Sort # of z>2 pathways by negative cycle, positive immune and negative immune
+summary_pathways[order(summary_pathways$num_cycle.n,decreasing = T),]
+summary_pathways[order(summary_pathways$num_immune.p,decreasing = T),]
+summary_pathways[order(summary_pathways$num_immune.n,decreasing = T),]
+
+## Use pathways that are expressed abs(z-score)>2 in 10% of comparisons 
+pathway_zscores.matrix.medium<-pathway_zscores.matrix.medium[(rowSums(abs(pathway_zscores.matrix.medium)>2))>=.1*ncol(pathway_zscores.matrix.medium),]
+
+## Clean up some of the pathway names in pathway map
+path_type_map[path_type_map$pathway=="NF-_B Signaling","pathway"]<-"NF-κB Signaling"
+path_type_map[path_type_map$pathway=="PKC_ Signaling in T Lymphocytes","pathway"]<-"PKCθ Signaling in T Lymphocytes"
+
+path_type_map[path_type_map$X=="pro","class"]<-"pro"
+
+## Add in pathway classification based on mapping file
+pathway_zscores.matrix.medium<-data.frame(pathway_zscores.matrix.medium)
+pathway_zscores.matrix.medium$pathway<-row.names(pathway_zscores.matrix.medium)
+pathway_zscores.matrix.medium<-merge(pathway_zscores.matrix.medium,path_type_map) ## maps classifications to pathway names
+row.names(pathway_zscores.matrix.medium)<-pathway_zscores.matrix.medium$pathway
+
+table(path_type_map[path_type_map$pathway %in% row.names(data.frame(pathway_zscores.matrix.medium)),"class"])
+
+## Melt the pathway z-scores table
+pathway_zscores.medium.melt<-melt(pathway_zscores.matrix.medium,id.vars = c("class","X","pathway"))
+pathway_zscores.medium.melt<-dplyr::rename(pathway_zscores.medium.melt,"comparison"=variable)
+pathway_zscores.medium.melt<-merge(pathway_zscores.medium.melt,Pathways_design)
+
+## Ensure the exposure times and BCS are ordered
+summary_pathways$ExposureTime<-as.numeric(summary_pathways$ExposureTime)
+summary_pathways$ExposureTime<-factor(summary_pathways$ExposureTime,levels = c(4,13,22),ordered = T)
+pathway_zscores.medium.melt$comp<-factor(pathway_zscores.medium.melt$comp,levels = c("LCM","LJM","LIM","GVM"),ordered = T)
+pathway_zscores.medium.melt$ExposureTime<-factor(pathway_zscores.medium.melt$ExposureTime,levels = c("4","13","22"),ordered = T)
+pathway_zscores.medium.melt$x<-paste(pathway_zscores.medium.melt$comp,pathway_zscores.medium.melt$pathway)
+
+##Clean up the pathway names for better plotting
+pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Role of IL-17F in Allergic Inflammatory Airway Diseases","pathway"]<-"IL-17F in Allgc. Inflam. Arwy Dis."
+pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Role of Pattern Recognition Receptors in Recognition of Bacteria and Viruses","pathway"]<-"PRRs/ Bacteria and Viruses"
+pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Production of Nitric Oxide and Reactive Oxygen Species in Macrophages","pathway"]<-"Production of NO and ROS in Macrophages"
+pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="PKCθ Signaling in T Lymphocytes","pathway"]<-"PKCθ Signaling"
+pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="PI3K Signaling in B Lymphocytes","pathway"]<-"PI3K Signaling"
+
+##Subset z-scores table by immune (proinflammatory) pathways or cell cycle pathways
+pathway_zscores.medium.melt.immune<-dplyr::filter(pathway_zscores.medium.melt,class %in% c("pro", "i"))
+pathway_zscores.medium.melt.cycle<-dplyr::filter(pathway_zscores.medium.melt,class %in% c("c"))
+
+##Write figures
+postscript(paste0(thesis_figures_directory,FIGURE_COMBINED_PATHWAYS_IMMUNE,".ps"),width=10,height=8)
+
+unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway)))
+paste0("Number of pathways belonging to each class:")
+table(unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway))) %>% dplyr::select(class))
+
+paste0(c("the remaining 5 pathways did not belong to either cell cycle or immunity:",str_c(unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway))) %>% dplyr::filter(class=="o") %>% dplyr::select(pathway),collapse = ", ")))
+
+ggplot(pathway_zscores.medium.melt.immune)+geom_tile(aes(x=ExposureTime,y=pathway,fill=value))+
+scale_fill_gradient2(high="red",mid="white",low="blue", 
+       na.value="yellow", midpoint=0)+facet_wrap(~comp,nrow=1)+
+  #mBio+
+  theme_bw() + theme(text = element_text(colour = "black",size=12))
+  #theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,30),units = "pt"))
+
+dev.off()
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_COMBINED_PATHWAYS_CYCLE,".eps"),width=10,height=8)
+
+ggplot(pathway_zscores.medium.melt.cycle)+geom_tile(aes(x=ExposureTime,y=pathway,fill=value))+
+scale_fill_gradient2(high="red",mid="white",low="blue", 
+       na.value="yellow", midpoint=0)+facet_wrap(~comp,nrow=1)+
+  mBio+
+  theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,0),units = "pt"))
+
+dev.off()
+
+```
+
+## Extract and plot logFC values from LRT table
+
+```{r plot_FC}
+## Pull out DE tables from each comparison within list, and write this table to file
+edgeR_results<-data.frame(gene=row.names(exprs(TRL_counts_meta.qc)))
+row.names(edgeR_results)<-edgeR_results$gene
+
+num_de_genes<-data.frame(num_de_genes=sapply(desets,function(x) x[[1]])) 
+num_de_genes$comparison<-row.names(num_de_genes)
+write.csv(num_de_genes[num_de_genes$comparison %in% medium_comparisons,],file=paste0(m=thesis_tables_directory,TABLE_TRL_NUMDEGENES))
+
+##Exctract genes from the list
+for(i in names(desets)){
+  #i<-"LCGV.4"
+  tmp.df<-data.frame(desets[[i]]$fulltable)
+  names(tmp.df)<-paste0(i,".",names(tmp.df))
+  tmp.df$gene<-row.names(desets[[i]]$fulltable)
+  edgeR_results<-join(edgeR_results,tmp.df,"gene")
+}
+
+hist(as.matrix(dplyr::select(edgeR_results,ends_with("logFC"))))
+hist(as.matrix(dplyr::select(edgeR_results,ends_with("logCPM"))))
+quantile(as.matrix(dplyr::select(edgeR_results,ends_with("logFC"))),probs = c(0.68,0.95))
+edgeR_results[1:5,1:6]
+
+row.names(edgeR_results)<-edgeR_results$gene
+dplyr::select(edgeR_results[edgeR_results$gene %in% c("EGFR","EP300","HDAC4","CDKN1A"),],contains("M")) %>% dplyr::select(contains("PValue.adj"))
+
+write.csv(edgeR_results,paste0(thesis_tables_directory,TABLE_EDGER_RESULTS),quote = F,row.names = F)
+#write.table(edgeR_results,paste0(thesis_tables_directory,"TABLE_A11.txt"),quote = F,row.names = F,sep="\t")
+#write.csv(dplyr::select(edgeR_results,c(gene,ends_with("logFC"),ends_with("PValue"))),paste0(root_directory,"edgeR_results_LCPval.csv"),quote = F,row.names = F)
+
+## Clean up the table containg the DE expresison information
+edgeR_results.melt<-melt(edgeR_results)
+edgeR_results.melt$variable<-gsub(pattern = "PValue.adj",replacement = "Pvalue_adj",x = edgeR_results.melt$variable)
+edgeR_results.melt<-separate(edgeR_results.melt,"variable",sep="\\.",into = c("comparison","ExposureTime","value_type"))
+
+## Assign colors to BCS
+color_map<-c("LCGV"=unname(subject_long_taxa_colors["Lactobacillus_crispatus"]),"LCM"=unname(subject_long_taxa_colors["Lactobacillus_crispatus"]),"LJGV"=unname(subject_long_taxa_colors["Lactobacillus_jensenii"]),"LJM"=unname(subject_long_taxa_colors["Lactobacillus_jensenii"]),"LIM"=unname(subject_long_taxa_colors["Lactobacillus_iners"]),"LIGV"=unname(subject_long_taxa_colors["Lactobacillus_iners"]),"GVM"=unname(subject_long_taxa_colors["Gardnerella_vaginalis"]))
+
+## Use different line types for G. vaginalis and medium (if used)
+line_map<-data.frame(comparison=names(color_map),line_type=c("solid","dashed","solid","dashed","dashed","solid","dashed"))
+
+## Merge tables together to map DE results to plot annotations
+edgeR_results_colors<-data.frame(comparison=names(color_map),colr=unname(color_map))
+edgeR_results.melt<-merge(edgeR_results.melt,edgeR_results_colors)
+edgeR_results.melt<-merge(edgeR_results.melt,line_map)
+edgeR_results.melt<-merge(edgeR_results.melt,dplyr::select(Pathways_design,c(comp,L,ref)),all.x=T,by.x="comparison",by.y="comp")
+edgeR_results.melt$ExposureTime<-as.numeric(edgeR_results.melt$ExposureTime)
+
+
+## Format and plot the selected immune gene expression's logFC over the timecourse
+immune_genes<-c("IL6","CXCL8")
+immune_genes_expression<- dplyr::filter(edgeR_results.melt,gene %in% immune_genes &  ref=="M" ) ## Only include selected immune related genes vs. the cell culture medium reference
+immune_genes_expression<-unique(immune_genes_expression)
+immune_genes_expression<-spread(immune_genes_expression,key = value_type,value = value) ## This will make the logFC, FDR, and other DE attributes into colums for easier plotting. The plot will use logFC and FDR information
+immune_genes_expression[immune_genes_expression$Pvalue_adj<0.01,"DE.pval"]<-"*" ## Annotate which samples are DE by FDR
+immune_genes_expression$gene<-factor(immune_genes_expression$gene,levels = c("IL6","CXCL8"),ordered = T,labels = c("IL6","IL8")) ## Make plot consistent
+
+##Make plot
+long_plot.immune<-ggplot(immune_genes_expression)+geom_point(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=3)+
+  geom_line(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=2)+
+  facet_wrap(~gene,scales = "free_y",ncol =2)+theme_bw()+scale_color_manual(values = color_map)+
+  geom_hline(yintercept =0)+geom_hline(yintercept =c(-1,0,1),lty=2)+xlab("Exposure Time (hours)")+
+  geom_text(aes(x=as.numeric(ExposureTime),y=logFC,label=DE.pval),size=8)+
+    mBio+
+  ylab("log (Fold Change)")+scale_x_continuous(breaks=c(4,13,22))
+
+plot(long_plot.immune)
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_LONGITDUINAL_GENEEXP.immune),width = 8,height = 6)
+plot(long_plot.immune)
+dev.off()
+
+
+## Format and plot the cell cycle pathway-related gene expression's logFC over the timecourse
+cycle_genes<-c("HDAC4","EP300","CDKN1A","CDK4","CCND1","CCNE2","ESR1","EGFR") ## Select which cell cycle genes to plot
+cycle_genes_expression<- dplyr::filter(edgeR_results.melt,gene %in% cycle_genes &  ref=="M" ) ## Only include the cell cycle genes and cell culture medium as the reference
+cycle_genes_expression<-unique(cycle_genes_expression)
+cycle_genes_expression<-spread(cycle_genes_expression,key = value_type,value = value) ## This will make the logFC, FDR, and other DE attributes into colums for easier plotting. The plot will use logFC and FDR information
+cycle_genes_expression$gene<-factor(cycle_genes_expression$gene,levels = cycle_genes,ordered = T) ## Maintain order of genes- this follows logical order discussed in thesis. 
+cycle_genes_expression[cycle_genes_expression$Pvalue_adj<0.01,"DE.pval"]<-"*" ## Annotate which samples are DE by FDR
+
+## Make plot
+long_plot.cc<-ggplot(cycle_genes_expression)+geom_point(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=3)+
+  geom_line(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=2)+
+  facet_wrap(~gene,scales = "free_y",nrow =2)+theme_bw()+scale_color_manual(values = color_map)+
+  geom_hline(yintercept =0)+geom_hline(yintercept =c(-1,0,1),lty=2)+xlab("Exposure Time (hours)")+
+  geom_text(aes(x=as.numeric(ExposureTime),y=logFC,label=DE.pval),size=8)+
+  mBio+
+  ylab("log (Fold Change)")+scale_x_continuous(breaks=c(4,13,22))
+
+plot(long_plot.cc)
+
+cairo_ps(paste0(thesis_figures_directory,FIGURE_LONGITDUINAL_GENEEXP.cycle),width = 8,height = 6)
+plot(long_plot.cc)
+dev.off()
+
+```
+
+
+# End Timestamp
+```{r Timestamp2}
+## Log session info
+filewritable_time<-gsub(gsub(Sys.time(),pattern = " ",replacement = "_"),pattern = "-|:",replacement = "")
+(sessionInfo_latex<-toLatex(sessionInfo()))
+write(sessionInfo_latex,paste0(R_script_output_directory,"R_sessionInfo_",filewritable_time,".log.txt"))
+
+timestamp()
+
+
+```

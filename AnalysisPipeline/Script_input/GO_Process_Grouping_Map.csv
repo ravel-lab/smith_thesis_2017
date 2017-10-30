@@ -1,20 +1,48 @@
-variable,Group,Go_format,s,n
-GO:0000122~negative regulation of transcription from RNA polymerase II promoter,Transcription,negative regulation of transcription from RNA polymerase II promoter,1.555524133,6
-GO:0001666~response to hypoxia,Hypoxia,response to hypoxia,0.719457014,5
-GO:0001701~in utero embryonic development,Development,in utero embryonic development,0.616138763,5
-GO:0001934~positive regulation of protein phosphorylation,Signaling,positive regulation of protein phosphorylation,0.50433635,5
-GO:0006351~transcription<COMMA> DNA-templated,Transcription,"transcription, DNA-templated",0.886406486,5
-GO:0006355~regulation of transcription<COMMA> DNA-templated,Transcription,"regulation of transcription, DNA-templated",0.72831825,5
-GO:0006366~transcription from RNA polymerase II promoter,Transcription,transcription from RNA polymerase II promoter,0.747926094,5
-GO:0006955~immune response,Immune,immune response,0.707767722,5
-GO:0007049~cell cycle,Cell cycle,cell cycle,0.676187783,5
-GO:0007165~signal transduction,Signaling,signal transduction,0.982937406,5
-GO:0007275~multicellular organism development,Development,multicellular organism development,0.513197587,5
-GO:0008284~positive regulation of cell proliferation,Cell cycle,positive regulation of cell proliferation,0.969457014,5
-GO:0010628~positive regulation of gene expression,Transcription,positive regulation of gene expression,0.69183635,5
-GO:0030335~positive regulation of cell migration,Cell cycle,positive regulation of cell migration,0.62811086,5
-GO:0043066~negative regulation of apoptotic process,Cell cycle,negative regulation of apoptotic process,1.010180995,5
-GO:0043547~positive regulation of GTPase activity,Signaling,positive regulation of GTPase activity,0.445795626,5
-GO:0045893~positive regulation of transcription<COMMA> DNA-templated,Transcription,"positive regulation of transcription, DNA-templated",1.322680995,5
-GO:0045944~positive regulation of transcription from RNA polymerase II promoter,Transcription,positive regulation of transcription from RNA polymerase II promoter,1.444004525,5
-GO:0051091~positive regulation of sequence-specific DNA binding transcription factor activity,Transcription,positive regulation of sequence-specific DNA binding transcription factor activity,0.388197587,5
+variable,Group,Go_format
+GO:0000122~negative regulation of transcription from RNA polymerase II promoter,Transcription,negative regulation of transcription from RNA polymerase II promoter
+GO:0001666~response to hypoxia,Hypoxia,response to hypoxia
+GO:0001701~in utero embryonic development,Development,in utero embryonic development
+GO:0001934~positive regulation of protein phosphorylation,Signaling,positive regulation of protein phosphorylation
+GO:0006351~transcription<COMMA> DNA-templated,Transcription,"transcription, DNA-templated"
+GO:0006355~regulation of transcription<COMMA> DNA-templated,Transcription,"regulation of transcription, DNA-templated"
+GO:0006366~transcription from RNA polymerase II promoter,Transcription,transcription from RNA polymerase II promoter
+GO:0006955~immune response,Immune,immune response
+GO:0007049~cell cycle,Cell cycle,cell cycle
+GO:0007165~signal transduction,Signaling,signal transduction
+GO:0007275~multicellular organism development,Development,multicellular organism development
+GO:0008284~positive regulation of cell proliferation,Cell cycle,positive regulation of cell proliferation
+GO:0010628~positive regulation of gene expression,Transcription,positive regulation of gene expression
+GO:0030335~positive regulation of cell migration,Cell cycle,positive regulation of cell migration
+GO:0043066~negative regulation of apoptotic process,Cell cycle,negative regulation of apoptotic process
+GO:0043547~positive regulation of GTPase activity,Signaling,positive regulation of GTPase activity
+GO:0045893~positive regulation of transcription<COMMA> DNA-templated,Transcription,"positive regulation of transcription, DNA-templated"
+GO:0045944~positive regulation of transcription from RNA polymerase II promoter,Transcription,positive regulation of transcription from RNA polymerase II promoter
+GO:0051091~positive regulation of sequence-specific DNA binding transcription factor activity,Transcription,positive regulation of sequence-specific DNA binding transcription factor activity
+GO:0000082~G1/S transition of mitotic cell cycle,Cell cycle,G1 to S transition of mitotic cell cycle
+GO:0001649~osteoblast differentiation,Development,osteoblast differentiation
+GO:0002223~stimulatory C-type lectin receptor signaling pathway,Immune,stimulatory C-type lectin receptor signaling pathway
+GO:0006468~protein phosphorylation,Signaling,protein phosphorylation
+GO:0006469~negative regulation of protein kinase activity,Signaling,negative regulation of protein kinase activity
+GO:0006974~cellular response to DNA damage stimulus,DNA damage,cellular response to DNA damage stimulus
+GO:0007179~transforming growth factor beta receptor signaling pathway,Immune,TGF-beta receptor signaling pathway
+GO:0007186~G-protein coupled receptor signaling pathway,Signaling,G-protein coupled receptor signaling pathway
+GO:0007411~axon guidance,Development,axon guidance
+GO:0007507~heart development,Development,heart development
+GO:0008285~negative regulation of cell proliferation,Cell cycle,negative regulation of cell proliferation
+GO:0009267~cellular response to starvation,Signaling,cellular response to starvation
+GO:0032868~response to insulin,Signaling,response to insulin
+GO:0038095~Fc-epsilon receptor signaling pathway,Immune,Fc-epsilon receptor signaling pathway
+GO:0042981~regulation of apoptotic process,Cell cycle,regulation of apoptotic process
+GO:0043065~positive regulation of apoptotic process,Cell cycle,positive regulation of apoptotic process
+GO:0045444~fat cell differentiation,Development,fat cell differentiation
+GO:0045599~negative regulation of fat cell differentiation,Development,negative regulation of fat cell differentiation
+GO:0045786~negative regulation of cell cycle,Cell cycle,negative regulation of cell cycle
+GO:0048146~positive regulation of fibroblast proliferation,Cell cycle,positive regulation of fibroblast proliferation
+GO:0051301~cell division,Cell cycle,cell division
+GO:0051592~response to calcium ion,Signaling,response to calcium ion
+GO:0070301~cellular response to hydrogen peroxide,Signaling,cellular response to hydrogen peroxide
+GO:0097192~extrinsic apoptotic signaling pathway in absence of ligand,Cell cycle,extrinsic apoptotic signaling pathway in absence of ligand
+GO:0001889~liver development,Development,liver development
+GO:0032355~response to estradiol,Cell cycle,response to estradiol
+GO:0045892~negative regulation of transcription<COMMA> DNA-templated,Transcription,"negative regulation of transcription, DNA-templated"
+GO:0090090~negative regulation of canonical Wnt signaling pathway,Signaling,negative regulation of canonical Wnt signaling pathway
