@@ -102,7 +102,7 @@ ggplot(LCM)+geom_point(aes(x=RNA_Input,y=-Ct,col=Study),size=3)+theme_bw()+theme
 ggplot(LCM)+geom_point(aes(x=RINe,y=-Ct,col=PrimerPair),size=3)+theme_bw()+theme(title=element_text(size=14),text=element_text(size = 20))+xlab("RINe")+  ggtitle("All Results BCM & LacticAcid exposed A2EN & VK2s")
 ```
 
-```{r analyze, eval=F}
+```{r analyze, eval=T}
 LCM.spread<-spread(select(LCM,c(Study,PrimerPair,Study,Sample,Ct,Replicate,CellLine,BCM,pH,RINe,ExposureTime,RNA_Input,LacticAcid_D_g_L,LacticAcid_L_g_L)),key = PrimerPair,value = Ct)
 
 LCM.spread.summary<-ddply(LCM.spread,c("Sample"),summarise,
@@ -156,9 +156,9 @@ save(qPCR_time_course,file=paste0(final_dir,"qPCR_time_course.Rdata"))
 
   
 qpcr_sigtest<-data.frame(
-  comparison=rep(c("L. crispatus","L. jensenii","L. iners"),each=2),
-  reference=rep(c("G. vaginalis","Cell Culture Medium"),times=3),
-ExposureTime=paste0(rep(c(0.5,1,4,8,11,13,16,19,22),each=6),"hr"),
+  comparison=rep(c("L. crispatus","L. jensenii","L. iners","G. vaginalis"),each=1),
+  reference=rep(c("Cell Culture Medium"),times=4),
+ExposureTime=paste0(rep(c(0.5,1,4,8,11,13,16,19,22),each=4),"hr"),
                          Study.ref=factor("study_1",levels=c("study_1","study_2","study_5","LA")),
                          Study.comp=factor("study_1",levels=c("study_1","study_2","study_5","LA")))
 qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(
