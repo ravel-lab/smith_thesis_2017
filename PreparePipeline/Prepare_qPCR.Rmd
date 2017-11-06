@@ -37,10 +37,10 @@ library(plyr)
 ```{r load_data, eval=T}
 LCM<-NULL
 #root<-"/Volumes/HD-PATU3/StevenSmith_ComputerRecords_2012_2017/Projects/PHD_Host_Response_BV_Dynamics/Subprojects/PHD_miRNA/Experimental_Results/Proliferation/"
-root<-"~/Documents/smith_thesis_2017/PreparePipeline/"
-final_dir<-"~/Documents/smith_thesis_2017/AnalysisPipeline/Script_input/" #"/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/"
+root<-"~/smith_thesis_2017/PreparePipeline/"
+final_dir<-"~/smith_thesis_2017/AnalysisPipeline/Script_input/" #"/Volumes/HD-PATU3/Jacques_Steve_Shared/Manuscript/miRNA/Submission/Supplementary_Data/Analysis_Pipeline/Script_input/"
 
-lcm.list<-c("100916_101016_A2EN_VK2_CM_miScript","101616_LActicAcid","102016_VK2_phrange","102416/102416_VK2_miScript","110116_BCM_1_5_22hr","110816/110816_vK2_run2","110816/110816_vk2_HiFlex_CCND1","112816_BCM","112816_run2_BCM","011217_BCM","011717_BCM_LA","012017_BCM","012617_BCM","022017_BCS","022017_finale","022017_LacticAcid_4hr","042417/042417_LacticAcid","093017_BCS")
+lcm.list<-c("100916_101016_A2EN_VK2_CM_miScript","101616_LActicAcid","102016_VK2_phrange","102416/102416_VK2_miScript","110116_BCM_1_5_22hr","110816/110816_vK2_run2","110816/110816_vk2_HiFlex_CCND1","112816_BCM","112816_run2_BCM","011217_BCM","011717_BCM_LA","012017_BCM","012617_BCM","022017_BCS","022017_finale","022017_LacticAcid_4hr","042417/042417_LacticAcid","093017_BCS","110317_052917_091417_BCS")
 for(l in lcm.list){
 LCM.qpcr<-read.csv(paste0(root,l,".csv"))
 LCM.ph<-read.csv(paste0(root,l,"_ph.csv")) 
@@ -62,8 +62,11 @@ LCM$ExposureTime<-factor(LCM$ExposureTime,levels = c("0hr","0.5hr","1hr","2hr","
 LCM[LCM$Sample=="022017_sub2_LiNERS_13hr",]
 LA_10_12<-paste0(rep(c("D_","L_","DL_"),each=3),rep(c("12","10","8"),times=3))
 LA_ph<-c("PH_733","PH_755","PH_766")
-LCM$BCM<-factor(LCM$BCM,ordered = T,levels = c("LCRISP","LINERS","LJENS","GVAG","MEDIA","LACTICACID","NTC","0hr","CONTROL","FASC_INHIBITOR","SIS_INHIBITOR","CK4_INHIBITOR",paste0(rep(c("DL_","L_"),each=2),rep(c("0_08","0_06"),times=2)),paste0(rep(c("0_08_","0_06_"),times=3),rep(c("DL","L","D"),each=2)),LA_10_12,LA_ph),labels = c("L. crispatus","L. iners","L. jensenii","G. vaginalis","Cell Culture Medium","lactic acid","Negative Control","0hr","CONTROL","FASC_INHIBITOR","SIS_INHIBITOR","CK4_INHIBITOR",paste0(rep(c("DL_","L_"),each=2),rep(c("0_08","0_06"),times=2)),paste0(rep(c("0_08_","0_06_"),times=3),rep(c("DL","L","D"),each=2)),LA_10_12,LA_ph))
-
+LCM$BCM<-factor(LCM$BCM,ordered = T,
+                levels = c("LCRISP","LINERS","LJENS","GVAG","MEDIA","LACTICACID","NTC","0hr","CONTROL","FASC_INHIBITOR","SIS_INHIBITOR","CK4_INHIBITOR",paste0(rep(c("DL_","L_"),each=2),rep(c("0_08","0_06"),times=2)),paste0(rep(c("0_08_","0_06_"),times=3),rep(c("DL","L","D"),each=2)),LA_10_12,LA_ph),
+                labels = c("L. crispatus","L. iners","L. jensenii","G. vaginalis","Cell Culture Medium","lactic acid","Negative Control","0hr","CONTROL","FASC_INHIBITOR","SIS_INHIBITOR","CK4_INHIBITOR",paste0(rep(c("DL_","L_"),each=2),rep(c("0_08","0_06"),times=2)),paste0(rep(c("0_08_","0_06_"),times=3),rep(c("DL","L","D"),each=2)),LA_10_12,LA_ph)
+                )
+LCM[LCM$Study=="110317",]
 ```
 ## Analyze & Plot
 ```{r sublook,eval=F}
@@ -119,13 +122,14 @@ LCM.spread.summary<-inner_join(LCM.spread.summary,unique(select(LCM,c(Study,Samp
 ```
 ## Prepare table for manuscript
 ```{r prep_manuscript, eval=T}
+LCM.spread$Study
   #"042417","022017_run_0424"
-  qPCR_time_course<-filter(LCM.spread,!BCM %in% c("negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017","22017_rerunMarch","042417","022017_run_0424","93017","52917") ) %>% select(c(Study,Sample,Replicate,BCM,ExposureTime,`miR-193b`,RNU6))
-qPCR_time_course[qPCR_time_course$Study %in% c("93017","52917"),]
-qPCR_time_course<-filter(qPCR_time_course, !is.na(BCM)  & !BCM %in% c("lactic acid","negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017","22017_rerunMarch","11717","22017","22017_rerunMarch","042417","022017_run_0424","93017","52917")) 
+  qPCR_time_course<-filter(LCM.spread,!BCM %in% c("negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017","22017_rerunMarch","042417","022017_run_0424","93017","52917","110317","91417") ) %>% select(c(Study,Sample,Replicate,BCM,ExposureTime,`miR-193b`,RNU6))
+qPCR_time_course[qPCR_time_course$Study %in% c("93017","52917","110317","91417"),]
+qPCR_time_course<-filter(qPCR_time_course, !is.na(BCM)  & !BCM %in% c("lactic acid","negative control")  & Study %in% c("102416","110116","110816","11217","022017_sub2","22017","22017_rerunMarch","11717","22017","22017_rerunMarch","042417","022017_run_0424","93017","52917","110317","91417")) 
 
-qPCR_time_course$Study.comp<-factor("study_1",levels=c("study_1","study_2","study_3","LA"))
-qPCR_time_course$Study.ref<-factor("study_1",levels=c("study_1","study_2","study_3","LA"))
+qPCR_time_course$Study.comp<-factor("study_1",levels=c("study_1","study_2","study_3","LA","LA2"))
+qPCR_time_course$Study.ref<-factor("study_1",levels=c("study_1","study_2","study_3","LA","LA2"))
 qPCR_time_course[qPCR_time_course$Study2=="022017_sub2",c("Study.comp","Study.ref")]<-factor("study_2") ###factor("study_2",levels=c("study_1","study_2","LA"))
 qPCR_time_course[grepl(pattern = "0_06",x = qPCR_time_course$BCM),c("Study.comp","Study.ref")]<-factor("LA")
 
@@ -140,8 +144,9 @@ qPCR_time_course<-qPCR_time_course[!(qPCR_time_course$Study=="93017"  & qPCR_tim
 qPCR_time_course<-qPCR_time_course[!(qPCR_time_course$Study=="93017"  & qPCR_time_course$BCM=="Cell Culture Medium" & qPCR_time_course$ExposureTime %in% c("8hr")),]
 qPCR_time_course[qPCR_time_course$Study=="52917"  #& qPCR_time_course$BCM=="L. iners"
                  ,c("Study.comp","Study.ref")]<-"study_5"
-
-qPCR_time_course<-qPCR_time_course[qPCR_time_course$BCM %in% c("L. crispatus","L. iners", "L. jensenii", "G. vaginalis", "Cell Culture Medium", "D_10","L_10","0_06_D","0_06_L","PH_766","PH_755","PH_733"),!names(qPCR_time_course) %in% c("Sample","Study")] #"0_06_D","0_06_DL","0_06_L","D_12","D_8","L_12","DL_12","DL_10","DL_8","L_8"
+qPCR_time_course[qPCR_time_course$Study %in% c("91417","110317") ,c("Study.comp","Study.ref")]<-"LA2"
+qPCR_time_course<-qPCR_time_course[!(qPCR_time_course$Study=="52917" & qPCR_time_course$BCM=="DL_10"),]
+qPCR_time_course<-qPCR_time_course[qPCR_time_course$BCM %in% c("L. crispatus","L. iners", "L. jensenii", "G. vaginalis", "Cell Culture Medium", "D_10","L_10","0_06_D","0_06_L","PH_766","PH_755","PH_733","DL_10"),!names(qPCR_time_course) %in% c("Sample","Study")] #"0_06_D","0_06_DL","0_06_L","D_12","D_8","L_12","DL_12","DL_10","DL_8","L_8"
 
 qPCR_time_course<-dplyr::rename(qPCR_time_course,"BCS"=BCM,"miR193b_Ct"=`miR-193b`,"RNU6_Ct"=RNU6,"Study"=Study.comp)
 #write.csv(qPCR_time_course,"~/timecourse.csv")
@@ -159,8 +164,14 @@ qpcr_sigtest<-data.frame(
   comparison=rep(c("L. crispatus","L. jensenii","L. iners","G. vaginalis"),each=1),
   reference=rep(c("Cell Culture Medium"),times=4),
 ExposureTime=paste0(rep(c(0.5,1,4,8,11,13,16,19,22),each=4),"hr"),
-                         Study.ref=factor("study_1",levels=c("study_1","study_2","study_5","LA")),
-                         Study.comp=factor("study_1",levels=c("study_1","study_2","study_5","LA")))
+                         Study.ref=factor("study_1",levels=c("study_1","study_2","study_5","LA","LA2")),
+                         Study.comp=factor("study_1",levels=c("study_1","study_2","study_5","LA","LA2")))
+qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(comparison="DL_10",
+ reference="Cell Culture Medium",
+ ExposureTime=paste0(rep(c(0.5,1,4,8,13,16,19,22),each=1),"hr"),
+                         Study.ref=factor("LA2",levels=c("study_1","study_2","LA","LA2")),
+                         Study.comp=factor("LA2",levels=c("study_1","study_2","LA","LA2"))))
+
 qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(
   comparison=c(rep(c("0_06_L","0_06_D"),times=2),"0_06_L"),
  reference=c(rep(c("G. vaginalis","Cell Culture Medium"),each=2),"0_06_D"),ExposureTime="4hr",
@@ -173,7 +184,7 @@ qpcr_sigtest[qpcr_sigtest$reference=="L. jensenii" & qpcr_sigtest$ExposureTime %
 
 qpcr_sigtest[ grepl(qpcr_sigtest$comparison,pattern = "0_06") ,  c("Study.comp","Study.ref")]<-"LA"
 qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(comparison=c("D_10","D_10","D_10","L_10","L_10","PH_766","PH_766"),reference=c("L_10","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium"),ExposureTime="4hr",Study.comp="study_4",Study.ref=c("study_4","study_3","study_3","study_3","study_3","study_3","study_3")))
-qpcr_sigtest[qpcr_sigtest$ExposureTime %in% c("8hr","16hr","19hr") ,c("Study.ref","Study.comp")]<-"study_5"
+qpcr_sigtest[qpcr_sigtest$ExposureTime %in% c("8hr","16hr","19hr") & !qpcr_sigtest$comparison=="DL_10" ,c("Study.ref","Study.comp")]<-"study_5"
 
 save(qpcr_sigtest,file=paste0(final_dir,"qpcr_sigtest.Rdata"))
   
