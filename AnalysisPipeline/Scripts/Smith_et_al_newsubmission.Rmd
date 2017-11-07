@@ -1571,8 +1571,8 @@ qpcr_sigtest[qpcr_sigtest$ref=="Cell Culture Medium","lt"]<-3#"solid"
 PLOT_QPCR_TIMECOURSE<-
  # ggplot(filter(qpcr_sigtest,reference=="G. vaginalis" &
    ggplot(filter(qpcr_sigtest,reference=="Cell Culture Medium" &
-                   comp %in% c("L. crispatus","L. jensenii","L. iners","G. vaginalis")&
-  !grepl(qpcr_sigtest$comparison,pattern = "_10|_766|0_")), #& qpcr_sigtest$reference== "G. vaginalis"),
+                   comp %in% c("L. crispatus","L. jensenii","L. iners","G. vaginalis","DL_10") #&  !grepl(qpcr_sigtest$comparison,pattern = "_10|_766|0_")
+                 ), #& qpcr_sigtest$reference== "G. vaginalis"),
          aes(x=ExposureTime.n,y=-mean_diff,col=comp))+
   theme_bw()+
     mBio+
@@ -1583,7 +1583,7 @@ PLOT_QPCR_TIMECOURSE<-
   geom_point(size=6,show.legend = F)+ 
   ylab(expression(paste(-Delta,Delta,"Ct")))+
   xlab("Exposure Time (hours)")+
-  scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
+  ####scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
   scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
   scale_linetype_manual(name=expression(paste("Reference ",Delta,"Ct")),values=as.numeric(qpcr_sigtest$lt))+
   geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
