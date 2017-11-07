@@ -35,9 +35,7 @@ Need to followup
 -GO figure
 -Figure_3_4 and 5?
 -Sctaych area vs EdU
--Drop RF figure
--Choose only one filtering metric for RF
--Long plots- only the Lacto RA 
+-Long plots- only the Lacto RA**
 
 
 ```{r timestamp1}
@@ -126,8 +124,15 @@ color_scheme_BCS<- c("L. crispatus"= unname(subject_long_taxa_colors["Lactobacil
                      "L. jensenii" = unname(subject_long_taxa_colors["Lactobacillus_jensenii"]),
                      "L. iners" = unname(subject_long_taxa_colors["Lactobacillus_iners"]),
                      "G. vaginalis" = unname(subject_long_taxa_colors["Gardnerella_vaginalis"]),
-                     "Cell Culture Medium"='blue'
-) #c("L. crispatus"='red1',"G. vaginalis"='lightseagreen',"L. iners"='orange',"Cell Culture Medium"='blue',"L. jensenii"='#8c510a')
+                     "Cell Culture Medium"='blue',
+                     "0.1% D-lactic acid"="#4dac26",
+                     "0.1% L-lactic acid"="#d01c8b",
+                     "1% lactic acid, pH 7.66"="#386cb0",
+                     "0.06% L-lactic acid"="#f1b6da",
+                     "0.06% D-lactic acid"="#b8e186",
+                    # "0.1% DL-lactic acid"= "#b6daf1"
+                     "DL_10"= "#b6daf1"
+) 
 
 cst.colors<-c("I-A"="red1",
               "I-B"="#990000",
@@ -1566,24 +1571,29 @@ qpcr_sigtest$comp<-as.character(qpcr_sigtest$comparison)
 qpcr_sigtest[qpcr_sigtest$ref=="G. vaginalis","lt"]<-1#"dashed"
 qpcr_sigtest[qpcr_sigtest$ref=="Cell Culture Medium","lt"]<-3#"solid"
 #cairo_ps(paste0(R_script_output_directory,"miR_long_plot_presentation.eps"),width = 11.5,height = 6)
+
+qpcr_sigtest$comparison<-factor(qpcr_sigtest$comparison,levels = c("L. crispatus", "L. jensenii","L. iners","G. vaginalis", "PH_766","D_10","L_10","DL_10","0_06_D","0_06_L"),ordered = T,labels = c("L. crispatus", "L. jensenii","L. iners","G. vaginalis", "1% lactic acid, pH 7.66","0.1% D-lactic acid","0.1% L-lactic acid","0.1% DL-lactic acid","0.06% D-lactic acid","0.06% L-lactic acid"))
+
+qpcr_sigtest$reference<-factor(qpcr_sigtest$reference,levels = c("L. jensenii","L. iners","G. vaginalis", "Cell Culture Medium", "L_10","DL_10","0_06_D","0_06_L"),ordered = T,labels = c( "L. jensenii","L. iners","G. vaginalis", "Cell Culture Medium","0.1% L-lactic acid","0.1% DL-lactic acid","0.06% D-lactic acid","0.06% L-lactic acid"))
+
+
 ## Plot qPCR Timecourse (put lactic acid comparison in sep. figure)
 
 PLOT_QPCR_TIMECOURSE<-
- # ggplot(filter(qpcr_sigtest,reference=="G. vaginalis" &
    ggplot(filter(qpcr_sigtest,reference=="Cell Culture Medium" &
-                   comp %in% c("L. crispatus","L. jensenii","L. iners","G. vaginalis","DL_10") #&  !grepl(qpcr_sigtest$comparison,pattern = "_10|_766|0_")
-                 ), #& qpcr_sigtest$reference== "G. vaginalis"),
+                   comp %in% c("L. crispatus","L. jensenii","L. iners","G. vaginalis","DL_10") ## FIXME sloppy
+                 ), 
          aes(x=ExposureTime.n,y=-mean_diff,col=comp))+
   theme_bw()+
     mBio+
   geom_hline(yintercept = 0,col="#9e9ac8",size=2.5)+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
-  geom_line(size=1.5,show.legend = T)+#,aes(linetype="3"))+ 
+  geom_line(size=1.5,show.legend = T)+
   geom_errorbar(aes(ymax=-mean_diff+se,ymin=-mean_diff-se),size=1,show.legend = F)+
   geom_point(size=6,show.legend = F)+ 
   ylab(expression(paste(-Delta,Delta,"Ct")))+
   xlab("Exposure Time (hours)")+
-  ####scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
+  scale_color_manual(name=expression(paste("Lactobacillus ",Delta,"Ct")),values = color_scheme_BCS)+
   scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
   scale_linetype_manual(name=expression(paste("Reference ",Delta,"Ct")),values=as.numeric(qpcr_sigtest$lt))+
   geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
@@ -1592,10 +1602,6 @@ PLOT_QPCR_TIMECOURSE<-
 cairo_ps(paste0(thesis_figures_directory,FIGURE_QPCR_TIMECOURSE),width = 9,height = 6)
 PLOT_QPCR_TIMECOURSE
 dev.off()
-
-qpcr_sigtest$comparison<-factor(qpcr_sigtest$comparison,levels = c("L. crispatus", "L. jensenii","L. iners","G. vaginalis", "PH_766","D_10","L_10","0_06_D","0_06_L"),ordered = T,labels = c("L. crispatus", "L. jensenii","L. iners","G. vaginalis", "1% lactic acid, pH 7.66","0.1% D-lactic acid","0.1% L-lactic acid","0.06% D-lactic acid","0.06% L-lactic acid"))
-
-qpcr_sigtest$reference<-factor(qpcr_sigtest$reference,levels = c("L. jensenii","L. iners","G. vaginalis", "Cell Culture Medium", "L_10","0_06_D","0_06_L"),ordered = T,labels = c( "L. jensenii","L. iners","G. vaginalis", "Cell Culture Medium","0.1% L-lactic acid","0.06% D-lactic acid","0.06% L-lactic acid"))
 
 ## Show D and L lactic acid qPCR results compared to other references
 ddct_LacticAcid_plot<-
@@ -1607,7 +1613,7 @@ ddct_LacticAcid_plot<-
   geom_point(size=6,show.legend = T,position = position_dodge(width = .2))+ 
   ylab(expression(paste(-Delta,Delta,"Ct")))+
   xlab(expression(paste("Reference ",Delta,"Ct")))+
-  scale_color_manual(name=expression(paste("Exposure ",Delta,"Ct")),values = c(color_scheme_BCS,"0.1% D-lactic acid"="#4dac26","0.1% L-lactic acid"="#d01c8b","1% lactic acid, pH 7.66"="#386cb0","0.06% L-lactic acid"="#f1b6da","0.06% D-lactic acid"="#b8e186"))+
+  scale_color_manual(name=expression(paste("Exposure ",Delta,"Ct")),values = color_scheme_BCS)+
   geom_text(aes(label=sig),col='#252525',size=8,nudge_y = -.05)
 
 cairo_ps(paste0(thesis_figures_directory,FIGURE_DL_LACTICACID_QPCR),width = 9,height = 6)
