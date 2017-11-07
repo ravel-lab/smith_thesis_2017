@@ -1,7 +1,7 @@
 ---
 title: "Smith et al Manuscript"
 author: "Steven Smith"
-date: "October 26, 2017"
+date: "November 6, 2017"
 output:
   word_document:
     toc: yes
@@ -46,7 +46,7 @@ timestamp()
 rm(list=ls())
 
 ## Set the root directory here:
-root_directory<-"~/Documents/smith_thesis_2017/AnalysisPipeline/"#"~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/Thesis_pipeline/AnalysisPipeline/"
+root_directory<-"~/smith_thesis_2017/AnalysisPipeline/"#"~/Dropbox (IGS)/Jacques_Steve_Shared/Thesis/Thesis_pipeline/AnalysisPipeline/"
 
 ## Supress warnings to make knit PDF shorter... but turn these back on since there may be some weird behaviors
 knitr::opts_chunk$set(warning=FALSE, message=T,size=8)
@@ -146,9 +146,8 @@ cst.colors<-c("I-A"="red1",
 ## Table and figure names
 TABLE_SEQSUMMARY<-"TABLE_1.csv"
 TABLE_TOPMIRS<-"TABLE_2.txt"
-TABLE_TRL_ALIGNSTATS<-"TABLE_3.csv"
-TABLE_TRL_NUMDEGENES<-"TABLE_4.csv"
-TABLE_TRL_SUMMARY_PATHWAYS<-"TABLE_5.csv"
+TABLE_TRL_NUMDEGENES<-"TABLE_3.csv"
+TABLE_TRL_SUMMARY_PATHWAYS<-"TABLE_4.csv"
 
 TABLE_COUNTS_RAW<-"TABLE_S1.csv"
 TABLE_MODEL_INPUT<-"TABLE_S2.csv"
@@ -161,23 +160,25 @@ TABLE_MIR_TARGETS<-"TABLE_S8.txt"
 TABLE_QPCR_TIMECOURSE<-"TABLE_S9.csv"
 TABLE_EDU_SCRATCH_QUANT<-"TABLE_S10.csv"
 TABLE_CT_QUANT<-"TABLE_S11.csv"
-TABLE_TRL_COUNTS_RAW<-"TABLE_S12.csv"
-TABLE_EDGER_RESULTS<-"TABLE_S13.csv"
-TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S14.csv"
+TABLE_TRL_ALIGNSTATS<-"TABLE_S12.csv"
+TABLE_TRL_COUNTS_RAW<-"TABLE_S13.csv"
+TABLE_EDGER_RESULTS<-"TABLE_S14.csv"
+TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S15.csv"
 
 FIGURE_SUBJECT_PLOTS<-"FIGURE_1_"
-#FIGURE_RF_IMPORTANCE_AMSEL<-"FIGURE_2_A.eps"
-FIGURE_RF_IMPORTANCE_NUGENT<-"FIGURE_2_B.eps"
-FIGURE_TOPMIRS<-"FIGURE_2_C.eps"
-FIGURE_QPCR_TIMECOURSE<-"FIGURE_3.eps"
+FIGURE_RF_IMPORTANCE_AMSEL<-"FIGURE_drop_2.eps"
+FIGURE_RF_IMPORTANCE<-"Figure_drop.eps"
+FIGURE_TOPMIRS<-"FIGURE_2.eps"
+FIGURE_QPCR_TIMECOURSE<-"FIGURE_3.eps" ## Add lactic acid or put as supp;
 FIGURE_EDU_QUANT<-"FIGURE_4_D.eps"
 FIGURE_SCRATCH_QUANT<-"FIGURE_4_C.eps"
+## Scratch & EdU on same figure? 13h scratch & EdU microscopy (A, B) and quants (C, D) as bar graphs
 FIGURE_CT_INFECT_QUANT<-"Figure_4_G.eps"
 FIGURE_CT_EDU_QUANT<-"Figure_4_F.eps"
-FIGURE_TRANSFECT<-"Figure_5.eps"
-FIGURE_COMBINED_PATHWAYS_CYCLE<-"Figure_6.eps"
-FIGURE_LONGITDUINAL_GENEEXP.cycle<-"Figure_7.eps"
-FIGURE_FINAL_MODEL<-"Figure_8.eps" ##Placeholder
+
+FIGURE_COMBINED_PATHWAYS_CYCLE<-"Figure_5.eps"
+FIGURE_LONGITDUINAL_GENEEXP.cycle<-"Figure_6.eps"
+FIGURE_FINAL_MODEL<-"Figure_7.eps" ##Placeholder
 
 FIGURE_QC<-"FIGURE_S1_"
 FIGURE_QC_RIN_v_READS.PROP<-paste0(FIGURE_QC,"1.eps")
@@ -189,9 +190,10 @@ FIGURE_QC_PCA.RMLOW.BYSUBJ<-paste0(FIGURE_QC,"6.eps")
 FIGURE_QC_PCA.NORMAL.BYBATCH<-paste0(FIGURE_QC,"7.eps")
 FIGURE_QC_PCA.NORMAL.BYSUBJ<-paste0(FIGURE_QC,"8.eps")
 FIGURE_MIR_TARGETS_GO<-"Figure_S2.eps"
-FIGURE_DL_LACTICACID_QPCR<-"Figure_S3.eps"
-FIGURE_nyc_v_tsb<-"Figure_S5.eps"
-#FIGURE_TRL_RIN_HIST<-"Figure_S6.eps"
+FIGURE_DL_LACTICACID_QPCR<-"Figure_S3.eps" ## maybe add lactic acid time course here and split out 13h D, L, DL panel. 
+##S4 =  EdU microscopy
+FIGURE_nyc_v_tsb<-"Figure_S5.eps" ## Add EdU barplot as well. 
+#FIGURE_TRL_RIN_HIST<-"Figure_.eps"
 #FIGURE_COMBINED_PATHWAYS_IMMUNE<-"Figure_S7.eps"
 #FIGURE_LONGITDUINAL_GENEEXP.immune<-"FIGURE_S9.eps"
 
@@ -1063,13 +1065,15 @@ features<-features[keep_features,] ## At least half of normalized miRNA counts s
 hist(features,main="Histogram of Normlized Read Counts",xlab="Log (Normlized read count)")
 abline(v = 1,col='red')
 
-## Write PCA plots to file
-cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYBATCH),width=8,height=5.5)
-plot_QC.normalized.batch$pca.p
-dev.off()
-cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYSUBJ),width=8,height=5.5)
-plot_QC.normalized.sid$pca.p
-dev.off()
+##FIXME
+
+# ## Write PCA plots to file
+# cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYBATCH),width=8,height=5.5)
+# plot_QC.normalized.batch$pca.p
+# dev.off()
+# cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYSUBJ),width=8,height=5.5)
+# plot_QC.normalized.sid$pca.p
+# dev.off()
 
 ```
 
@@ -1144,6 +1148,8 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 ## //////////
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
 
+##FIXME change all Nugent to Lacto (or just RF) and remove Amsel. 
+
 Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus,
                            response_variable_name = "LACTO_PROP",
                            subj_spec =T,
@@ -1157,12 +1163,7 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
 
-##Store op Nugent RF features
-Lacto_RF$importance[order(Lacto_RF$importance$X.IncMSE,decreasing = F),]
-(Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$importance[Lacto_RF$importance$X.IncMSE>=2,]))
-Lacto_RF$rfp$importance_w_pval
-
-## Winner -5 miRNAs
+## Store top miRNAs
 (Lacto_RF$top_features$top_features.all<-row.names(Lacto_RF$rfp$importance_w_pval[Lacto_RF$rfp$importance_w_pval[,"%IncMSE.pval"]<=pval_threshold & Lacto_RF$rfp$importance_w_pval[,"IncNodePurity.pval"]<=pval_threshold ,]))
 
 ##Calculate accuracy/mean abs error
@@ -1177,7 +1178,7 @@ print(paste0("The Nugent-RF model correctly predicted the Nugent score within ",
 ## //////////
 
 ### Tables
-## Write model input table to file, keeping only variables that were used in either Nugent-RF or Amsel-RF
+## Write model input table to file, keeping only variables that were used 
 model_input.out<-model_input[,names(model_input) %in% unique(c(names(model_input_Lactobacillus)))]
 
 predictor_names<-names(dplyr::select(model_input.out,-c(LACTO_PROP,SID)))
@@ -1190,12 +1191,10 @@ model_input.out[row.names(model_input.out) %in% Lacto_RF$testing_ids,"Lacto_RF_t
 
 write.csv(model_input.out,paste0(thesis_tables_directory,TABLE_MODEL_INPUT),row.names=T,quote=F)
 
-## Combine both RF models' importance information as a single table
-TABLE_RF_SUMMARY_output<-data.frame(features=names(model_input %>% dplyr::select(-c(LACTO_PROP,NUGENT_SCORE,SID))))
-TABLE_RF_SUMMARY_output<-data.frame(features=row.names(Lacto_RF$rfp$importance_w_pval),AMSEL=Lacto_RF$rfp$importance_w_pval)
+## Output RF model results
+TABLE_RF_SUMMARY_output<-data.frame(miRNA=row.names(Lacto_RF$rfp$importance_w_pval),Lacto_RF$rfp$importance_w_pval)
 
 write.csv(TABLE_RF_SUMMARY_output,file=paste0(thesis_tables_directory,TABLE_RF_SUMMARY),row.names=F,quote=F)
-write.csv(dplyr::select(Clinical_Visit_RF$importance,-contains("BV")),file=paste0(thesis_tables_directory,TABLE_RF_SUMMARY.CV),row.names=T,quote=F)
 
 ##Store the top miRNAs for later use
 top_mirs_table<-data.frame(miRNA=Lacto_RF$top_features$top_features.all)
@@ -1375,7 +1374,7 @@ mir_go.wide.filtered.m$GO_only<-gsub(mir_go.wide.filtered.m$variable,pattern = "
 group_go_map<-read.csv(file=paste0(R_script_input_directory,"GO_Process_Grouping_Map.csv"))
 
 ## Join the map with the GO process summary table. Note that the map may contain more GO processes than the summary, due to slight changes in final miRNA list. 
-group_go_map<-merge(group_go_map,mir_go.wide.filtered.summary,all=T)
+group_go_map<-merge(group_go_map,mir_go.wide.filtered.summary)
 
 ## How many GO terms in each super group
 (group_freq<-data.frame(table(group_go_map$Group))) 
@@ -1496,7 +1495,6 @@ qPCR_time_course$ExposureTime.n<-as.numeric(gsub(qPCR_time_course$ExposureTime,p
 qPCR_time_course.summary$deltaCt.RNU6<-qPCR_time_course.summary$m_193b-qPCR_time_course.summary$m_R6
 qPCR_time_course.summary$deltaCt.RNU6.sd<-sqrt(qPCR_time_course.summary$sd_193b^2+qPCR_time_course.summary$sd_R6^2)
 
-dev.off()
 
 rm_rows<-qPCR_time_course.summary[is.na(qPCR_time_course.summary$sd_193b),c("ExposureTime","BCS")]
 qpcr_sigtest<-qpcr_sigtest[!(qpcr_sigtest$comparison %in% rm_rows$BCS & qpcr_sigtest$ExposureTime %in% rm_rows$ExposureTime),]
@@ -1698,7 +1696,7 @@ PLOT_SCRATCH.BETA<-
     mBio+
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
-  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
+  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
   scale_y_continuous(limits=c(0,102))
 
 ######
@@ -1764,7 +1762,7 @@ PLOT_EDU.BETA<-
   ylab("Epithelial Cells Positive for EdU (%)")+
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
-  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL)+
+  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
   scale_y_continuous(limits=c(0,102))
 
 ####New
@@ -1823,7 +1821,7 @@ paste0("Percent cell proliferation between 20% NYC-III and TSB bacterial culture
 
 ##FIXME no longer applicable with time course ddata
 ## Combine proliferation sig tests and write to file
-###proliferation_sigtests<-rbind(data.frame(Figure=gsub(FIGURE_SCRATCH_QUANT,replacement = "",pattern = ".eps"),scratch_sigtest),data.frame(Figure=gsub(FIGURE_EDU_QUANT,replacement = "",pattern = ".eps"),EdU_sigtest))
+##proliferation_sigtests<-rbind(data.frame(Figure=gsub(FIGURE_SCRATCH_QUANT,replacement = "",pattern = ".eps"),scratch_sigtest),data.frame(Figure=gsub(FIGURE_EDU_QUANT,replacement = "",pattern = ".eps"),EdU_sigtest))
 ###proliferation_sigtests<-proliferation_sigtests[with(proliferation_sigtests, order(Figure, x,xend)),]
 ###proliferation_sigtests<-dplyr::select(proliferation_sigtests,Figure,xref,reference,pval,mean_diff,sig)
 
@@ -1844,7 +1842,7 @@ cairo_ps(file=paste0(thesis_figures_directory,FIGURE_nyc_v_tsb),width = 8,height
 PLOT_nyc_v_tsb
 dev.off()
 
-####write.csv(proliferation_sigtests,file=paste0(thesis_tables_directory,TABLE_EDU_SCRATCH_QUANT),row.names = F)
+###write.csv(proliferation_sigtests,file=paste0(thesis_tables_directory,TABLE_EDU_SCRATCH_QUANT),row.names = F)
 
 ## PErcent proliferation in 1% DL lactic acid, ph buffered 7.66 expoed cells
 DL_PH766_percent_proliferation<-data.frame(DL_1pct_766=c(
@@ -2274,7 +2272,7 @@ dev.off()
 ```{r RNA_quality_quant}
 ## RIN Quality Distribition 
 TRL_RNA_Sample_QuantQual<-read.csv(paste0(R_script_input_directory,"TRL_RNA_Sample_Quality.csv"),header = F)
-postscript(paste0(thesis_figures_directory,FIGURE_TRL_RIN_HIST))
+#postscript(paste0(thesis_figures_directory,FIGURE_TRL_RIN_HIST))
 p<-ggplot(TRL_RNA_Sample_QuantQual,aes(x=V1))+geom_histogram()+xlab("RINe")+ylab("Number of Samples")+geom_vline(xintercept = median(TRL_RNA_Sample_QuantQual$V1),col='red')+mBio
 plot(p)
 dev.off()
@@ -2586,18 +2584,14 @@ pathway_zscores.medium.melt$ExposureTime<-factor(pathway_zscores.medium.melt$Exp
 pathway_zscores.medium.melt$x<-paste(pathway_zscores.medium.melt$comp,pathway_zscores.medium.melt$pathway)
 
 ##Clean up the pathway names for better plotting
-pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Role of IL-17F in Allergic Inflammatory Airway Diseases","pathway"]<-"IL-17F in Allgc. Inflam. Arwy Dis."
-pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Role of Pattern Recognition Receptors in Recognition of Bacteria and Viruses","pathway"]<-"PRRs/ Bacteria and Viruses"
-pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Production of Nitric Oxide and Reactive Oxygen Species in Macrophages","pathway"]<-"Production of NO and ROS in Macrophages"
-pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="PKCθ Signaling in T Lymphocytes","pathway"]<-"PKCθ Signaling"
-pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="PI3K Signaling in B Lymphocytes","pathway"]<-"PI3K Signaling"
+#pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Role of IL-17F in Allergic Inflammatory Airway Diseases","pathway"]<-"IL-17F in Allgc. Inflam. Arwy Dis."
+#pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Role of Pattern Recognition Receptors in Recognition of Bacteria and Viruses","pathway"]<-"PRRs/ Bacteria and Viruses"
+#pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="Production of Nitric Oxide and Reactive Oxygen Species in Macrophages","pathway"]<-"Production of NO and ROS in Macrophages"
+#pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="PKCθ Signaling in T Lymphocytes","pathway"]<-"PKCθ Signaling"
+#pathway_zscores.medium.melt[pathway_zscores.medium.melt$pathway=="PI3K Signaling in B Lymphocytes","pathway"]<-"PI3K Signaling"
 
-##Subset z-scores table by immune (proinflammatory) pathways or cell cycle pathways
-pathway_zscores.medium.melt.immune<-dplyr::filter(pathway_zscores.medium.melt,class %in% c("pro", "i"))
+##Subset z-scores table by cell cycle pathways
 pathway_zscores.medium.melt.cycle<-dplyr::filter(pathway_zscores.medium.melt,class %in% c("c"))
-
-##Write figures
-postscript(paste0(thesis_figures_directory,FIGURE_COMBINED_PATHWAYS_IMMUNE,".ps"),width=10,height=8)
 
 unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway)))
 paste0("Number of pathways belonging to each class:")
@@ -2675,30 +2669,6 @@ edgeR_results.melt<-merge(edgeR_results.melt,edgeR_results_colors)
 edgeR_results.melt<-merge(edgeR_results.melt,line_map)
 edgeR_results.melt<-merge(edgeR_results.melt,dplyr::select(Pathways_design,c(comp,L,ref)),all.x=T,by.x="comparison",by.y="comp")
 edgeR_results.melt$ExposureTime<-as.numeric(edgeR_results.melt$ExposureTime)
-
-
-## Format and plot the selected immune gene expression's logFC over the timecourse
-immune_genes<-c("IL6","CXCL8")
-immune_genes_expression<- dplyr::filter(edgeR_results.melt,gene %in% immune_genes &  ref=="M" ) ## Only include selected immune related genes vs. the cell culture medium reference
-immune_genes_expression<-unique(immune_genes_expression)
-immune_genes_expression<-spread(immune_genes_expression,key = value_type,value = value) ## This will make the logFC, FDR, and other DE attributes into colums for easier plotting. The plot will use logFC and FDR information
-immune_genes_expression[immune_genes_expression$Pvalue_adj<0.01,"DE.pval"]<-"*" ## Annotate which samples are DE by FDR
-immune_genes_expression$gene<-factor(immune_genes_expression$gene,levels = c("IL6","CXCL8"),ordered = T,labels = c("IL6","IL8")) ## Make plot consistent
-
-##Make plot
-long_plot.immune<-ggplot(immune_genes_expression)+geom_point(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=3)+
-  geom_line(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=2)+
-  facet_wrap(~gene,scales = "free_y",ncol =2)+theme_bw()+scale_color_manual(values = color_map)+
-  geom_hline(yintercept =0)+geom_hline(yintercept =c(-1,0,1),lty=2)+xlab("Exposure Time (hours)")+
-  geom_text(aes(x=as.numeric(ExposureTime),y=logFC,label=DE.pval),size=8)+
-    mBio+
-  ylab("log (Fold Change)")+scale_x_continuous(breaks=c(4,13,22))
-
-plot(long_plot.immune)
-
-cairo_ps(paste0(thesis_figures_directory,FIGURE_LONGITDUINAL_GENEEXP.immune),width = 8,height = 6)
-plot(long_plot.immune)
-dev.off()
 
 
 ## Format and plot the cell cycle pathway-related gene expression's logFC over the timecourse
