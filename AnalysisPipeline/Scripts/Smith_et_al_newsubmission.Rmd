@@ -131,7 +131,8 @@ color_scheme_BCS<- c("L. crispatus"= unname(subject_long_taxa_colors["Lactobacil
                      "0.06% L-lactic acid"="#f1b6da",
                      "0.06% D-lactic acid"="#b8e186",
                     # "0.1% DL-lactic acid"= "#b6daf1"
-                     "DL_10"= "#b6daf1"
+                     "DL_10"= "#b6daf1",
+                    "0.1% DL lactic acid" = "#b6daf1"
 ) 
 
 cst.colors<-c("I-A"="red1",
@@ -1640,14 +1641,14 @@ write.csv(qpcr_sigtests,file=paste0(thesis_tables_directory,TABLE_QPCR_TIMECOURS
 
 ###FIXME this should now be set up closert to qPCR given it is a time course
 
-
+#write.csv(in_vitro_experiments,"~/Desktop/inv.csv")
 ## Breadcrumb: 
 # In_Vitro_Experiments.Rdata in PreparePipeline/Prepare_EdU_Scratch.Rmd
 load(file=paste0(R_script_input_directory,"In_Vitro_Experiments.Rdata")) 
-
 ## Melt scratch assay data for easier handling
+table(paste(in_vitro_experiments$Treatment,in_vitro_experiments$ExposureTime))
 scratch.m<-filter(in_vitro_experiments,Experiment=="Scratch" & Observation == "Proliferation" & !grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_")) %>% dplyr::select(-c(Experiment,Coverslip)) 
-
+tail(in_vitro_experiments,n = 20)
 
 ## Re-name the melted data
 names(scratch.m)<-c("Observation","BCS","ExposureTime","percent_cells","Field")
@@ -1659,10 +1660,10 @@ names(scratch.m)<-c("Observation","BCS","ExposureTime","percent_cells","Field")
 
 #Factor BCS so that order is enforced
 ##FIXME some of this can be moved into the prepare script!
-scratch.m$BCS<-factor(scratch.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"))
+scratch.m$BCS<-factor(scratch.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"))
 scratch_sigtest.all<-data.frame(temp<-"NA")
 scratch.summary.all<-data.frame(temp<-"NA")
-for(et in c("8hr","13hr","16hr","19hr")){
+for(et in c("1hr","4hr","8hr","13hr","16hr","19hr","22hr")){
 ##FIXME this is sloppy
   ##Ignore sig tests for now since the plots are clearly sig... too many comparisons
   ## Create a significance testing data frame to hold results
@@ -1702,8 +1703,8 @@ PLOT_SCRATCH.BETA<-
     mBio+
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
-  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
-  scale_y_continuous(limits=c(0,102))
+  scale_x_continuous(breaks=c(1,4,8,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
+  scale_y_continuous(limits=c(1.05*min(scratch.summary.all$mean-scratch.summary.all$sd,na.rm = T),102))
 
 ######
 # 
@@ -1741,10 +1742,10 @@ EdU.m<-filter(in_vitro_experiments,Experiment=="Scratch" & Observation == "EdU")
 EdU.m<-rename(EdU.m,BCS=Treatment)
 
 #Factor BCS so that order is enforced
-EdU.m$BCS<-factor(EdU.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"))
+EdU.m$BCS<-factor(EdU.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"))
 EdU.m$percent_cells<-EdU.m$percent_cells+abs(rnorm(nrow(EdU.m),1E-3,0.01))
 statbars<-EdU_sigtest<-statbars2<-EdU.summary<-data.frame(temp="NA")
-for(et in c("8hr","13hr","16hr","19hr")){
+for(et in c("1hr","4hr","8hr","13hr","16hr","19hr","22hr")){
 ## Create a significance testing data frame to hold results
 setup_sigtest.data<-setup_sigtest(pval_threshold = pval_threshold,raw_data = dplyr::filter(EdU.m,ExposureTime==et),test_function = "t.test",Experiment = "Scratch")
 

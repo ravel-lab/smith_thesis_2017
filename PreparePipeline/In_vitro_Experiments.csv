@@ -457,3 +457,313 @@ Scratch,EdU,Cell Culture Medium,8hr,36.41618497,1,2
 Scratch,EdU,Cell Culture Medium,8hr,45,1,3
 Scratch,EdU,Cell Culture Medium,8hr,28.9893617,1,4
 Scratch,EdU,Cell Culture Medium,8hr,32.95774648,1,5
+Scratch,Proliferation,G. vaginalis,4hr,21.22314589,NA,1
+Scratch,Proliferation,G. vaginalis,4hr,21.07309374,NA,2
+Scratch,Proliferation,G. vaginalis,4hr,22.01797407,NA,3
+Scratch,Proliferation,G. vaginalis,4hr,19.02983048,NA,4
+Scratch,Proliferation,G. vaginalis,8hr,47.55286044,NA,1
+Scratch,Proliferation,G. vaginalis,8hr,46.2388135,NA,2
+Scratch,Proliferation,G. vaginalis,8hr,45.63562573,NA,3
+Scratch,Proliferation,G. vaginalis,8hr,43.34834111,NA,4
+Scratch,Proliferation,G. vaginalis,13hr,56.91116324,NA,1
+Scratch,Proliferation,G. vaginalis,13hr,58.40649381,NA,2
+Scratch,Proliferation,G. vaginalis,13hr,67.94662634,NA,3
+Scratch,Proliferation,G. vaginalis,13hr,63.48004762,NA,4
+Scratch,Proliferation,G. vaginalis,19hr,74.28545931,NA,1
+Scratch,Proliferation,G. vaginalis,19hr,75.22766974,NA,2
+Scratch,Proliferation,G. vaginalis,19hr,88.01822973,NA,3
+Scratch,Proliferation,G. vaginalis,19hr,82.21049985,NA,4
+Scratch,Proliferation,G. vaginalis,22hr,65.66168936,NA,1
+Scratch,Proliferation,G. vaginalis,22hr,77.71973271,NA,2
+Scratch,Proliferation,G. vaginalis,22hr,90.35816439,NA,3
+Scratch,Proliferation,G. vaginalis,22hr,84.24706173,NA,4
+Scratch,Proliferation,G. vaginalis,16hr,59.14251566,NA,1
+Scratch,Proliferation,G. vaginalis,16hr,65.5469186,NA,2
+Scratch,Proliferation,G. vaginalis,16hr,80.5979133,NA,3
+Scratch,Proliferation,G. vaginalis,16hr,76.31339584,NA,4
+Scratch,Proliferation,L. crispatus,4hr,-2.040916895,NA,1
+Scratch,Proliferation,L. crispatus,4hr,2.381759878,NA,2
+Scratch,Proliferation,L. crispatus,4hr,1.03645624,NA,3
+Scratch,Proliferation,L. crispatus,4hr,0.451836204,NA,4
+Scratch,Proliferation,L. crispatus,8hr,-1.16115832,NA,1
+Scratch,Proliferation,L. crispatus,8hr,3.242665911,NA,2
+Scratch,Proliferation,L. crispatus,8hr,0.780139493,NA,3
+Scratch,Proliferation,L. crispatus,8hr,1.226993865,NA,4
+Scratch,Proliferation,L. crispatus,13hr,1.329736534,NA,1
+Scratch,Proliferation,L. crispatus,13hr,2.759938832,NA,2
+Scratch,Proliferation,L. crispatus,13hr,2.064729073,NA,3
+Scratch,Proliferation,L. crispatus,13hr,1.819339294,NA,4
+Scratch,Proliferation,L. crispatus,16hr,3.428597515,NA,1
+Scratch,Proliferation,L. crispatus,16hr,3.027180004,NA,2
+Scratch,Proliferation,L. crispatus,16hr,0.280187036,NA,3
+Scratch,Proliferation,L. crispatus,16hr,2.936570469,NA,4
+Scratch,Proliferation,L. crispatus,19hr,5.442920745,NA,1
+Scratch,Proliferation,L. crispatus,19hr,4.530285391,NA,2
+Scratch,Proliferation,L. crispatus,19hr,3.047665617,NA,3
+Scratch,Proliferation,L. crispatus,19hr,3.164135717,NA,4
+Scratch,Proliferation,L. crispatus,22hr,9.272480807,NA,1
+Scratch,Proliferation,L. crispatus,22hr,4.331776692,NA,2
+Scratch,Proliferation,L. crispatus,22hr,3.056915538,NA,3
+Scratch,Proliferation,L. crispatus,22hr,-0.359577561,NA,4
+Scratch,Proliferation,L. iners,4hr,-3.119073914,NA,1
+Scratch,Proliferation,L. iners,4hr,0.434068659,NA,2
+Scratch,Proliferation,L. iners,4hr,-0.061465758,NA,3
+Scratch,Proliferation,L. iners,4hr,3.178568182,NA,4
+Scratch,Proliferation,L. iners,8hr,3.856232916,NA,1
+Scratch,Proliferation,L. iners,8hr,7.546051505,NA,2
+Scratch,Proliferation,L. iners,8hr,8.032091921,NA,3
+Scratch,Proliferation,L. iners,8hr,6.108601155,NA,4
+Scratch,Proliferation,L. iners,13hr,3.384129482,NA,1
+Scratch,Proliferation,L. iners,13hr,13.5352467,NA,2
+Scratch,Proliferation,L. iners,13hr,11.11218381,NA,3
+Scratch,Proliferation,L. iners,13hr,15.36479203,NA,4
+Scratch,Proliferation,L. iners,16hr,2.166760623,NA,1
+Scratch,Proliferation,L. iners,16hr,12.16390668,NA,2
+Scratch,Proliferation,L. iners,16hr,10.83192542,NA,3
+Scratch,Proliferation,L. iners,16hr,14.59931977,NA,4
+Scratch,Proliferation,L. iners,19hr,3.095628388,NA,1
+Scratch,Proliferation,L. iners,19hr,13.75052499,NA,2
+Scratch,Proliferation,L. iners,19hr,23.33924895,NA,3
+Scratch,Proliferation,L. iners,19hr,23.52776337,NA,4
+Scratch,Proliferation,L. iners,22hr,2.663862616,NA,1
+Scratch,Proliferation,L. iners,22hr,16.80537221,NA,2
+Scratch,Proliferation,L. iners,22hr,23.68126642,NA,3
+Scratch,Proliferation,L. iners,22hr,22.05303876,NA,4
+Scratch,Proliferation,L. jensenii,4hr,-0.566808568,NA,1
+Scratch,Proliferation,L. jensenii,4hr,0.672421543,NA,2
+Scratch,Proliferation,L. jensenii,4hr,1.699639027,NA,3
+Scratch,Proliferation,L. jensenii,4hr,-0.415261839,NA,4
+Scratch,Proliferation,L. jensenii,8hr,1.558950484,NA,1
+Scratch,Proliferation,L. jensenii,8hr,0.756034389,NA,2
+Scratch,Proliferation,L. jensenii,8hr,1.322181121,NA,3
+Scratch,Proliferation,L. jensenii,8hr,1.103885057,NA,4
+Scratch,Proliferation,L. jensenii,13hr,1.32297249,NA,1
+Scratch,Proliferation,L. jensenii,13hr,4.060310108,NA,2
+Scratch,Proliferation,L. jensenii,13hr,2.180354655,NA,3
+Scratch,Proliferation,L. jensenii,13hr,-2.992282798,NA,4
+Scratch,Proliferation,L. jensenii,16hr,3.355601204,NA,1
+Scratch,Proliferation,L. jensenii,16hr,-1.324557445,NA,2
+Scratch,Proliferation,L. jensenii,16hr,0.82679257,NA,3
+Scratch,Proliferation,L. jensenii,16hr,2.242632274,NA,4
+Scratch,Proliferation,L. jensenii,19hr,1.862228702,NA,1
+Scratch,Proliferation,L. jensenii,19hr,2.620462693,NA,2
+Scratch,Proliferation,L. jensenii,19hr,0.772862599,NA,3
+Scratch,Proliferation,L. jensenii,19hr,6.234943797,NA,4
+Scratch,Proliferation,L. jensenii,22hr,4.8728524,NA,1
+Scratch,Proliferation,L. jensenii,22hr,7.729664603,NA,2
+Scratch,Proliferation,L. jensenii,22hr,0.212077774,NA,3
+Scratch,Proliferation,L. jensenii,22hr,3.644032094,NA,4
+Scratch,Proliferation,Cell Culture Medium,4hr,16.74208044,NA,1
+Scratch,Proliferation,Cell Culture Medium,4hr,29.04429289,NA,2
+Scratch,Proliferation,Cell Culture Medium,4hr,34.44392634,NA,3
+Scratch,Proliferation,Cell Culture Medium,4hr,22.46562348,NA,4
+Scratch,Proliferation,Cell Culture Medium,8hr,25.48907503,NA,1
+Scratch,Proliferation,Cell Culture Medium,8hr,52.7033063,NA,2
+Scratch,Proliferation,Cell Culture Medium,8hr,61.12247501,NA,3
+Scratch,Proliferation,Cell Culture Medium,8hr,34.98128906,NA,4
+Scratch,Proliferation,Cell Culture Medium,13hr,48.49633843,NA,1
+Scratch,Proliferation,Cell Culture Medium,13hr,55.81111042,NA,2
+Scratch,Proliferation,Cell Culture Medium,13hr,77.94160809,NA,3
+Scratch,Proliferation,Cell Culture Medium,13hr,59.10087391,NA,4
+Scratch,Proliferation,Cell Culture Medium,16hr,51.22768341,NA,1
+Scratch,Proliferation,Cell Culture Medium,16hr,64.84198253,NA,2
+Scratch,Proliferation,Cell Culture Medium,16hr,79.90968753,NA,3
+Scratch,Proliferation,Cell Culture Medium,16hr,64.99582664,NA,4
+Scratch,Proliferation,Cell Culture Medium,19hr,57.54326658,NA,1
+Scratch,Proliferation,Cell Culture Medium,19hr,77.10302184,NA,2
+Scratch,Proliferation,Cell Culture Medium,19hr,83.46740954,NA,3
+Scratch,Proliferation,Cell Culture Medium,19hr,73.21899027,NA,4
+Scratch,Proliferation,Cell Culture Medium,22hr,58.17914153,NA,1
+Scratch,Proliferation,Cell Culture Medium,22hr,77.870028,NA,2
+Scratch,Proliferation,Cell Culture Medium,22hr,86.19217038,NA,3
+Scratch,Proliferation,Cell Culture Medium,22hr,76.24012427,NA,4
+Scratch,Proliferation,0.1% DL lactic acid,4hr,2.101407844,NA,1
+Scratch,Proliferation,0.1% DL lactic acid,4hr,1.976757663,NA,2
+Scratch,Proliferation,0.1% DL lactic acid,4hr,3.893455599,NA,3
+Scratch,Proliferation,0.1% DL lactic acid,4hr,2.665704038,NA,4
+Scratch,Proliferation,0.1% DL lactic acid,8hr,-4.349049304,NA,1
+Scratch,Proliferation,0.1% DL lactic acid,8hr,7.788970235,NA,2
+Scratch,Proliferation,0.1% DL lactic acid,8hr,2.43313895,NA,3
+Scratch,Proliferation,0.1% DL lactic acid,8hr,3.397955457,NA,4
+Scratch,Proliferation,0.1% DL lactic acid,13hr,2.711607402,NA,1
+Scratch,Proliferation,0.1% DL lactic acid,13hr,4.536296385,NA,2
+Scratch,Proliferation,0.1% DL lactic acid,13hr,1.99757788,NA,3
+Scratch,Proliferation,0.1% DL lactic acid,13hr,1.189505604,NA,4
+Scratch,Proliferation,0.1% DL lactic acid,16hr,-0.246845402,NA,1
+Scratch,Proliferation,0.1% DL lactic acid,16hr,3.145816311,NA,2
+Scratch,Proliferation,0.1% DL lactic acid,16hr,3.972330901,NA,3
+Scratch,Proliferation,0.1% DL lactic acid,16hr,2.447724964,NA,4
+Scratch,Proliferation,0.1% DL lactic acid,22hr,3.053301343,NA,1
+Scratch,Proliferation,0.1% DL lactic acid,22hr,3.973297912,NA,2
+Scratch,Proliferation,0.1% DL lactic acid,22hr,8.253898352,NA,3
+Scratch,Proliferation,0.1% DL lactic acid,22hr,2.101216154,NA,4
+Scratch,Proliferation,0.1% DL lactic acid,19hr,0.458954607,NA,1
+Scratch,Proliferation,0.1% DL lactic acid,19hr,3.090807341,NA,2
+Scratch,Proliferation,0.1% DL lactic acid,19hr,5.954280466,NA,3
+Scratch,Proliferation,0.1% DL lactic acid,19hr,1.810454819,NA,4
+Scratch,Proliferation,G. vaginalis,1hr,3.317766355,NA,1
+Scratch,Proliferation,G. vaginalis,1hr,-0.309703101,NA,2
+Scratch,Proliferation,G. vaginalis,1hr,10.74908031,NA,3
+Scratch,Proliferation,L. crispatus,1hr,-1.524723835,NA,1
+Scratch,Proliferation,L. crispatus,1hr,0.60157506,NA,2
+Scratch,Proliferation,L. crispatus,1hr,-7.141789625,NA,3
+Scratch,Proliferation,L. crispatus,1hr,2.68246151,NA,4
+Scratch,Proliferation,L. iners,1hr,0.162945508,NA,1
+Scratch,Proliferation,L. iners,1hr,0.924235768,NA,2
+Scratch,Proliferation,L. iners,1hr,-1.276801173,NA,3
+Scratch,Proliferation,L. iners,1hr,1.634652248,NA,4
+Scratch,Proliferation,L. jensenii,1hr,1.695800301,NA,1
+Scratch,Proliferation,L. jensenii,1hr,-0.914190093,NA,2
+Scratch,Proliferation,L. jensenii,1hr,2.74251855,NA,3
+Scratch,Proliferation,L. jensenii,1hr,1.163093093,NA,4
+Scratch,Proliferation,Cell Culture Medium,1hr,-3.181487332,NA,1
+Scratch,Proliferation,Cell Culture Medium,1hr,-1.625338704,NA,2
+Scratch,Proliferation,Cell Culture Medium,1hr,-7.3841709,NA,3
+Scratch,Proliferation,0.1% DL lactic acid,1hr,-0.555252991,NA,1
+Scratch,Proliferation,0.1% DL lactic acid,1hr,4.128057664,NA,2
+Scratch,Proliferation,0.1% DL lactic acid,1hr,-0.267165395,NA,3
+Scratch,EdU,0.1% DL lactic acid,0.5hr,0.743494424,1,1
+Scratch,EdU,0.1% DL lactic acid,0.5hr,2.109704641,1,2
+Scratch,EdU,0.1% DL lactic acid,0.5hr,0,1,3
+Scratch,EdU,0.1% DL lactic acid,0.5hr,0.325732899,1,4
+Scratch,EdU,0.1% DL lactic acid,0.5hr,0.732600733,1,5
+Scratch,EdU,0.1% DL lactic acid,16hr,0,1,1
+Scratch,EdU,0.1% DL lactic acid,16hr,5,1,2
+Scratch,EdU,0.1% DL lactic acid,16hr,0,1,3
+Scratch,EdU,0.1% DL lactic acid,16hr,0,1,4
+Scratch,EdU,0.1% DL lactic acid,16hr,0,1,5
+Scratch,EdU,0.1% DL lactic acid,1hr,0.337837838,1,1
+Scratch,EdU,0.1% DL lactic acid,1hr,0.302114804,1,2
+Scratch,EdU,0.1% DL lactic acid,1hr,1.242236025,1,3
+Scratch,EdU,0.1% DL lactic acid,1hr,1.84501845,1,4
+Scratch,EdU,0.1% DL lactic acid,1hr,0.574712644,1,5
+Scratch,EdU,0.1% DL lactic acid,22hr,16.46341463,1,1
+Scratch,EdU,0.1% DL lactic acid,22hr,8.086253369,1,2
+Scratch,EdU,0.1% DL lactic acid,22hr,19.11357341,1,3
+Scratch,EdU,0.1% DL lactic acid,22hr,17.05882353,1,4
+Scratch,EdU,0.1% DL lactic acid,22hr,19.57186544,1,5
+Scratch,EdU,0.1% DL lactic acid,4hr,1.840490798,1,1
+Scratch,EdU,0.1% DL lactic acid,4hr,9.649122807,1,2
+Scratch,EdU,0.1% DL lactic acid,4hr,5.078125,1,3
+Scratch,EdU,0.1% DL lactic acid,4hr,5.263157895,1,4
+Scratch,EdU,0.1% DL lactic acid,4hr,2.916666667,1,5
+Scratch,EdU,0.1% DL lactic acid,8hr,8.301886792,1,1
+Scratch,EdU,0.1% DL lactic acid,8hr,7.118644068,1,2
+Scratch,EdU,0.1% DL lactic acid,8hr,4.453441296,1,3
+Scratch,EdU,0.1% DL lactic acid,8hr,4.06504065,1,4
+Scratch,EdU,0.1% DL lactic acid,8hr,3.618421053,1,5
+Scratch,EdU,Cell Culture Medium,13hr,13.28125,1,1
+Scratch,EdU,Cell Culture Medium,13hr,7.56302521,1,2
+Scratch,EdU,Cell Culture Medium,13hr,9.090909091,1,3
+Scratch,EdU,Cell Culture Medium,13hr,17.24137931,1,4
+Scratch,EdU,Cell Culture Medium,13hr,15.96638655,1,5
+Scratch,EdU,0.1% DL lactic acid,13hr,0,1,1
+Scratch,EdU,0.1% DL lactic acid,13hr,0,1,2
+Scratch,EdU,0.1% DL lactic acid,13hr,0,1,3
+Scratch,EdU,0.1% DL lactic acid,13hr,0,1,4
+Scratch,EdU,0.1% DL lactic acid,13hr,0,1,5
+Scratch,EdU,CONTROL_NYCmed_20pct,13hr,5.970149254,1,1
+Scratch,EdU,CONTROL_NYCmed_20pct,13hr,2.105263158,1,2
+Scratch,EdU,CONTROL_NYCmed_20pct,13hr,11.53846154,1,3
+Scratch,EdU,CONTROL_NYCmed_20pct,13hr,3.797468354,1,4
+Scratch,EdU,CONTROL_NYCmed_20pct,13hr,3.488372093,1,5
+Scratch,EdU,CONTROL_TSBmed_20pct,13hr,4.545454545,1,1
+Scratch,EdU,CONTROL_TSBmed_20pct,13hr,7.25388601,1,2
+Scratch,EdU,CONTROL_TSBmed_20pct,13hr,8.8,1,3
+Scratch,EdU,CONTROL_TSBmed_20pct,13hr,5.434782609,1,4
+Scratch,EdU,CONTROL_TSBmed_20pct,13hr,5.128205128,1,5
+Scratch,EdU,Cell Culture Medium,16hr,13.23529412,1,1
+Scratch,EdU,Cell Culture Medium,16hr,7.317073171,1,2
+Scratch,EdU,Cell Culture Medium,16hr,25.49019608,1,3
+Scratch,EdU,Cell Culture Medium,16hr,28.77697842,1,4
+Scratch,EdU,Cell Culture Medium,16hr,20.37037037,1,5
+Scratch,EdU,0.1% DL lactic acid,16hr,1.724137931,1,1
+Scratch,EdU,0.1% DL lactic acid,16hr,2.325581395,1,2
+Scratch,EdU,0.1% DL lactic acid,16hr,2.105263158,1,3
+Scratch,EdU,0.1% DL lactic acid,16hr,1.52284264,1,4
+Scratch,EdU,0.1% DL lactic acid,16hr,0.724637681,1,5
+Scratch,EdU,Cell Culture Medium,19hr,14.41860465,1,1
+Scratch,EdU,Cell Culture Medium,19hr,16.56441718,1,2
+Scratch,EdU,Cell Culture Medium,19hr,25.17006803,1,3
+Scratch,EdU,Cell Culture Medium,19hr,13.18681319,1,4
+Scratch,EdU,Cell Culture Medium,19hr,19.01408451,1,5
+Scratch,EdU,0.1% DL lactic acid,19hr,3.448275862,1,1
+Scratch,EdU,0.1% DL lactic acid,19hr,4.191616766,1,2
+Scratch,EdU,0.1% DL lactic acid,19hr,7.692307692,1,3
+Scratch,EdU,0.1% DL lactic acid,19hr,9.649122807,1,4
+Scratch,EdU,0.1% DL lactic acid,19hr,4.294478528,1,5
+Scratch,EdU,Cell Culture Medium,1hr,0,1,1
+Scratch,EdU,Cell Culture Medium,1hr,0,1,2
+Scratch,EdU,Cell Culture Medium,1hr,0,1,3
+Scratch,EdU,Cell Culture Medium,1hr,0,1,4
+Scratch,EdU,Cell Culture Medium,1hr,0,1,5
+Scratch,EdU,G. vaginalis,1hr,0,1,1
+Scratch,EdU,G. vaginalis,1hr,0,1,2
+Scratch,EdU,G. vaginalis,1hr,0,1,3
+Scratch,EdU,G. vaginalis,1hr,0,1,4
+Scratch,EdU,G. vaginalis,1hr,0,1,5
+Scratch,EdU,L. crispatus,1hr,0,1,1
+Scratch,EdU,L. crispatus,1hr,0,1,2
+Scratch,EdU,L. crispatus,1hr,0,1,3
+Scratch,EdU,L. crispatus,1hr,0,1,4
+Scratch,EdU,L. crispatus,1hr,0,1,5
+Scratch,EdU,L. iners,1hr,0,1,1
+Scratch,EdU,L. iners,1hr,0,1,2
+Scratch,EdU,L. iners,1hr,0,1,3
+Scratch,EdU,L. iners,1hr,0,1,4
+Scratch,EdU,L. iners,1hr,0,1,5
+Scratch,EdU,L. jensenii,1hr,0,1,1
+Scratch,EdU,L. jensenii,1hr,0,1,2
+Scratch,EdU,L. jensenii,1hr,0,1,3
+Scratch,EdU,L. jensenii,1hr,0,1,4
+Scratch,EdU,L. jensenii,1hr,0,1,5
+Scratch,EdU,Cell Culture Medium,22hr,20.18779343,1,1
+Scratch,EdU,Cell Culture Medium,22hr,16.78321678,1,2
+Scratch,EdU,Cell Culture Medium,22hr,20.94240838,1,3
+Scratch,EdU,Cell Culture Medium,22hr,11.45833333,1,4
+Scratch,EdU,Cell Culture Medium,22hr,19.07894737,1,5
+Scratch,EdU,G. vaginalis,22hr,7.954545455,1,1
+Scratch,EdU,G. vaginalis,22hr,14.41441441,1,2
+Scratch,EdU,G. vaginalis,22hr,15.85365854,1,3
+Scratch,EdU,G. vaginalis,22hr,17.24137931,1,4
+Scratch,EdU,G. vaginalis,22hr,5.298013245,1,5
+Scratch,EdU,L. crispatus,22hr,0,1,1
+Scratch,EdU,L. crispatus,22hr,0,1,2
+Scratch,EdU,L. crispatus,22hr,0,1,3
+Scratch,EdU,L. crispatus,22hr,0,1,4
+Scratch,EdU,L. crispatus,22hr,0,1,5
+Scratch,EdU,L. iners,22hr,3.03030303,1,1
+Scratch,EdU,L. iners,22hr,1.395348837,1,2
+Scratch,EdU,L. iners,22hr,3.738317757,1,3
+Scratch,EdU,L. iners,22hr,1.851851852,1,4
+Scratch,EdU,L. iners,22hr,1.01010101,1,5
+Scratch,EdU,L. jensenii,22hr,0.934579439,1,1
+Scratch,EdU,L. jensenii,22hr,0,1,2
+Scratch,EdU,L. jensenii,22hr,0,1,3
+Scratch,EdU,L. jensenii,22hr,0,1,4
+Scratch,EdU,L. jensenii,22hr,1.020408163,1,5
+Scratch,EdU,Cell Culture Medium,4hr,9.090909091,1,1
+Scratch,EdU,Cell Culture Medium,4hr,13.40206186,1,2
+Scratch,EdU,Cell Culture Medium,4hr,3.409090909,1,3
+Scratch,EdU,Cell Culture Medium,4hr,6.756756757,1,4
+Scratch,EdU,Cell Culture Medium,4hr,1.369863014,1,5
+Scratch,EdU,G. vaginalis,4hr,2.197802198,1,1
+Scratch,EdU,G. vaginalis,4hr,0.746268657,1,2
+Scratch,EdU,G. vaginalis,4hr,1.219512195,1,3
+Scratch,EdU,G. vaginalis,4hr,1.075268817,1,4
+Scratch,EdU,G. vaginalis,4hr,0.578034682,1,5
+Scratch,EdU,L. crispatus,4hr,0,1,1
+Scratch,EdU,L. crispatus,4hr,0,1,2
+Scratch,EdU,L. crispatus,4hr,0,1,3
+Scratch,EdU,L. crispatus,4hr,0,1,4
+Scratch,EdU,L. crispatus,4hr,0,1,5
+Scratch,EdU,L. iners,4hr,0.591715976,1,1
+Scratch,EdU,L. iners,4hr,0.724637681,1,2
+Scratch,EdU,L. iners,4hr,1.923076923,1,3
+Scratch,EdU,L. iners,4hr,0,1,4
+Scratch,EdU,L. iners,4hr,0,1,5
+Scratch,EdU,L. jensenii,4hr,0,1,1
+Scratch,EdU,L. jensenii,4hr,0,1,2
+Scratch,EdU,L. jensenii,4hr,0,1,3
+Scratch,EdU,L. jensenii,4hr,0,1,4
+Scratch,EdU,L. jensenii,4hr,0,1,5
