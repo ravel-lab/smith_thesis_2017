@@ -1646,9 +1646,8 @@ write.csv(qpcr_sigtests,file=paste0(thesis_tables_directory,TABLE_QPCR_TIMECOURS
 # In_Vitro_Experiments.Rdata in PreparePipeline/Prepare_EdU_Scratch.Rmd
 load(file=paste0(R_script_input_directory,"In_Vitro_Experiments.Rdata")) 
 ## Melt scratch assay data for easier handling
-table(paste(in_vitro_experiments$Treatment,in_vitro_experiments$ExposureTime))
+write.csv(table(paste(in_vitro_experiments$Experiment,in_vitro_experiments$Observation,in_vitro_experiments$Treatment,in_vitro_experiments$ExposureTime)),"~/Desktop/tab.csv")
 scratch.m<-filter(in_vitro_experiments,Experiment=="Scratch" & Observation == "Proliferation" & !grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_")) %>% dplyr::select(-c(Experiment,Coverslip)) 
-tail(in_vitro_experiments,n = 20)
 
 ## Re-name the melted data
 names(scratch.m)<-c("Observation","BCS","ExposureTime","percent_cells","Field")
