@@ -154,7 +154,9 @@ qPCR_time_course<-select(qPCR_time_course,c(Study,BCS,ExposureTime,miR193b_Ct,RN
 qPCR_time_course<-filter(qPCR_time_course,!ExposureTime=="SP")
 qPCR_time_course<-filter(qPCR_time_course,!(Study=="study_2" & BCS %in% c("L. crispatus", "L. iners")))
 qPCR_time_course<-filter(qPCR_time_course,!BCS=="0_06_DL")
+qPCR_time_course<-filter(qPCR_time_course,!(BCS=="DL_10" & ExposureTime=="0.5hr"))
 qPCR_time_course
+
 
 save(qPCR_time_course,file=paste0(final_dir,"qPCR_time_course.Rdata"))
 #save(qPCR_time_course,file=paste0(root,"qPCR_time_course.Rdata"))
@@ -185,6 +187,7 @@ qpcr_sigtest[qpcr_sigtest$reference=="L. jensenii" & qpcr_sigtest$ExposureTime %
 qpcr_sigtest[ grepl(qpcr_sigtest$comparison,pattern = "0_06") ,  c("Study.comp","Study.ref")]<-"LA"
 qpcr_sigtest<-rbind(qpcr_sigtest,data.frame(comparison=c("D_10","D_10","D_10","L_10","L_10","PH_766","PH_766"),reference=c("L_10","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium"),ExposureTime="4hr",Study.comp="study_4",Study.ref=c("study_4","study_3","study_3","study_3","study_3","study_3","study_3")))
 qpcr_sigtest[qpcr_sigtest$ExposureTime %in% c("8hr","16hr","19hr") & !qpcr_sigtest$comparison=="DL_10" ,c("Study.ref","Study.comp")]<-"study_5"
+qpcr_sigtest<-qpcr_sigtest[!(qpcr_sigtest$ExposureTime=="0.5hr" & qpcr_sigtest$comparison=="DL_10"),]
 
 save(qpcr_sigtest,file=paste0(final_dir,"qpcr_sigtest.Rdata"))
   

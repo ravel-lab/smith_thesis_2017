@@ -1737,14 +1737,16 @@ PLOT_EDU<-
   ylab("Epithelial Cells Positive for EdU (%)")+
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
-  scale_x_continuous(breaks=c(0.5,1,4,8,11,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
-  scale_y_continuous(limits=c(0,102))
+  scale_x_continuous(breaks=c(1,4,8,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
+  scale_y_continuous(limits=c(1.1*min(EdU.summary$mean-EdU.summary$sd,na.rm = T),102))
 
 ##Write plot
 
 cairo_ps(paste0(thesis_figures_directory,FIGURE_EDU_QUANT),width = 8,height = 5.5)
 plot(PLOT_EDU)
 dev.off()
+
+#ggplot(read.table("~/test",header = T,sep = "\t"),aes(x=t,y=pct,col=bcs))+geom_line()
 
 ## Scratch assay data for TSB and NYC media exposed cells 
 control_meds<-filter(in_vitro_experiments,grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_"))
@@ -1803,6 +1805,9 @@ mean(DL_PH766_percent_proliferation$DL_1pct_766)
 sd(DL_PH766_percent_proliferation$DL_1pct_766)
 t.test(x = scratch.m[scratch.m$BCS=="Cell Culture Medium","percent_cells"],y = DL_PH766_percent_proliferation$DL_1pct_766)
 t.test(x = scratch.m[scratch.m$BCS=="G. vaginalis","percent_cells"],y = DL_PH766_percent_proliferation$DL_1pct_766)
+
+
+
 
 ```
 
