@@ -181,6 +181,7 @@ FIGURE_SCRATCH_QUANT<-"FIGURE_4_C.eps"
 ## Scratch & EdU on same figure? 13h scratch & EdU microscopy (A, B) and quants (C, D) as bar graphs
 FIGURE_CT_INFECT_QUANT<-"Figure_4_G.eps"
 FIGURE_CT_EDU_QUANT<-"Figure_4_F.eps"
+FIGURE_WESTERN_QUANT<-"Figure_4_H.eps"
 
 FIGURE_COMBINED_PATHWAYS_CYCLE<-"Figure_5.eps"
 FIGURE_LONGITDUINAL_GENEEXP.cycle<-"Figure_6.eps"
@@ -1660,8 +1661,9 @@ names(scratch.m)<-c("Observation","BCS","ExposureTime","percent_cells","Field")
 #Factor BCS so that order is enforced
 ##FIXME some of this can be moved into the prepare script!
 scratch.m$BCS<-factor(scratch.m$BCS,ordered = T,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"))
-scratch_sigtest.all<-data.frame(temp<-"NA")
-scratch.summary.all<-data.frame(temp<-"NA")
+scratch_sigtest.all<-data.frame(temp="NA")
+scratch.summary.all<-data.frame(temp="NA")
+
 for(et in c("1hr","4hr","8hr","13hr","16hr","19hr","22hr")){
 ##FIXME this is sloppy
   ##Ignore sig tests for now since the plots are clearly sig... too many comparisons
@@ -1684,7 +1686,7 @@ PLOT_SCRATCH<-
          aes(x=ExposureTime.n,y=mean,col=BCS))+
   theme_bw()+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
-  geom_line(size=1.5,show.legend = F)+ 
+  geom_line(size=1.5,show.legend = T)+ 
   geom_errorbar(aes(ymax=mean+sd,ymin=mean-sd),size=1,width=.5,show.legend = F)+
   geom_point(size=6,show.legend = F)+ 
   ylab("Filled Scratch Area (%)")+
@@ -1730,7 +1732,7 @@ PLOT_EDU<-
          aes(x=ExposureTime,y=mean,col=BCS))+
   theme_bw()+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
-  geom_line(size=1.5,show.legend = F)+ 
+  geom_line(size=1.5,show.legend = T)+ 
   geom_errorbar(aes(ymax=mean+sd,ymin=mean-sd),size=1,width=.5,show.legend = F)+
   geom_point(size=6,show.legend = F)+ 
        mBio+
@@ -1746,47 +1748,75 @@ cairo_ps(paste0(thesis_figures_directory,FIGURE_EDU_QUANT),width = 8,height = 5.
 plot(PLOT_EDU)
 dev.off()
 
-#ggplot(read.table("~/test",header = T,sep = "\t"),aes(x=t,y=pct,col=bcs))+geom_line()
-
-## Scratch assay data for TSB and NYC media exposed cells 
-control_meds<-filter(in_vitro_experiments,grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_"))
-control_meds.summary<-ddply(control_meds,c("Observation","Treatment"),summarise,mean=mean(percent_cells),sd=sd(percent_cells))
-#control_meds.nyc.mean<-mean(control_meds[control_meds$Treatment=="CONTROL_NYCmed_20pct","percent_cells"])
-#control_meds.tsb.mean<-mean(control_meds[control_meds$Treatment=="CONTROL_TSBmed_20pct","percent_cells"])
-
-#control_meds.nyc.sd<-sd(control_meds[control_meds$Treatment=="CONTROL_NYCmed_20pct","percent_cells"])
-#control_meds.tsb.sd<-sd(control_meds[control_meds$Treatment=="CONTROL_TSBmed_20pct","percent_cells"])
-
-#control_meds.sig<-t.test(x=filter(control_meds,Treatment=="CONTROL_NYCmed_20pct")[,"percent_cells"],y =filter(control_meds,Treatment=="CONTROL_TSBmed_20pct")[,"percent_cells"],paired = F)
-control_meds.sig.edu<-t.test(x=filter(control_meds,Observation=="EdU" & Treatment=="CONTROL_NYCmed_20pct")[,"percent_cells"],y =filter(control_meds,Observation=="EdU" & Treatment=="CONTROL_TSBmed_20pct")[,"percent_cells"],paired = F)
-control_meds.sig.scratch<-t.test(x=filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_NYCmed_20pct")[,"percent_cells"],y =filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_TSBmed_20pct")[,"percent_cells"],paired = F)
-
 ##FIXME
-paste0("Percent cell proliferation between 20% NYC-III and TSB bacterial culture media as evaluated by scratch assay and EdU was not significant (mean +/- standard deviation NYC-III scratch area filled=",control_meds.summary)#control_meds.nyc.mean,"% +/- ",control_meds.nyc.sd,"%, mean +/- standard deviation TSB  cell proliferation=,",control_meds.tsb.mean,"% +/- ",control_meds.tsb.sd,"%, p=",control_meds.sig$p.value,")")
+
+
+
+bcs_media_sigtest.all<-data.frame(temp="NA")
+bcs_media_summary.all<-data.frame(temp="NA")
+bcs_media<-dplyr::filter(in_vitro_experiments,Treatment %in% c("CONTROL_NYCmed_20pct","CONTROL_TSBmed_20pct"))# %>% dplyr::select(-c(Experiment)) 
+bcs_media<-rename(bcs_media,BCS=Treatment)
+
+control_meds.sig.migration_p.value<-t.test(dplyr::filter(bcs_media,Observation=="Proliferation" & BCS=="CONTROL_NYCmed_20pct")$percent_cells,
+       dplyr::filter(bcs_media,Observation=="Proliferation" & BCS=="CONTROL_TSBmed_20pct")$percent_cells,alternative = "two.sided",paired = F)
+
+control_meds.sig.edu_p.value<-t.test(dplyr::filter(bcs_media,Observation=="EdU" & BCS=="CONTROL_NYCmed_20pct")$percent_cells,
+       dplyr::filter(bcs_media,Observation=="EdU" & BCS=="CONTROL_TSBmed_20pct")$percent_cells,alternative = "two.sided",paired = F)
+
+control_meds.summary<-ddply(bcs_media,c("Observation","BCS"),summarise,mean=mean(percent_cells),sd=sd(percent_cells))
+
+NYC.Migration<-dplyr::filter(control_meds.summary,Observation=="Proliferation" & BCS=="CONTROL_NYCmed_20pct")
+NYC.EdU<-dplyr::filter(control_meds.summary,Observation=="EdU" & BCS=="CONTROL_NYCmed_20pct")
+TSB.Migration<-dplyr::filter(control_meds.summary,Observation=="Proliferation" & BCS=="CONTROL_TSBmed_20pct")
+TSB.EdU<-dplyr::filter(control_meds.summary,Observation=="EdU" & BCS=="CONTROL_TSBmed_20pct")
+
+paste0("Percent cell proliferation between 20% NYC-III and TSB bacterial culture media as evaluated by scratch assay and EdU was not significant (scratch area filled p=",
+       #(mean +/- standard deviation NYC-III scratch area filled",
+       #NYC.Migration$mean,
+       #"% +/- ",
+       #NYC.Migration$sd,
+       #"%, mean +/- standard deviation TSB  cratch area filled=,",
+       #TSB.Migration$mean,
+       #"% +/- ",
+      #  TSB.Migration$sd,
+       #"%,
+       control_meds.sig.migration_p.value$p.value,
+       #"(mean +/- standard deviation NYC-III scratch area filled=",
+       #NYC.EdU$mean,
+       #"% +/- ",
+       #NYC.EdU$sd,
+       #"%, mean +/- standard deviation TSB  cratch area filled=,",
+       #TSB.EdU$mean,
+       #"% +/- ",
+       #TSB.EdU$sd,
+       #"%, 
+      ", percent EdU p=",
+       control_meds.sig.edu_p.value$p.value,")")
 
 
 ##FIXME no longer applicable with time course ddata
 ## Combine proliferation sig tests and write to file
-##proliferation_sigtests<-rbind(data.frame(Figure=gsub(FIGURE_SCRATCH_QUANT,replacement = "",pattern = ".eps"),scratch_sigtest),data.frame(Figure=gsub(FIGURE_EDU_QUANT,replacement = "",pattern = ".eps"),EdU_sigtest))
-###proliferation_sigtests<-proliferation_sigtests[with(proliferation_sigtests, order(Figure, x,xend)),]
-###proliferation_sigtests<-dplyr::select(proliferation_sigtests,Figure,xref,reference,pval,mean_diff,sig)
+proliferation_sigtests<-rbind(data.frame(Figure=gsub(FIGURE_SCRATCH_QUANT,replacement = "",pattern = ".eps"),scratch_sigtest.all),data.frame(Figure=gsub(FIGURE_EDU_QUANT,replacement = "",pattern = ".eps"),EdU_sigtest))
+proliferation_sigtests<-proliferation_sigtests[with(proliferation_sigtests, order(Figure, x,xend)),]
+proliferation_sigtests<-dplyr::select(proliferation_sigtests,Figure,xref,reference,ExposureTime,pval,mean_diff,sig)
 
-###proliferation_sigtests<-rbind(proliferation_sigtests,data.frame(Figure="FIGURE_S5",xref="TSB",reference="NYC",pval=control_meds.sig$p.value,mean_diff=unname(control_meds.sig$estimate[2]-control_meds.sig$estimate[1]),sig=ifelse(control_meds.sig$p.value<pval_threshold,"*","N.S.")))
+proliferation_sigtests<-rbind(proliferation_sigtests,data.frame(Figure="FIGURE_S5",xref="TSB",reference="NYC",pval=control_meds.sig$p.value,mean_diff=unname(control_meds.sig$estimate[2]-control_meds.sig$estimate[1]),sig=ifelse(control_meds.sig$p.value<pval_threshold,"*","N.S.")))
 
-##FIXME - need an EdU and scratch. 
-PLOT_nyc_v_tsb.scratch<-ggplot(data.frame(media=c("NYC (Lactobacillus spp.)","TSB (G. vaginalis)"),scratch.mean=c(
-  dplyr::filter(control_meds.summary,Observation=="Proliferation",Treatment=="CONTROL_NYCmed_20pct")$mean,
-  dplyr::filter(control_meds.summary,Observation=="Proliferation",Treatment=="CONTROL_TSBmed_20pct")$mean),
-  scratch.sd=c(control_meds.nyc.sd,
-               control_meds.tsb.sd)))+
-  geom_bar(aes(x=media,y=scratch.mean,fill=media),stat="identity",show.legend =F)+
-  geom_errorbar(aes(x=media,ymax=scratch.mean+scratch.sd,ymin=scratch.mean-scratch.sd),width=.2)+
-  mBio+ylab("Percent Scratch Area Filled")+
+setup_sigtest(pval_threshold = pval_threshold,raw_data = dplyr::filter(control_meds,ExposureTime==et,Observation=="Proliferation"),test_function = "t.test",Experiment = "Scratch")
+
+
+##FIXME- rename proliferation to migration and EdU to proliferation
+control_meds.summary$Observation<-factor(control_meds.summary$Observation,levels = c("Proliferation","EdU"),labels=c("Migration (scratch)","Proliferation (EdU)"),ordered = T)
+PLOT_nyc_v_tsb<-ggplot(control_meds.summary)+
+  geom_bar(aes(x=Treatment,y=mean,fill=Treatment),stat="identity",show.legend =F)+
+  geom_errorbar(aes(x=Treatment,ymax=mean+sd,ymin=mean-sd),width=.2)+
+  mBio+ylab("Percent scratch area filled | Percent cells EdU")+
   xlab("VK2 Cell Culture Medium + 20% Bacterial Culture Medium")+
   scale_y_continuous(limits=c(0,100))+
   annotate("text",x=1.5,y=90,label="N.S.",size=4)+
   geom_segment(data=data.frame(x=1,xend=2,y=87,yend=87),aes(x=x,xend=xend,y=y,yend=yend),size=1)+
-  geom_segment(data=data.frame(x=c(1,2),xend=c(1,2),y=c(85,85),yend=c(87,87)),aes(x=x,xend=xend,y=y,yend=yend),size=1)
+  geom_segment(data=data.frame(x=c(1,2),xend=c(1,2),y=c(85,85),yend=c(87,87)),aes(x=x,xend=xend,y=y,yend=yend),size=1)+
+  facet_wrap(~Observation,nrow=1)
 
 cairo_ps(file=paste0(thesis_figures_directory,FIGURE_nyc_v_tsb),width = 8,height = 5.5)
 PLOT_nyc_v_tsb
@@ -1794,7 +1824,7 @@ dev.off()
 
 ###write.csv(proliferation_sigtests,file=paste0(thesis_tables_directory,TABLE_EDU_SCRATCH_QUANT),row.names = F)
 
-## PErcent proliferation in 1% DL lactic acid, ph buffered 7.66 expoed cells
+## PErcent proliferation in 1% DL lactic acid, ph buffered 7.66 expoed cells. Easier to hardcode than read in table
 DL_PH766_percent_proliferation<-data.frame(DL_1pct_766=c(
 7.706708323,
 4.631917974,
@@ -1807,10 +1837,26 @@ t.test(x = scratch.m[scratch.m$BCS=="Cell Culture Medium","percent_cells"],y = D
 t.test(x = scratch.m[scratch.m$BCS=="G. vaginalis","percent_cells"],y = DL_PH766_percent_proliferation$DL_1pct_766)
 
 
-
-
 ```
 
+## Create bar plot for CCND1 protein expression quant (Western blot)
+```{r Western,eval=T}
+
+Western<-read.csv(paste0(root_directory,"../PreparePipeline/western_summary.csv"))
+Western$BCS<-factor(Western$BCS,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"),ordered = T)
+
+western.plot<-ggplot(dplyr::filter(Western,!ExposureTime==24),aes(x=as.factor(ExposureTime),y=100*BCS_MEDIA,fill=BCS))+geom_bar(stat = "identity",width=.75, position = "dodge")+
+  scale_fill_manual(values=color_scheme_BCS)+
+  mBio+
+  ylab("Normalized CCND1 relative to Cell Culture Media (%)")+
+  xlab("Exposure time (hours)")
+
+
+cairo_ps(file=paste0(thesis_figures_directory,FIGURE_WESTERN_QUANT),width = 8,height = 5.5)
+plot(western.plot)
+dev.off()
+
+```
 
 ## Inhbit A2EN cell proliferation & Observe CT Infectivity  
 

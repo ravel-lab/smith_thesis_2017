@@ -289,22 +289,22 @@ Infection,Infectivity,Fascaplysin 350nM,13hr,NA,5,5
 Infection,Infectivity,Fascaplysin 350nM,13hr,34.24657534,6,5
 Infection,Infectivity,Fascaplysin 350nM,13hr,6.666666667,7,5
 Infection,Infectivity,Fascaplysin 350nM,13hr,NA,8,5
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,52.59899507,1,1
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,55.27951544,1,2
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,47.64899062,1,3
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,51.65473676,1,4
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,52.81998565,1,5
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,29.65854005,1,6
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,37.44707376,1,7
-Scratch,Proliferation,CONTROL_NYCmed_20pct,13hr,40.4877909,1,8
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,61.15289129,1,1
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,51.81803238,1,2
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,51.001081,1,3
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,21.42293803,1,4
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,72.6573325,1,5
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,48.26670963,1,6
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,53.41182589,1,7
-Scratch,Proliferation,CONTROL_TSBmed_20pct,13hr,45.905435,1,8
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,52.59899507,1,1
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,55.27951544,1,2
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,47.64899062,1,3
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,51.65473676,1,4
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,52.81998565,1,5
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,29.65854005,1,6
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,37.44707376,1,7
+Scratch,Proliferation,NYC (Lactobacillus spp.),13hr,40.4877909,1,8
+Scratch,Proliferation,TSB (G. vaginalis),13hr,61.15289129,1,1
+Scratch,Proliferation,TSB (G. vaginalis),13hr,51.81803238,1,2
+Scratch,Proliferation,TSB (G. vaginalis),13hr,51.001081,1,3
+Scratch,Proliferation,TSB (G. vaginalis),13hr,21.42293803,1,4
+Scratch,Proliferation,TSB (G. vaginalis),13hr,72.6573325,1,5
+Scratch,Proliferation,TSB (G. vaginalis),13hr,48.26670963,1,6
+Scratch,Proliferation,TSB (G. vaginalis),13hr,53.41182589,1,7
+Scratch,Proliferation,TSB (G. vaginalis),13hr,45.905435,1,8
 Scratch,EdU,G. vaginalis,16hr,32.66475645,1,1
 Scratch,EdU,G. vaginalis,16hr,26.31578947,1,2
 Scratch,EdU,G. vaginalis,16hr,28.33876222,1,3
