@@ -1698,7 +1698,7 @@ PLOT_SCRATCH<-
 
 ##Write plot
 
-cairo_ps(paste0(thesis_figures_directory,FIGURE_SCRATCH_QUANT),width = 8,height = 5.5)
+postscript(paste0(thesis_figures_directory,FIGURE_SCRATCH_QUANT),width = 8,height = 5.5)
 plot(PLOT_SCRATCH) 
 dev.off()
 
@@ -1744,7 +1744,7 @@ PLOT_EDU<-
 
 ##Write plot
 
-cairo_ps(paste0(thesis_figures_directory,FIGURE_EDU_QUANT),width = 8,height = 5.5)
+postscript(paste0(thesis_figures_directory,FIGURE_EDU_QUANT),width = 8,height = 5.5)
 plot(PLOT_EDU)
 dev.off()
 
@@ -1852,7 +1852,7 @@ western.plot<-ggplot(dplyr::filter(Western,!ExposureTime==24),aes(x=as.factor(Ex
   xlab("Exposure time (hours)")
 
 
-cairo_ps(file=paste0(thesis_figures_directory,FIGURE_WESTERN_QUANT),width = 8,height = 5.5)
+postscript(file=paste0(thesis_figures_directory,FIGURE_WESTERN_QUANT),width = 8,height = 5.5)
 plot(western.plot)
 dev.off()
 
@@ -1897,7 +1897,7 @@ Fig3_inf<-ggplot(filter(pi.summary,Observation=="Infectivity"),aes(x=Treatment,y
 ## Write plot
 
 
-cairo_ps(paste0(thesis_figures_directory,FIGURE_CT_INFECT_QUANT),width=6,height = 5.5)#,width = 8,height = 5.5)
+postscript(paste0(thesis_figures_directory,FIGURE_CT_INFECT_QUANT),width=6,height = 5.5)#,width = 8,height = 5.5)
 plot(Fig3_inf)
 dev.off()
 
@@ -1910,7 +1910,7 @@ Fig3_prolif<-ggplot(filter(pi.summary,Observation=="Proliferation"),aes(x=Treatm
   geom_segment(data=statbars2,aes(x=x,xend=xend,y=y,yend=yend),col="Black")
 
 ##Write plot
-cairo_ps(paste0(thesis_figures_directory,FIGURE_CT_EDU_QUANT),width=6,height = 5.5)#width = 8,height = 5.5)
+postscript(paste0(thesis_figures_directory,FIGURE_CT_EDU_QUANT),width=6,height = 5.5)#width = 8,height = 5.5)
 plot(Fig3_prolif)
 dev.off()
 
