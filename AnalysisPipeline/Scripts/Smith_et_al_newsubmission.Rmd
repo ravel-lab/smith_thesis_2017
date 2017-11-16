@@ -213,20 +213,22 @@ load(file=paste0(R_script_input_directory,"SRL_counts_meta.RData"))
 SRL_counts_table<-exprs(SRL_counts_meta)
 SRL_meta_table<-pData(SRL_counts_meta)
 
-## FIXME
-## This needs to happen before so that SRL_counts_meta contains filtered list since pData(SRL_counts_meta) is used in some of the stats calculations. 
-## Intersect data for which both 16S rRNA seq and small RNAseq data exist
+## MOVE THIS TO PREP SCRIPT
+
 taxa_data_dne<-is.na(SRL_meta_table$CST)
 sum(taxa_data_dne)
-SRL_meta_table<-SRL_meta_table[!taxa_data_dne,]
-SRL_counts_table<-SRL_counts_table[,names(data.frame(SRL_counts_table))%in% SRL_meta_table$Pre_QC_ID]
+
+SRL_counts_meta<-subset_ExpressionSet(expSet = SRL_counts_meta,filterOut = SRL_meta_table[taxa_data_dne,"Pre_QC_ID"])
+
+SRL_counts_table<-exprs(SRL_counts_meta)
+SRL_meta_table<-pData(SRL_counts_meta)
 
 ##Write SRL Raw Counts to disk
 write.csv(SRL_counts_table,file=paste0(thesis_tables_directory,TABLE_COUNTS_RAW),row.names=T,quote=F)
 
 ```
 
-Custom functions
+# Custom functions
 
 ```{r custom_functions,eval=TRUE}
 ###########
