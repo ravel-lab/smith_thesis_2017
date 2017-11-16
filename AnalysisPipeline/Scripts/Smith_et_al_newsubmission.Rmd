@@ -132,7 +132,8 @@ color_scheme_BCS<- c("L. crispatus"= unname(subject_long_taxa_colors["Lactobacil
                      "0.06% D-lactic acid"="#b8e186",
                     # "0.1% DL-lactic acid"= "#b6daf1"
                      "DL_10"= "#b6daf1",
-                    "0.1% DL lactic acid" = "#b6daf1"
+                    "0.1% DL lactic acid" = "#b6daf1",
+                    "0.1% DL-lactic acid" = "#b6daf1"
 ) 
 
 cst.colors<-c("I-A"="red1",
@@ -176,16 +177,15 @@ FIGURE_RF_IMPORTANCE_AMSEL<-"FIGURE_drop_2.eps"
 FIGURE_RF_IMPORTANCE<-"Figure_drop.eps"
 FIGURE_TOPMIRS<-"FIGURE_2.eps"
 FIGURE_QPCR_TIMECOURSE<-"FIGURE_3.eps" ## Add lactic acid or put as supp;
-FIGURE_EDU_QUANT<-"FIGURE_4_D.eps"
-FIGURE_SCRATCH_QUANT<-"FIGURE_4_C.eps"
-## Scratch & EdU on same figure? 13h scratch & EdU microscopy (A, B) and quants (C, D) as bar graphs
-FIGURE_CT_INFECT_QUANT<-"Figure_4_G.eps"
-FIGURE_CT_EDU_QUANT<-"Figure_4_F.eps"
-FIGURE_WESTERN_QUANT<-"Figure_4_H.eps"
+FIGURE_EDU_QUANT<-"FIGURE_4_D.ps"
+FIGURE_SCRATCH_QUANT<-"FIGURE_4_B.ps"
+FIGURE_CT_INFECT_QUANT<-"Figure_6A.ps"
+FIGURE_CT_EDU_QUANT<-"Figure_6B.ps"
+FIGURE_WESTERN_QUANT<-"Figure_5B.ps"
 
-FIGURE_COMBINED_PATHWAYS_CYCLE<-"Figure_5.eps"
-FIGURE_LONGITDUINAL_GENEEXP.cycle<-"Figure_6.eps"
-FIGURE_FINAL_MODEL<-"Figure_7.eps" ##Placeholder
+FIGURE_COMBINED_PATHWAYS_CYCLE<-"Figure_7.eps"
+FIGURE_LONGITDUINAL_GENEEXP.cycle<-"Figure_8.eps"
+FIGURE_FINAL_MODEL<-"Figure_9.eps" ##Placeholder
 
 FIGURE_QC<-"FIGURE_S1_"
 FIGURE_QC_RIN_v_READS.PROP<-paste0(FIGURE_QC,"1.eps")
@@ -212,6 +212,14 @@ load(file=paste0(R_script_input_directory,"SRL_counts_meta.RData"))
 ## Extract counts data from ExpressionSet
 SRL_counts_table<-exprs(SRL_counts_meta)
 SRL_meta_table<-pData(SRL_counts_meta)
+
+## FIXME
+## This needs to happen before so that SRL_counts_meta contains filtered list since pData(SRL_counts_meta) is used in some of the stats calculations. 
+## Intersect data for which both 16S rRNA seq and small RNAseq data exist
+taxa_data_dne<-is.na(SRL_meta_table$CST)
+sum(taxa_data_dne)
+SRL_meta_table<-SRL_meta_table[!taxa_data_dne,]
+SRL_counts_table<-SRL_counts_table[,names(data.frame(SRL_counts_table))%in% SRL_meta_table$Pre_QC_ID]
 
 ##Write SRL Raw Counts to disk
 write.csv(SRL_counts_table,file=paste0(thesis_tables_directory,TABLE_COUNTS_RAW),row.names=T,quote=F)
@@ -810,7 +818,11 @@ setup_sigtest<-function(pval_threshold = pval_threshold,raw_data = raw_data,test
     sigtest<-apply_ttest(sigtest_results = sigtest,pval_threshold = pval_threshold,summary_stats = summary_stats,test_function = "t.test2")
     
     
-  }else{
+  }else if(Experiment=="CONTROL_MEDS"){
+    print("Nothing...")
+  }
+  
+  else{
     print("Experiment must be Infection or Scratch")
   }
   
@@ -1622,7 +1634,7 @@ cairo_ps(paste0(thesis_figures_directory,FIGURE_DL_LACTICACID_QPCR),width = 9,he
 ddct_LacticAcid_plot
 dev.off()
 
-paste0("Additionally, the ∆∆Ct of miR-193b expression after 4 hours of exposure to 0.06% D-lactic acid relative to 0.06% L-lactic acid was found to be non-significant ( p=",qpcr_sigtest[qpcr_sigtest$comparison=="L-lactic acid" & qpcr_sigtest$reference=="D-lactic acid","pval"],").") 
+paste0("Additionally, the ∆∆Ct of miR-193b expression after 4 hours of exposure to 0.1% D-lactic acid relative to 0.1% L-lactic acid was found to be non-significant ( p=",qpcr_sigtest[qpcr_sigtest$comparison=="0.1% D-lactic acid" & qpcr_sigtest$reference=="0.1% L-lactic acid","pval"],").") 
 
 ## Write plot as a table
 qpcr_sigtests<-dplyr::select(qpcr_sigtest[with(qpcr_sigtest,order(ExposureTime.n,comparison,reference)),],c(comparison,reference,ExposureTime,mean_diff,pval,sig))
@@ -1725,8 +1737,7 @@ statbars2<-rbind.fill(data.frame(setup_sigtest.data$statbars2,ExposureTime=as.nu
 EdU_sigtest<-rbind.fill(data.frame(setup_sigtest.data$sigtest,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),EdU_sigtest)
 EdU.summary<-rbind.fill(data.frame(setup_sigtest.data$summary_stats,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),EdU.summary)
 }
-
-
+EdU.summary$BCS<-factor(EdU.summary$BCS,rev(unique(EdU.summary$BCS)),ordered = T)
 PLOT_EDU<-
    ggplot(EdU.summary,
          aes(x=ExposureTime,y=mean,col=BCS))+
@@ -1749,8 +1760,6 @@ plot(PLOT_EDU)
 dev.off()
 
 ##FIXME
-
-
 
 bcs_media_sigtest.all<-data.frame(temp="NA")
 bcs_media_summary.all<-data.frame(temp="NA")
@@ -1800,16 +1809,40 @@ proliferation_sigtests<-rbind(data.frame(Figure=gsub(FIGURE_SCRATCH_QUANT,replac
 proliferation_sigtests<-proliferation_sigtests[with(proliferation_sigtests, order(Figure, x,xend)),]
 proliferation_sigtests<-dplyr::select(proliferation_sigtests,Figure,xref,reference,ExposureTime,pval,mean_diff,sig)
 
-proliferation_sigtests<-rbind(proliferation_sigtests,data.frame(Figure="FIGURE_S5",xref="TSB",reference="NYC",pval=control_meds.sig$p.value,mean_diff=unname(control_meds.sig$estimate[2]-control_meds.sig$estimate[1]),sig=ifelse(control_meds.sig$p.value<pval_threshold,"*","N.S.")))
 
-setup_sigtest(pval_threshold = pval_threshold,raw_data = dplyr::filter(control_meds,ExposureTime==et,Observation=="Proliferation"),test_function = "t.test",Experiment = "Scratch")
+sig.migration<-t.test(dplyr::filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_TSBmed_20pct")$percent_cells,
+dplyr::filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_NYCmed_20pct")$percent_cells)
 
 
+proliferation_sigtests<-rbind(proliferation_sigtests,
+                              data.frame(Figure="FIGURE_S5_B",
+                                         xref="TSB",
+                                         reference="NYC",
+                                         ExposureTime="13hr",
+                              pval=sig.migration$p.value,
+                              mean_diff=sig.migration$estimate[2] - sig.migration$estimate[1],
+                              sig=ifelse(sig.migration$p.value<pval_threshold,"*","N.S.")))
+ 
+
+sig.edu<-t.test(dplyr::filter(control_meds,Observation=="EdU" & Treatment=="CONTROL_TSBmed_20pct")$percent_cells,
+dplyr::filter(control_meds,Observation=="EdU" & Treatment=="CONTROL_NYCmed_20pct")$percent_cells)
+
+
+proliferation_sigtests<-rbind(proliferation_sigtests,
+                              data.frame(Figure="FIGURE_S5_C",
+                                         xref="TSB",
+                                         reference="NYC",
+                                         ExposureTime="13hr",
+                              pval=sig.edu$p.value,
+                              mean_diff=sig.edu$estimate[2] - sig.edu$estimate[1],
+                              sig=ifelse(sig.edu$p.value<pval_threshold,"*","N.S.")))
+ 
 ##FIXME- rename proliferation to migration and EdU to proliferation
 control_meds.summary$Observation<-factor(control_meds.summary$Observation,levels = c("Proliferation","EdU"),labels=c("Migration (scratch)","Proliferation (EdU)"),ordered = T)
+
 PLOT_nyc_v_tsb<-ggplot(control_meds.summary)+
-  geom_bar(aes(x=Treatment,y=mean,fill=Treatment),stat="identity",show.legend =F)+
-  geom_errorbar(aes(x=Treatment,ymax=mean+sd,ymin=mean-sd),width=.2)+
+  geom_bar(aes(x=BCS,y=mean,fill=BCS),stat="identity",show.legend =F)+
+  geom_errorbar(aes(x=BCS,ymax=mean+sd,ymin=mean-sd),width=.2)+
   mBio+ylab("Percent scratch area filled | Percent cells EdU")+
   xlab("VK2 Cell Culture Medium + 20% Bacterial Culture Medium")+
   scale_y_continuous(limits=c(0,100))+
@@ -1818,11 +1851,11 @@ PLOT_nyc_v_tsb<-ggplot(control_meds.summary)+
   geom_segment(data=data.frame(x=c(1,2),xend=c(1,2),y=c(85,85),yend=c(87,87)),aes(x=x,xend=xend,y=y,yend=yend),size=1)+
   facet_wrap(~Observation,nrow=1)
 
-cairo_ps(file=paste0(thesis_figures_directory,FIGURE_nyc_v_tsb),width = 8,height = 5.5)
+postscript(file=paste0(thesis_figures_directory,FIGURE_nyc_v_tsb),width = 8,height = 5.5)
 PLOT_nyc_v_tsb
 dev.off()
 
-###write.csv(proliferation_sigtests,file=paste0(thesis_tables_directory,TABLE_EDU_SCRATCH_QUANT),row.names = F)
+write.csv(proliferation_sigtests,file=paste0(thesis_tables_directory,TABLE_EDU_SCRATCH_QUANT),row.names = F)
 
 ## PErcent proliferation in 1% DL lactic acid, ph buffered 7.66 expoed cells. Easier to hardcode than read in table
 DL_PH766_percent_proliferation<-data.frame(DL_1pct_766=c(
@@ -1960,7 +1993,9 @@ OTU_METADATA<-subject_plot_data$OTU_METADATA ## metadata
 rRNA_16S<-subject_plot_data$relativeAbundance ## taxa assignments/relative abundances
 sampleInfoColNames<-subject_plot_data$sampleInfoColNames ## holds which column names are associated with metadata
 
-miRNA_extractions<-SRL_meta_table[is.na(SRL_meta_table$QC_removal_stage),] ## Samples associated with miRNA libraries used in final study- i.e., don't include samples removed due to poor QC. 
+miRNA_extractions<-SRL_meta_table[is.na(SRL_meta_table$QC_removal_stage) & !is.na(SRL_meta_table$CST),] ## Samples associated with miRNA libraries used in final study- i.e., don't include samples removed due to poor QC. 
+## Also adding in only samples that have 16S data as well. Will wind up dropping 16 samples, but it is what it is... 
+
 subject_plot_list<- unique(miRNA_extractions$SID) ## Subject IDs to plot
 
 global_species_list<-NULL ## Initialize a container to store all species plotted in fig 1 as a legend
