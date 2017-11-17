@@ -206,25 +206,6 @@ FIGURE_nyc_v_tsb<-"Figure_S5.eps" ## Add EdU barplot as well.
 
 setwd(paste0(R_script_output_directory))
 
-## SRL_meta and SRL_counts were prepared in separate script- 
-load(file=paste0(R_script_input_directory,"SRL_counts_meta.RData"))
-
-## Extract counts data from ExpressionSet
-SRL_counts_table<-exprs(SRL_counts_meta)
-SRL_meta_table<-pData(SRL_counts_meta)
-
-## MOVE THIS TO PREP SCRIPT
-
-taxa_data_dne<-is.na(SRL_meta_table$CST)
-sum(taxa_data_dne)
-
-SRL_counts_meta<-subset_ExpressionSet(expSet = SRL_counts_meta,filterOut = SRL_meta_table[taxa_data_dne,"Pre_QC_ID"])
-
-SRL_counts_table<-exprs(SRL_counts_meta)
-SRL_meta_table<-pData(SRL_counts_meta)
-
-##Write SRL Raw Counts to disk
-write.csv(SRL_counts_table,file=paste0(thesis_tables_directory,TABLE_COUNTS_RAW),row.names=T,quote=F)
 
 ```
 
@@ -903,6 +884,30 @@ plot_replicates<-function(eset,BCS.selection=c(""),ExposureTime.selection=c(""),
 
 
 ```
+# Temp
+```{r tmp}
+
+## SRL_meta and SRL_counts were prepared in separate script- 
+load(file=paste0(R_script_input_directory,"SRL_counts_meta.RData"))
+
+## Extract counts data from ExpressionSet
+SRL_counts_table<-exprs(SRL_counts_meta)
+SRL_meta_table<-pData(SRL_counts_meta)
+
+## MOVE THIS TO PREP SCRIPT
+
+taxa_data_dne<-is.na(SRL_meta_table$CST)
+sum(taxa_data_dne)
+
+#SRL_counts_meta<-subset_ExpressionSet(expSet = SRL_counts_meta,filterOut = SRL_meta_table[taxa_data_dne,"Pre_QC_ID"])
+
+#SRL_counts_table<-exprs(SRL_counts_meta)
+#SRL_meta_table<-pData(SRL_counts_meta)
+
+##Write SRL Raw Counts to disk
+write.csv(SRL_counts_table,file=paste0(thesis_tables_directory,TABLE_COUNTS_RAW),row.names=T,quote=F)
+```
+
 # Summary Statistics & Quality Control   
 
 ## Alignment Stats   
@@ -931,20 +936,18 @@ missing<-rowSums(SRL_counts_table)==0 #rowSums(is.na(SRL_counts_table))==ncol(SR
 print(paste("Number of miRNAs without any counts across all",ncol(SRL_counts_table),"samples:",sum(missing)))
 print(paste0("which leaves ",100*(1-sum(missing)/nrow(SRL_counts_table))," percent of all annotated miRNAs with at least 1 read"))
 
-
 #print("...and the names of the miRNAs without any reads across all samples: ")
 #names(missing)[missing]
 
-##FIXME
-# plot_QC.preQC.batch<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "Batch",ploly = F,seed_val = seed_val)##FIGURE
-# plot(plot_QC.preQC.batch$pca.p)
-# plot_QC.preQC.batch$gPCA.result$p.val
-# plot_QC.preQC.sid<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
-# plot(plot_QC.preQC.sid$pca.p)
-# plot_QC.preQC.sid$gPCA.result$p.val
-# plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "BVGroup",seed_val = seed_val)$pca.p##FIGURE
-# plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "NugentC",seed_val = seed_val)$pca.p##FIGURE
-##END FIXME
+plot_QC.preQC.batch<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "Batch",ploly = F,seed_val = seed_val)##FIGURE
+plot(plot_QC.preQC.batch$pca.p)
+plot_QC.preQC.batch$gPCA.result$p.val
+plot_QC.preQC.sid<-plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
+plot(plot_QC.preQC.sid$pca.p)
+plot_QC.preQC.sid$gPCA.result$p.val
+plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "BVGroup",seed_val = seed_val)$pca.p##FIGURE
+plot_pca(SRL_counts_meta,"Log miRNA Raw Count Distance, PRE QC",color_by = "NugentC",seed_val = seed_val)$pca.p##FIGURE
+
 
 ## Get a *ROUGH* idea of miRNA coverage by dividing counts by # of annotated miRNAs in genome 
 (number_mirs_genome<-nrow(SRL_counts_meta)) ## number of annotated miRNAs
@@ -985,22 +988,21 @@ ncol(exprs(counts_meta.qc))
 
 ncol(pData(counts_meta.qc))
 nrow(exprs(counts_meta.qc))
-##FIXME
-# 
+
 # ## Re-plot after QC
-# plot_QC.postQC.batch<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by ="Batch",ploly = F,seed_val = seed_val)##FIGURE
-# plot_QC.postQC.batch$pca.p
-# 
-# plot_QC.postQC.sid<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
-# plot_QC.postQC.sid$pca.p
-# 
-# plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "BVGroup",ploly = F,seed_val = seed_val)$pca.p##FIGURE
-# plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "NugentC",ploly = F,seed_val = seed_val)$pca.p##FIGURE
-# 
-# plot_RIN_meta(pData(counts_meta.qc),"hg.mapped.percent",col_by = "Batch")##FIGURE
-# plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_hgmapped",col_by = "Batch")##FIGURE
-# plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_surviving",col_by = "Batch")##FIGURE
-# dev.off()
+plot_QC.postQC.batch<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by ="Batch",ploly = F,seed_val = seed_val)##FIGURE
+plot_QC.postQC.batch$pca.p
+
+plot_QC.postQC.sid<-plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "SID",ploly = F,seed_val = seed_val)##FIGURE
+plot_QC.postQC.sid$pca.p
+
+plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "BVGroup",ploly = F,seed_val = seed_val)$pca.p##FIGURE
+plot_pca(counts_meta.qc,"Log miRNA Raw Count Distance, POST QC",color_by = "NugentC",ploly = F,seed_val = seed_val)$pca.p##FIGURE
+
+plot_RIN_meta(pData(counts_meta.qc),"hg.mapped.percent",col_by = "Batch")##FIGURE
+plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_hgmapped",col_by = "Batch")##FIGURE
+plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_surviving",col_by = "Batch")##FIGURE
+dev.off()
 median_RIN<-median(pData(counts_meta.qc)$RIN,na.rm = T)
 
 print(paste0("The median RINe score was ",median_RIN,", with ",round(100*sum(pData((counts_meta.qc))$RIN<7,na.rm = T)/length(pData((counts_meta.qc))$RIN),digits = 1),"% of the samples having a RINe greater than 7."))
@@ -1055,18 +1057,16 @@ expSet_log.normalized<-ExpressionSet(assayData = log(exprs(expSet.normalized)+1,
                                      phenoData = AnnotatedDataFrame(pData(expSet.normalized))) ## add pseuo counts... so that when take log(), all 0 reads become 0 normalized reads log(raw + 1)=log(1)=0. LIttle effect on other counts. This makes it esier to drop raw 0 counts later. Also store count table annotation from original Expression Set
 
 
-##FIXME
-# 
 # ## PCA plots after normalization, colored by batch, SID and "BV group"
-# plot_QC.normalized.batch<-plot_pca(expSet.normalized,color_by = "Batch",margins = unit(c(0,-200,0,-200),units = "points"),seed_val = seed_val)
-# plot_QC.normalized.batch$pca.p
-# plot_QC.normalized.sid<-plot_pca(expSet_log.normalized,color_by = "SID",ploly = F,logt = F,margins = unit(c(0,30,0,5),units = "pt"),seed_val = seed_val)
-# plot_QC.normalized.sid$pca.p
-# plot_pca(expSet_log.normalized,color_by = "BVGroup",logt = F)$pca.p
-# plot_pca(expSet_log.normalized,color_by = "NugentC",logt = F)$pca.p
+plot_QC.normalized.batch<-plot_pca(expSet.normalized,color_by = "Batch",margins = unit(c(0,-200,0,-200),units = "points"),seed_val = seed_val)
+plot_QC.normalized.batch$pca.p
+plot_QC.normalized.sid<-plot_pca(expSet_log.normalized,color_by = "SID",ploly = F,logt = F,margins = unit(c(0,30,0,5),units = "pt"),seed_val = seed_val)
+plot_QC.normalized.sid$pca.p
+plot_pca(expSet_log.normalized,color_by = "BVGroup",logt = F)$pca.p
+plot_pca(expSet_log.normalized,color_by = "NugentC",logt = F)$pca.p
 # 
 # ## Print for text
-# print(paste0("PCA plots before and after sample removal and after normalization do not support batch effects (guided PCA p-values ",plot_QC.preQC.batch$gPCA.result$p.val,", ",plot_QC.postQC.batch$gPCA.result$p.val,", and ",plot_QC.normalized.batch$gPCA.result$p.val,", respectively), or subject-specific effects (guided PCA p-values ",plot_QC.preQC.sid$gPCA.result$p.val,", ",plot_QC.postQC.sid$gPCA.result$p.val,", and ",plot_QC.normalized.sid$gPCA.result$p.val,", respectively, Figure S1)."))
+print(paste0("PCA plots before and after sample removal and after normalization do not support batch effects (guided PCA p-values ",plot_QC.preQC.batch$gPCA.result$p.val,", ",plot_QC.postQC.batch$gPCA.result$p.val,", and ",plot_QC.normalized.batch$gPCA.result$p.val,", respectively), or subject-specific effects (guided PCA p-values ",plot_QC.preQC.sid$gPCA.result$p.val,", ",plot_QC.postQC.sid$gPCA.result$p.val,", and ",plot_QC.normalized.sid$gPCA.result$p.val,", respectively, Figure S1)."))
 
 ## Store counts data as "features"
 features<-exprs(expSet_log.normalized)
@@ -1103,6 +1103,8 @@ abline(v = 1,col='red')
 ```{r prepare_model_input,eval=T}
 load(file=paste0(R_script_input_directory,"CV_16S_AMSEL.Rdata"))
 load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
+## FIXME make sure the miRNA data intersects with the 16S data!
+
 SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
 #LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
 LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
@@ -1170,6 +1172,9 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
 
 ##FIXME change all Nugent to Lacto (or just RF) and remove Amsel. 
+model_input_Lactobacillus
+
+setdiff(c(Lacto_RF$training_ids,Lacto_RF$testing_ids),row.names(model_input_Lactobacillus))
 
 Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus,
                            response_variable_name = "LACTO_PROP",
@@ -1178,8 +1183,8 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus
                            nreps = npermutes,
                            permute = T,
                            save_model = T,
-                           file_n = "Lacto_RF",
-                           load_prev_model = T,
+                           file_n = "Lacto_RF_new2",
+                           load_prev_model = F,
                            verbose = F,
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
@@ -1369,8 +1374,8 @@ for(a in 1:nrow(df1)){
 (optimal_cutoffs<-df1[df1$ncol==max(df1[df1$ncol<=25 & df1$ncol>=5,"ncol"]),]) ## What are the optimal cutoffs for somewhere between 5 and 25 GO processes on the plot?
 
 ## Take the max i/j pair as the cutoffs:
-i<-0.1904762 # 0.2285714 #0
-j<-0.3 #0.8
+i<-.1125#0.1904762 # 0.2285714 #0
+j<-0.6#0.3 #0.8
 ## Note that 19 in the "nc" column is the number of GO processes that will be plotted
 
 ## Therefore, the proportion of genes should be >0 across at least 0.8*6 =4.8 miRNAs. 
