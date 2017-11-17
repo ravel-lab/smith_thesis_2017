@@ -1089,12 +1089,12 @@ abline(v = 1,col='red')
 ##FIXME
 
 # ## Write PCA plots to file
-# cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYBATCH),width=8,height=5.5)
-# plot_QC.normalized.batch$pca.p
-# dev.off()
-# cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYSUBJ),width=8,height=5.5)
-# plot_QC.normalized.sid$pca.p
-# dev.off()
+cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYBATCH),width=8,height=5.5)
+plot_QC.normalized.batch$pca.p
+dev.off()
+cairo_ps(file=paste0(thesis_figures_directory,FIGURE_QC_PCA.NORMAL.BYSUBJ),width=8,height=5.5)
+plot_QC.normalized.sid$pca.p
+dev.off()
 
 ```
 
@@ -1106,14 +1106,13 @@ load(file=paste0(R_script_input_directory,"SRL_16S.Rdata"))
 ## FIXME make sure the miRNA data intersects with the 16S data!
 
 SRL_16S<-SRL_16S[!row.names(SRL_16S) %in% as.character(removed_samples$Pre_QC_ID),] 
-#LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
-LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
-##LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Gardnerella_vaginalis)))
 
+LACTO_PROP<-rowSums(dplyr::select(SRL_16S,c(Lactobacillus_crispatus,Lactobacillus_jensenii,Lactobacillus_iners,Lactobacillus_gasseri)))
 
 ## Join the existing metdadata and predicted Amsel diagnosis
 joined_meta_amselPred<-join(pData(counts_meta.qc),data.frame(Pre_QC_ID=names(LACTO_PROP),LACTO_PROP=LACTO_PROP),by="Pre_QC_ID")
 row.names(joined_meta_amselPred)<-joined_meta_amselPred$Pre_QC_ID
+
 
 ##Store the joined data as features_metadata
 features_metadata<-ExpressionSet(features,phenoData = AnnotatedDataFrame(joined_meta_amselPred))
@@ -1140,22 +1139,30 @@ model_input<-data.frame(t(expressed_above_0),selected_metadata)
 row.names(model_input)<-model_input$Pre_QC_ID
 model_input<-dplyr::select(model_input,-Pre_QC_ID)
 model_input$LACTO_PROP<-as.numeric(model_input$LACTO_PROP)
-##model_input$LACTO_PROP<-as.character(model_input$LACTO_PROP)
 names(model_input)<-gsub(gsub(gsub(names(model_input),pattern = "mir.",replacement = "miR-"),pattern = "hsa.",replacement = ""),replacement ="-",pattern = "\\.")
 
-##/// Subset model_input into the inputs for Amsel and Nugent RF
-model_input_Lactobacillus<-dplyr::select(model_input[!is.na(model_input$LACTO_PROP),],-c(NUGENT_SCORE,CST))## Keep CSTs in model_input, just not Amsel or Nugent input
-#model_input_Nugent<-dplyr::select(model_input[!is.na(model_input$NUGENT_SCORE),],-c(LACTO_PROP,CST)) ## Keep CSTs in model_input, just not Amsel or Nugent input
+
+model_input_Lactobacillus<-dplyr::select(model_input[!is.na(model_input$LACTO_PROP),],-c(NUGENT_SCORE,CST))
+
+samples_without_16S<-setdiff(row.names(model_input),row.names(model_input_Lactobacillus))
 
 model_input_Lactobacillus[is.na(model_input_Lactobacillus)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
-#model_input_Nugent[is.na(model_input_Nugent)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
 
 ##ADD QC STAGE TO SRL_meta_table, then write to disk
 SRL_meta_table<-left_join(SRL_meta_table,removed_samples,by="Pre_QC_ID")
 print(paste0("There were 5 samples removed due to insufficient library material or failure to sequence, and ",sum(!is.na(SRL_meta_table$QC_removal_stage) & SRL_meta_table$QC_removal_stage %in% c("Low_Coverage","Visual Outlier"))," samples were removed due to low total miRNA reads or outliers."))
 
 write.csv(SRL_meta_table,file=paste0(thesis_tables_directory,TABLE_SRL_METADATA),row.names=F,quote=F)
+
+## Summarize # samples surviving QC and having 16S data
 SRL_seq_summary<-ddply(SRL_meta_table,c("BVGroup","SID"),summarise,PreQC=length(QC_removal_stage),PostQC=length(QC_removal_stage)-sum(as.numeric(QC_removal_stage),na.rm = T))
+
+## Count # samples with 16S data
+samples_with_16S.nsid<-data.frame(table(dplyr::filter(SRL_meta_table,!Pre_QC_ID %in% samples_without_16S & is.na(SRL_meta_table$QC_removal_stage))$SID))
+names(samples_with_16S.nsid)<-c("SID","With Lact. RA")
+SRL_seq_summary<-merge(SRL_seq_summary,samples_with_16S.nsid,all.x = T)
+
+## Write to table
 SRL_seq_summary<-SRL_seq_summary[order(SRL_seq_summary$BVGroup),]
 write.csv(SRL_seq_summary,file=paste0(thesis_tables_directory,TABLE_SEQSUMMARY),row.names=F,quote=F)
 
