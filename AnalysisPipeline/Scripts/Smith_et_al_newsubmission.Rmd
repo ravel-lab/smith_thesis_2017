@@ -1889,13 +1889,12 @@ t.test(x = scratch.m[scratch.m$BCS=="G. vaginalis","percent_cells"],y = DL_PH766
 ## Create bar plot for CCND1 protein expression quant (Western blot)
 ```{r Western,eval=T}
 
-Western<-read.csv(paste0(root_directory,"../PreparePipeline/western_summary.csv"))
-Western$BCS<-factor(Western$BCS,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"),ordered = T)
+load(paste0(R_script_input_directory,"Western.Rmd"))
 
-western.plot<-ggplot(dplyr::filter(Western,!ExposureTime==24),aes(x=as.factor(ExposureTime),y=100*BCS_MEDIA,fill=BCS))+geom_bar(stat = "identity",width=.75, position = "dodge")+
+western.plot<-ggplot(dplyr::filter(Western,!ExposureTime==24),aes(x=as.factor(ExposureTime),y=BCS_MEDIA,fill=BCS))+geom_bar(stat = "identity",width=.75, position = "dodge")+
   scale_fill_manual(values=color_scheme_BCS)+
   mBio+
-  ylab("Normalized CCND1 relative to Cell Culture Media (%)")+
+  ylab("Normalized CCND1 relative to Cell Culture Media")+
   xlab("Exposure time (hours)")
 
 
