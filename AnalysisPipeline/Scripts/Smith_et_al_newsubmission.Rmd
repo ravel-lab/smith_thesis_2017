@@ -116,7 +116,7 @@ rect_fill<-"grey" ## Fig 1 greyed out color
 removed_samples<-data.frame(Pre_QC_ID=NULL,QC_removal_stage=NULL)## Keep a list of removed samples, and the stage of removal
 
 ## Set global plot theme
-mBio <- theme_bw() + theme(text = element_text(family = "Arial", colour = "black",size=12))
+journalFormat <- theme_bw() + theme(text = element_text(family = "Arial", colour = "black",size=12))
 
 ## Set standardized color table
 load(file=paste0(R_script_input_directory,"subject_long_taxa_colors.Rdata"))
@@ -298,7 +298,7 @@ plot_pca<-function(ES, ## Expression Set object
                     circle = circle,var.axes =var.axes, ...)
   pca.p <- pca.p + 
     scale_color_discrete(name = '')+
-    mBio+
+    journalFormat+
     theme(plot.margin = margins)
   
   gPCA.result<-gPCA.batchdetect(dist(cnts),group.gpca)
@@ -379,7 +379,7 @@ plot_accuracy<-function(rfp, ## Random Forest object
   
   plot_a<-ggplot()+geom_point(data=accuracy_table,aes(y=predicted,x=actual,col=as.factor(fold)))+
     ggtitle("Predicted vs Actual Values from plot_accuracy")+
-    mBio+
+    journalFormat+
     scale_x_continuous(limits=c(0,10),breaks = 1:10)+
     scale_y_continuous(limits=c(0,10),breaks = 1:10)
   print(plot_a)
@@ -597,7 +597,7 @@ plot_RIN_meta<-function(SRL_meta_table, ## Table containing SRL metadata
     xlab("RINe")+
     # ggtitle(paste(y_series," vs RIN"))+
     geom_text(check_overlap = check_overlap,vjust = vjust, nudge_y = nudge_y,angle = angle,hjust = hjust, nudge_x = nudge_x)+
-    mBio+
+    journalFormat+
     guides(col=guide_legend(title=col_by))
   return(p.RIN)
 }
@@ -653,7 +653,7 @@ plot_importance<-function(importance_df=Lacto_RF$importance, ## Data frame holdi
     xlab("Importance Metric")+
     ylab("Predictor")+
     scale_colour_gradient(high="red", low="blue",guide = guide_legend(title = "-Log(p-value)"))+
-    mBio+
+    journalFormat+
     theme(text=element_text(size = size_font),panel.border = element_rect(size=1))+
     ggtitle(paste(model_name," RF Importance Plot for the First",nfeats,"Ranked Features (by",rankBy,")"))
   
@@ -1282,7 +1282,7 @@ PLOT_EXPRESSION<-
   geom_point(aes(col=as.factor(CST)),size=3,show.legend = T)+
   facet_wrap(~variable,scales = "free_y",nrow=2)+
   ylab("Normalized Expression")+xlab("Lactobacillus spp. relative abundance (%)")+
-  mBio+
+  journalFormat+
   theme(text = element_text(size=20),axis.text.x = element_text(size=15))+
   scale_x_continuous(breaks=seq(from = 0,to=100,by=20))+
   scale_color_manual(values = cst.colors,guide = guide_legend(title = "CST"))
@@ -1427,7 +1427,7 @@ miR_order<-miR_order[order(miR_order$adjr2,decreasing = T),]
 mir_go.wide.filtered.m$mir<-factor(mir_go.wide.filtered.m$mir,levels = miR_order$variable,ordered = T)
 
 PLOT_MIR_TARGET_GO_PROP<-ggplot(mir_go.wide.filtered.m,aes(x=GO_format,y=100*value,fill=mir))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
-  mBio+
+  journalFormat+
   theme(axis.text.x = element_text(angle=45,hjust = 1,size=10),text=element_text(size=12),plot.margin = unit(c(10,25,10,170),units = "pt"))+
   scale_fill_brewer(type = "qual",palette = "Set1")+
   xlab("GO Term")+
@@ -1450,7 +1450,7 @@ mir193b_GOcount_groups<-data.frame(table(dplyr::select(unique(dplyr::select(merg
 mir193b_GOcount_groups$Var1<-factor(mir193b_GOcount_groups$Var1,levels=mir193b_GOcount_groups[order(mir193b_GOcount_groups$Freq,decreasing = T),"Var1"],ordered = T)
 
 mir193b_GOcount_groups.plot<-ggplot(mir193b_GOcount_groups,aes(x=Var1,y=Freq))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
-  mBio+
+  journalFormat+
   theme(axis.text.x = element_text(angle=45,hjust = 1),text=element_text(size=25),plot.margin = unit(c(10,25,10,170),units = "pt"))+
   scale_fill_brewer(type = "qual",palette = "Set1")+
   scale_y_continuous(breaks=c(2,4,6,8))+
@@ -1613,7 +1613,7 @@ PLOT_QPCR_TIMECOURSE<-
                  ), 
          aes(x=ExposureTime.n,y=-mean_diff,col=comp))+
   theme_bw()+
-    mBio+
+    journalFormat+
   geom_hline(yintercept = 0,col="#9e9ac8",size=2.5)+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16))+
   geom_line(size=1.5,show.legend = T)+
@@ -1716,7 +1716,7 @@ PLOT_SCRATCH<-
   geom_errorbar(aes(ymax=mean+sd,ymin=mean-sd),size=1,width=.5,show.legend = F)+
   geom_point(size=6,show.legend = F)+ 
   ylab("Filled Scratch Area (%)")+
-    mBio+
+    journalFormat+
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
   scale_x_continuous(breaks=c(1,4,8,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
@@ -1760,7 +1760,7 @@ PLOT_EDU<-
   geom_line(size=1.5,show.legend = T)+ 
   geom_errorbar(aes(ymax=mean+sd,ymin=mean-sd),size=1,width=.5,show.legend = F)+
   geom_point(size=6,show.legend = F)+ 
-       mBio+
+       journalFormat+
   ylab("Epithelial Cells Positive for EdU (%)")+
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
@@ -1857,7 +1857,7 @@ control_meds.summary$Observation<-factor(control_meds.summary$Observation,levels
 PLOT_nyc_v_tsb<-ggplot(control_meds.summary)+
   geom_bar(aes(x=BCS,y=mean,fill=BCS),stat="identity",show.legend =F)+
   geom_errorbar(aes(x=BCS,ymax=mean+sd,ymin=mean-sd),width=.2)+
-  mBio+ylab("Percent scratch area filled | Percent cells EdU")+
+  journalFormat+ylab("Percent scratch area filled | Percent cells EdU")+
   xlab("VK2 Cell Culture Medium + 20% Bacterial Culture Medium")+
   scale_y_continuous(limits=c(0,100))+
   annotate("text",x=1.5,y=90,label="N.S.",size=4)+
@@ -1893,7 +1893,7 @@ load(paste0(R_script_input_directory,"Western.Rmd"))
 
 western.plot<-ggplot(dplyr::filter(Western,!ExposureTime==24),aes(x=as.factor(ExposureTime),y=BCS_MEDIA,fill=BCS))+geom_bar(stat = "identity",width=.75, position = "dodge")+
   scale_fill_manual(values=color_scheme_BCS)+
-  mBio+
+  journalFormat+
   ylab("Normalized CCND1 relative to Cell Culture Media")+
   xlab("Exposure time (hours)")
 
@@ -1934,7 +1934,7 @@ ct_sigtest_pro<-filter(ct_sigtest,Observation=="Proliferation")
 ## Plot Infectivity
 Fig3_inf<-ggplot(filter(pi.summary,Observation=="Infectivity"),aes(x=Treatment,y=grand_mean))+geom_bar(aes(fill=Treatment),stat="identity",show.legend = F)+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+
   scale_fill_manual(values=c("Cell Culture Medium"='blue',"Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+
-  mBio+
+  journalFormat+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1,size=20))+scale_y_continuous(limits=c(0,102))+
   annotate("text",x=ct_sigtest_inf$midpoints,y=ct_sigtest_inf$y.sig,label=ct_sigtest_inf$sig,size=2.5)+
   geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend))+
@@ -1949,7 +1949,7 @@ dev.off()
 
 ##Plot Ct Assay EdU
 
-Fig3_prolif<-ggplot(filter(pi.summary,Observation=="Proliferation"),aes(x=Treatment,y=grand_mean))+geom_bar(stat="identity",show.legend = F,aes(fill=Treatment))+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+mBio+scale_fill_manual(values=c("Cell Culture Medium"='blue',SIS3="#c2a5cf","Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+ylab("Epithelial Cells Positive for EdU (%)")+
+Fig3_prolif<-ggplot(filter(pi.summary,Observation=="Proliferation"),aes(x=Treatment,y=grand_mean))+geom_bar(stat="identity",show.legend = F,aes(fill=Treatment))+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+journalFormat+scale_fill_manual(values=c("Cell Culture Medium"='blue',SIS3="#c2a5cf","Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+ylab("Epithelial Cells Positive for EdU (%)")+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=20),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1))+scale_y_continuous(limits=c(0,102))+
   annotate("text",x=ct_sigtest_pro$midpoints,y=ct_sigtest_pro$y.sig,label=ct_sigtest_pro$sig,size=2.5)+
   geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend))+
@@ -1977,7 +1977,7 @@ paste0("C. trachomatis infection was decreased by ",-ct_C$mean_diff,"% (p=",ct_C
 
 ## Calcualte correlation between mean infectivity and mean proliferation
 corr_mx<-spread(pi.m,Observation, value=percent_cells)
-ggplot(corr_mx,aes(y=Infectivity,x=Proliferation,col=Treatment))+geom_point()+ggtitle("Ct Infectivity vs EdU")+mBio+ylab("% Infectivity")+xlab("% EdU")+geom_point(data=spread(dplyr::select(pi.summary,-c(grand_sd,n)),Observation,grand_mean),aes(y=Infectivity,x=Proliferation,col=Treatment),size=10,pch=2)
+ggplot(corr_mx,aes(y=Infectivity,x=Proliferation,col=Treatment))+geom_point()+ggtitle("Ct Infectivity vs EdU")+journalFormat+ylab("% Infectivity")+xlab("% EdU")+geom_point(data=spread(dplyr::select(pi.summary,-c(grand_sd,n)),Observation,grand_mean),aes(y=Infectivity,x=Proliferation,col=Treatment),size=10,pch=2)
 
 ct_pro_lm<-lm(formula = Infectivity~Proliferation,data = data.frame(corr_mx[!rowSums(is.na(corr_mx))>0,]))
 
@@ -2125,7 +2125,7 @@ for(s in subject_plot_list){  ## iterate through the subject's
   otuPlot<- ggplot(otu_count_reshape)+
     geom_area(aes(x=SERIAL,y=count,fill=species),
               stat="identity",show.legend=F,position="fill")+#,width=1)+
-    mBio+
+    journalFormat+
     theme(axis.ticks = element_blank(),
           axis.title.x=element_blank(),
           axis.text.x = element_blank(),
@@ -2155,7 +2155,7 @@ for(s in subject_plot_list){  ## iterate through the subject's
   nugentPlot<-ggplot(data=nugent)+
     geom_bar(aes(x=as.numeric(SERIAL),y=NUGENT_SCORE,width=.9,fill=color),
              stat="identity",position = position_dodge(width=0.5))+
-    mBio+
+    journalFormat+
     geom_hline(yintercept = c(3,7),size=rel(1),col="pink")+ ## Defines Nugent score 3 & 7 (BV 
     theme(axis.ticks = element_blank(),
           axis.title.x=element_blank(),
@@ -2183,7 +2183,7 @@ for(s in subject_plot_list){  ## iterate through the subject's
     geom_point(aes(y=3*(as.numeric(MENSTRUATION)>0),size=as.numeric(MENSTRUATION)),
                col='red',pch=16, position = position_dodge(width=0.5))+
     scale_size(range = c(2+2,4+2))+ ## for menstru point sizes. Bounded by 3 points on a scale. 
-    mBio+
+    journalFormat+
     theme(legend.position="none",
           plot.title = element_text(size = rel(sizes)),
           axis.text = element_text(size = rel(2*sizes)),
@@ -2226,7 +2226,7 @@ for(s in subject_plot_list){  ## iterate through the subject's
                         y=as.numeric(PH)-ph_normalization_factor,width=.9,fill=color))+ 
     geom_bar(stat="identity",position = position_dodge(width=0.5))+
     scale_fill_manual(values=c('black','red'))+
-    mBio+
+    journalFormat+
     geom_hline(yintercept = c(4.5-ph_normalization_factor),
                size=rel(1),col="pink")+ ## Vaginal pH>4.5 one criteria for BV. 
     theme(axis.ticks = element_blank(),
@@ -2294,7 +2294,7 @@ dummy_globalSpeciesList<-data.frame(SERIAL=1,species=global_species_list,count=1
 dummy_globalSpeciesList_plot<-ggplot(dummy_globalSpeciesList)+
   geom_area(aes(x=SERIAL,y=count,fill=species,order=order(as.numeric(as.factor(dummy_globalSpeciesList$species)),decreasing = F)),
             stat="identity",show.legend=T,position="fill")+#,width=1)+
-  mBio+
+  journalFormat+
   theme(axis.ticks = element_blank(),
         axis.title.x=element_blank(),
         axis.text.x = element_blank(),
@@ -2320,7 +2320,7 @@ dev.off()
 ## RIN Quality Distribition 
 TRL_RNA_Sample_QuantQual<-read.csv(paste0(R_script_input_directory,"TRL_RNA_Sample_Quality.csv"),header = F)
 #postscript(paste0(thesis_figures_directory,FIGURE_TRL_RIN_HIST))
-p<-ggplot(TRL_RNA_Sample_QuantQual,aes(x=V1))+geom_histogram()+xlab("RINe")+ylab("Number of Samples")+geom_vline(xintercept = median(TRL_RNA_Sample_QuantQual$V1),col='red')+mBio
+p<-ggplot(TRL_RNA_Sample_QuantQual,aes(x=V1))+geom_histogram()+xlab("RINe")+ylab("Number of Samples")+geom_vline(xintercept = median(TRL_RNA_Sample_QuantQual$V1),col='red')+journalFormat
 plot(p)
 dev.off()
 plot(p)
@@ -2649,7 +2649,7 @@ paste0(c("the remaining 5 pathways did not belong to either cell cycle or immuni
 ggplot(pathway_zscores.medium.melt.immune)+geom_tile(aes(x=ExposureTime,y=pathway,fill=value))+
 scale_fill_gradient2(high="red",mid="white",low="blue", 
        na.value="yellow", midpoint=0)+facet_wrap(~comp,nrow=1)+
-  #mBio+
+  #journalFormat+
   theme_bw() + theme(text = element_text(colour = "black",size=12))
   #theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,30),units = "pt"))
 
@@ -2660,7 +2660,7 @@ cairo_ps(paste0(thesis_figures_directory,FIGURE_COMBINED_PATHWAYS_CYCLE,".eps"),
 ggplot(pathway_zscores.medium.melt.cycle)+geom_tile(aes(x=ExposureTime,y=pathway,fill=value))+
 scale_fill_gradient2(high="red",mid="white",low="blue", 
        na.value="yellow", midpoint=0)+facet_wrap(~comp,nrow=1)+
-  mBio+
+  journalFormat+
   theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,0),units = "pt"))
 
 dev.off()
@@ -2732,7 +2732,7 @@ long_plot.cc<-ggplot(cycle_genes_expression)+geom_point(aes(x=as.numeric(Exposur
   facet_wrap(~gene,scales = "free_y",nrow =2)+theme_bw()+scale_color_manual(values = color_map)+
   geom_hline(yintercept =0)+geom_hline(yintercept =c(-1,0,1),lty=2)+xlab("Exposure Time (hours)")+
   geom_text(aes(x=as.numeric(ExposureTime),y=logFC,label=DE.pval),size=8)+
-  mBio+
+  journalFormat+
   ylab("log (Fold Change)")+scale_x_continuous(breaks=c(4,13,22))
 
 plot(long_plot.cc)
