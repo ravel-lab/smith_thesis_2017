@@ -1133,13 +1133,18 @@ model_input_Lactobacillus<-dplyr::select(model_input[!is.na(model_input$LACTO_PR
 
 model_input_Lactobacillus[is.na(model_input_Lactobacillus)]<-0 ## RF can not have missing values. Replacing with 0's isn't technically valid, but should have a minimal effect on outcome
 
-##ADD QC STAGE TO SRL_meta_table, then write to disk
-SRL_meta_table<-left_join(SRL_meta_table,removed_samples,by="Pre_QC_ID")
-print(paste0("There were 5 samples removed due to insufficient library material or failure to sequence, and ",sum(!is.na(SRL_meta_table$QC_removal_stage) & SRL_meta_table$QC_removal_stage %in% c("Low_Coverage","Visual Outlier"))," samples were removed due to low total miRNA reads or outliers."))
 
 ## Make note of which samples aren't going into RF model because there's no Lacto info
 samples_without_16S<-setdiff(row.names(model_input),row.names(model_input_Lactobacillus))
-SRL_meta_table[SRL_meta_table$Pre_QC_ID %in% samples_without_16S,"QC_removal_stage"]<-"No metataxonomic data"
+(removed_samples<-remove_poorQC_samples(removed_samples =removed_samples, 
+                                        sample_list =samples_without_16S,
+                                        reason = "No metataxonomic data"))
+
+#SRL_meta_table[SRL_meta_table$Pre_QC_ID %in% samples_without_16S,"QC_removal_stage"]<-"No metataxonomic data"
+
+##ADD QC STAGE TO SRL_meta_table, then write to disk
+SRL_meta_table<-left_join(SRL_meta_table,removed_samples,by="Pre_QC_ID")
+print(paste0("There were 5 samples removed due to insufficient library material or failure to sequence, ",sum(!is.na(SRL_meta_table$QC_removal_stage) & SRL_meta_table$QC_removal_stage %in% c("Low_Coverage","Visual Outlier"))," samples were removed due to low total miRNA reads or outliers and ",sum(!is.na(SRL_meta_table$QC_removal_stage) & SRL_meta_table$QC_removal_stage %in% c("No metataxonomic data"))," samples for which no metataxonomic data exists."))
 
 ## Write SRL metadata
 write.csv(SRL_meta_table,file=paste0(thesis_tables_directory,TABLE_SRL_METADATA),row.names=F,quote=F)
