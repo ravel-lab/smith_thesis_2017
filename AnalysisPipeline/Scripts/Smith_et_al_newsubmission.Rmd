@@ -2568,7 +2568,6 @@ row.names(Pathways_design)<-Pathways_design$comparison
 ## Map mapthway names to classifications
 path_type_map<-read.csv(paste0(R_script_input_directory,"Pathway_classification.csv"),stringsAsFactors = F)
 
-
 ## Subset to look at only cell culture medium references
 medium_comparisons<-names(data.frame(pathway_zscores.matrix))[grepl(names(data.frame(pathway_zscores.matrix)),pattern = "M")]
 pathway_zscores.matrix.medium<-pathway_zscores.matrix[,names(data.frame(pathway_zscores.matrix)) %in% medium_comparisons]
@@ -2586,20 +2585,22 @@ summary_pathways<-cbind(data.frame(num_cycle.p=colSums(pathway_zscores.matrix.me
 summary_pathways$comparison<-row.names(summary_pathways)
 summary_pathways<-merge(summary_pathways,Pathways_design)
 
-## Write table summarizing the number of pathways above or below z score, grouped by pathway category
-write.csv(summary_pathways,paste0(thesis_tables_directory,TABLE_TRL_SUMMARY_PATHWAYS),row.names=F,quote=F)
+
+
+## Write table summarizing the number of pathways above or below z score
+write.csv(dplyr::select(summary_pathways,c(comparison,contains("cycle"))),paste0(thesis_tables_directory,TABLE_TRL_SUMMARY_PATHWAYS),row.names=F,quote=F)
 
 write.csv(pathway_zscores.matrix.medium,paste0(thesis_tables_directory,TABLE_TRL_PATHWAY_Z_SCORES),row.names=T,quote=F)
 
 ##Sort # of z>2 pathways by negative cycle, positive immune and negative immune
 summary_pathways[order(summary_pathways$num_cycle.n,decreasing = T),]
-summary_pathways[order(summary_pathways$num_immune.p,decreasing = T),]
-summary_pathways[order(summary_pathways$num_immune.n,decreasing = T),]
+#summary_pathways[order(summary_pathways$num_immune.p,decreasing = T),]
+#summary_pathways[order(summary_pathways$num_immune.n,decreasing = T),]
 
 ## Use pathways that are expressed abs(z-score)>2 in 10% of comparisons 
 pathway_zscores.matrix.medium<-pathway_zscores.matrix.medium[(rowSums(abs(pathway_zscores.matrix.medium)>2))>=.1*ncol(pathway_zscores.matrix.medium),]
 
-## Clean up some of the pathway names in pathway map
+## Clean up some of the pathway names in pathway map since the formatting gets screwed up
 path_type_map[path_type_map$pathway=="NF-_B Signaling","pathway"]<-"NF-κB Signaling"
 path_type_map[path_type_map$pathway=="PKC_ Signaling in T Lymphocytes","pathway"]<-"PKCθ Signaling in T Lymphocytes"
 
@@ -2638,25 +2639,29 @@ pathway_zscores.medium.melt.cycle<-dplyr::filter(pathway_zscores.medium.melt,cla
 unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway)))
 paste0("Number of pathways belonging to each class:")
 table(unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway))) %>% dplyr::select(class))
+# 
+# paste0(c("the remaining 5 pathways did not belong to either cell cycle or immunity:",str_c(unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway))) %>% dplyr::filter(class=="o") %>% dplyr::select(pathway),collapse = ", ")))
+# 
+# ggplot(pathway_zscores.medium.melt.immune)+geom_tile(aes(x=ExposureTime,y=pathway,fill=value))+
+# scale_fill_gradient2(high="red",mid="white",low="blue", 
+#        na.value="yellow", midpoint=0)+facet_wrap(~comp,nrow=1)+
+#   #journalFormat+
+#   theme_bw() + theme(text = element_text(colour = "black",size=12))
+#   #theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,30),units = "pt"))
+# 
+# dev.off()
+pathway_zscores.medium.melt.cycle$comp_label<-factor(pathway_zscores.medium.melt.cycle$comp,levels = c("LCM","LJM","LIM","GVM"),labels=c("L. crispatus BCS","L. jensenii BCS","L. iners BCS", "G. vaginalis BCS"),ordered = T)
 
-paste0(c("the remaining 5 pathways did not belong to either cell cycle or immunity:",str_c(unique(dplyr::select(pathway_zscores.medium.melt,c(class,pathway))) %>% dplyr::filter(class=="o") %>% dplyr::select(pathway),collapse = ", ")))
-
-ggplot(pathway_zscores.medium.melt.immune)+geom_tile(aes(x=ExposureTime,y=pathway,fill=value))+
-scale_fill_gradient2(high="red",mid="white",low="blue", 
-       na.value="yellow", midpoint=0)+facet_wrap(~comp,nrow=1)+
-  #journalFormat+
-  theme_bw() + theme(text = element_text(colour = "black",size=12))
-  #theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,30),units = "pt"))
-
-dev.off()
-
-cairo_ps(paste0(thesis_figures_directory,FIGURE_COMBINED_PATHWAYS_CYCLE,".eps"),width=10,height=8)
+cairo_ps(paste0(thesis_figures_directory,FIGURE_COMBINED_PATHWAYS_CYCLE),width=10,height=8)
 
 ggplot(pathway_zscores.medium.melt.cycle)+geom_tile(aes(x=ExposureTime,y=pathway,fill=value))+
-scale_fill_gradient2(high="red",mid="white",low="blue", 
-       na.value="yellow", midpoint=0)+facet_wrap(~comp,nrow=1)+
+scale_fill_gradient2(guide = guide_colourbar(title="Z-score"),high="red",mid="white",low="blue", 
+       na.value="yellow", midpoint=0)+
+  facet_wrap(~comp_label,nrow=1)+
   journalFormat+
-  theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,0),units = "pt"))
+  theme(text = element_text(size=12),plot.margin = unit(c(0,30,0,0),units = "pt"))+
+  xlab("Exposure time (hours)")+
+  ylab("Cell cycle pathway")
 
 dev.off()
 

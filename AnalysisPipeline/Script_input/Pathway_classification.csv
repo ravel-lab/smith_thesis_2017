@@ -23,11 +23,11 @@ Interferon Signaling,i,?
 LXR/RXR Activation,o,
 MIF Regulation of Innate Immunity,i,pro
 Mitotic Roles of Polo-Like Kinase,c,
-NF-‘_B Signaling,i,?
+NF-_B Signaling,i,?
 NRF2-mediated Oxidative Stress Response,o,
 p38 MAPK Signaling,i,pro?
 PI3K Signaling in B Lymphocytes,i,pro?
-PKC‘Ÿ Signaling in T Lymphocytes,i,pro?
+PKC-_ Signaling in T Lymphocytes,i,pro?
 PPAR Signaling,o,
 Production of Nitric Oxide and Reactive Oxygen Species in Macrophages,i,
 RANK Signaling in Osteoclasts,c,
@@ -41,4 +41,4 @@ TREM1 Signaling,i,
 Type I Diabetes Mellitus Signaling,o,
 UVA-Induced MAPK Signaling,o,
 NF-_B Signaling,i,?
-PKC_ Signaling in T Lymphocytes,i,pro?
+PKC-_ Signaling in T Lymphocytes,i,pro?
