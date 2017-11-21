@@ -1186,7 +1186,7 @@ Lacto_RF<-run_randomForest(predictors_response_table = model_input_Lactobacillus
                            permute = T,
                            save_model = T,
                            file_n = "Lacto_RF",
-                           load_prev_model = F,
+                           load_prev_model = T,
                            verbose = F,
                            training_prop = training_prop,
                            R_script_output_directory=R_script_output_directory) 
@@ -2004,13 +2004,13 @@ sampleInfoColNames<-subject_plot_data$sampleInfoColNames ## holds which column n
 miRNA_extractions<-SRL_meta_table[is.na(SRL_meta_table$QC_removal_stage) & !is.na(SRL_meta_table$CST),] ## Samples associated with miRNA libraries used in final study- i.e., don't include samples removed due to poor QC. 
 ## Also adding in only samples that have 16S data as well. Will wind up dropping 16 samples, but it is what it is... 
 
-subject_plot_list<- unique(miRNA_extractions$SID) ## Subject IDs to plot
+subject_plot_list<- c("UAB102") #unique(miRNA_extractions$SID) ## Subject IDs to plot
 
 global_species_list<-NULL ## Initialize a container to store all species plotted in fig 1 as a legend
 
 for(s in subject_plot_list){  ## iterate through the subject's
   print(s)
-  #s<-"UAB008"
+  #s<-"UAB102"
   ## ////////////////////////////////// ##
   ## ///  Subeset Data by Subject   /// ##
   ## ////////////////////////////////// ##
