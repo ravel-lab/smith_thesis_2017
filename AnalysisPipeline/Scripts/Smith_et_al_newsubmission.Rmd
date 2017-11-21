@@ -2690,7 +2690,10 @@ edgeR_results[1:5,1:6]
 row.names(edgeR_results)<-edgeR_results$gene
 dplyr::select(edgeR_results[edgeR_results$gene %in% c("EGFR","EP300","HDAC4","CDKN1A"),],contains("M")) %>% dplyr::select(contains("PValue.adj"))
 
-write.csv(edgeR_results,paste0(thesis_tables_directory,TABLE_EDGER_RESULTS),quote = F,row.names = F)
+## Only output comparisons used in manuscript
+edgeR_results.subset<-dplyr::select(edgeR_results,c(gene,matches("[LC|LJ|LI|GV]M")))
+
+write.csv(edgeR_results.subset,paste0(thesis_tables_directory,TABLE_EDGER_RESULTS),quote = F,row.names = F)
 #write.table(edgeR_results,paste0(thesis_tables_directory,"TABLE_A11.txt"),quote = F,row.names = F,sep="\t")
 #write.csv(dplyr::select(edgeR_results,c(gene,ends_with("logFC"),ends_with("PValue"))),paste0(root_directory,"edgeR_results_LCPval.csv"),quote = F,row.names = F)
 
