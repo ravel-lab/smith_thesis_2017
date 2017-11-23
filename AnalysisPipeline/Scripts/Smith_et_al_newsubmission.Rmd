@@ -2712,8 +2712,10 @@ edgeR_results.melt<-separate(edgeR_results.melt,"variable",sep="\\.",into = c("c
 ## Assign colors to BCS
 color_map<-c("LCGV"=unname(subject_long_taxa_colors["Lactobacillus_crispatus"]),"LCM"=unname(subject_long_taxa_colors["Lactobacillus_crispatus"]),"LJGV"=unname(subject_long_taxa_colors["Lactobacillus_jensenii"]),"LJM"=unname(subject_long_taxa_colors["Lactobacillus_jensenii"]),"LIM"=unname(subject_long_taxa_colors["Lactobacillus_iners"]),"LIGV"=unname(subject_long_taxa_colors["Lactobacillus_iners"]),"GVM"=unname(subject_long_taxa_colors["Gardnerella_vaginalis"]))
 
+color_map<-c(color_map,c("L. crispatus BCS"=unname(color_map["LCM"]),"L. jensenii BCS"=unname(color_map["LJM"]),"L. iners BCS"=unname(color_map["LIM"]), "G. vaginalis BCS"=unname(color_map["GVM"])))
+
 ## Use different line types for G. vaginalis and medium (if used)
-line_map<-data.frame(comparison=names(color_map),line_type=c("solid","dashed","solid","dashed","dashed","solid","dashed"))
+line_map<-data.frame(comparison=names(color_map),line_type=c("solid","dashed","solid","dashed","dashed","solid","dashed","solid","solid","solid","solid"))
 
 ## Merge tables together to map DE results to plot annotations
 edgeR_results_colors<-data.frame(comparison=names(color_map),colr=unname(color_map))
@@ -2731,9 +2733,12 @@ cycle_genes_expression<-spread(cycle_genes_expression,key = value_type,value = v
 cycle_genes_expression$gene<-factor(cycle_genes_expression$gene,levels = cycle_genes,ordered = T) ## Maintain order of genes- this follows logical order discussed in thesis. 
 cycle_genes_expression[cycle_genes_expression$Pvalue_adj<0.01,"DE.pval"]<-"*" ## Annotate which samples are DE by FDR
 
+cycle_genes_expression$comparison_label<-factor(cycle_genes_expression$comparison,levels = c("LCM","LJM","LIM","GVM"),labels=c("L. crispatus BCS","L. jensenii BCS","L. iners BCS", "G. vaginalis BCS"),ordered = T)
+
+
 ## Make plot
-long_plot.cc<-ggplot(cycle_genes_expression)+geom_point(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=3)+
-  geom_line(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison),size=2)+
+long_plot.cc<-ggplot(cycle_genes_expression)+geom_point(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison_label),size=3)+
+  geom_line(aes(x=as.numeric(ExposureTime),y=logFC,col=comparison_label),size=2)+
   facet_wrap(~gene,scales = "free_y",nrow =2)+theme_bw()+scale_color_manual(values = color_map)+
   geom_hline(yintercept =0)+geom_hline(yintercept =c(-1,0,1),lty=2)+xlab("Exposure Time (hours)")+
   geom_text(aes(x=as.numeric(ExposureTime),y=logFC,label=DE.pval),size=8)+
