@@ -2001,10 +2001,10 @@ OTU_METADATA<-subject_plot_data$OTU_METADATA ## metadata
 rRNA_16S<-subject_plot_data$relativeAbundance ## taxa assignments/relative abundances
 sampleInfoColNames<-subject_plot_data$sampleInfoColNames ## holds which column names are associated with metadata
 
-miRNA_extractions<-SRL_meta_table[is.na(SRL_meta_table$QC_removal_stage) & !is.na(SRL_meta_table$CST),] ## Samples associated with miRNA libraries used in final study- i.e., don't include samples removed due to poor QC. 
-## Also adding in only samples that have 16S data as well. Will wind up dropping 16 samples, but it is what it is... 
+## Filter metadata table to only include samples that were extracted and passed sample QC. Be sure to include samples that were extracted but which no metadataxonmic data exists. 
+miRNA_extractions<-SRL_meta_table[is.na(SRL_meta_table$QC_removal_stage ) | !SRL_meta_table$QC_removal_stage %in% c("No metataxonomic data"),]## Samples associated with miRNA libraries used in final study- i.e., don't include samples removed due to poor QC. Also adding in only samples that have 16S data as well. Will wind up dropping 16 samples, but it is what it is... 
 
-subject_plot_list<- c("UAB102") #unique(miRNA_extractions$SID) ## Subject IDs to plot
+subject_plot_list<- unique(miRNA_extractions$SID) ## Subject IDs to plot, including samples that may not have usable data in final RF model
 
 global_species_list<-NULL ## Initialize a container to store all species plotted in fig 1 as a legend
 
@@ -2056,15 +2056,17 @@ for(s in subject_plot_list){  ## iterate through the subject's
   
   ## min time point -  the max of the min of either miR extractions or all data
   global_max_time<-min(c(max(miRNA_extractions[miRNA_extractions$SID==s,"SERIAL"]+5),max(SERIAL_global,na.rm = T))) ## max time point across all data
-  removed_samples
+  
   ## cleaner way to define as variable for X axis:
   time_breaks<-time_points$SERIAL 
   time_label<-time_points$plot_label
   time_limits<-c(global_min_time-1,global_max_time+1)
   
-  ## Determine the min & max of time points
-  rect_min<-time_breaks[!time_breaks%in% miRNA_extractions[miRNA_extractions$SID==s,"SERIAL"]]-.5
-  rect_max<-time_breaks[!time_breaks%in% miRNA_extractions[miRNA_extractions$SID==s,"SERIAL"]]+.5
+  ## Determine the min & max of time points- these will be used to 'grey out' samples that were dropped because of 1) poor QC 2) extracted for smallRNA seq but not 16S
+  ## The fina figure will have greyed out boxes if a sample was not used in RF models, but will have a line for the time point if data exists (i/e/, 16S data but not small RNAseq). 
+  rect_min<-time_breaks[!time_breaks%in% miRNA_extractions[miRNA_extractions$SID==s &  is.na(miRNA_extractions$QC_removal_stage),"SERIAL"]]-.5
+  rect_max<-time_breaks[!time_breaks%in% miRNA_extractions[miRNA_extractions$SID==s & is.na(miRNA_extractions$QC_removal_stage),"SERIAL"]]+.5
+  
   
   ## ////////////////////////////////// ##
   ## / Determine most adbundant species ##
@@ -2139,8 +2141,8 @@ for(s in subject_plot_list){  ## iterate through the subject's
     annotate("rect", xmin=rect_min, xmax=rect_max, ymin=0, ymax=1, alpha=alpha_rect, fill=rect_fill)+
     scale_x_continuous(breaks=time_breaks,label=time_label,limits=time_limits)
   
-  ## Determine any dropped sample (post QC) time points and place an * above 
-  dropped_samples.serial<-otu_count[otu_count$Pre_QC_ID %in% removed_samples$Pre_QC_ID,"SERIAL"]
+  ## Determine any dropped sample (post QC) time points and place an * above, but do not place an * for samples without metataxonomic (these are annotated with greyed boxes-- they weren't dropped because of poor QC. )
+  dropped_samples.serial<-otu_count[otu_count$Pre_QC_ID %in% removed_samples[removed_samples$QC_removal_stage %in% c("Low_Coverage"),"Pre_QC_ID"],"SERIAL"]
   if(length(dropped_samples.serial)!=0){otuPlot<-otuPlot+annotate("text", x =dropped_samples.serial , y = 1.01, label = "*",size=8)}
   
   
