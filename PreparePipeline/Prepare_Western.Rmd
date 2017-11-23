@@ -11,7 +11,8 @@ root_directory<-"~/smith_thesis_2017/PreparePipeline/"
 R_script_input_directory<-"~/smith_thesis_2017/AnalysisPipeline/Script_input/"
 
 Western<-read.csv(paste0(root_directory,"western_summary.csv"))
-Western$BCS<-factor(Western$BCS,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"),ordered = T)
+Western$BCS<-factor(Western$BCS,levels = c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid","miR-193b mimic","scramble control"),ordered = T)
+
 save(Western,file=paste0(R_script_input_directory,"Western.Rmd"))
 ```
 =

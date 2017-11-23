@@ -166,11 +166,12 @@ TABLE_RF_SUMMARY<-"TABLE_S7.csv"
 TABLE_MIR_TARGETS<-"TABLE_S8.txt"
 TABLE_QPCR_TIMECOURSE<-"TABLE_S9.csv"
 TABLE_EDU_SCRATCH_QUANT<-"TABLE_S10.csv"
-TABLE_CT_QUANT<-"TABLE_S11.csv"
-TABLE_TRL_ALIGNSTATS<-"TABLE_S12.csv"
-TABLE_TRL_COUNTS_RAW<-"TABLE_S13.csv"
-TABLE_EDGER_RESULTS<-"TABLE_S14.csv"
-TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S15.csv"
+TABLE_WESTERN_QUANT<-"TABLE_S11.csv"
+TABLE_CT_QUANT<-"TABLE_S12.csv"
+TABLE_TRL_ALIGNSTATS<-"TABLE_S13.csv"
+TABLE_TRL_COUNTS_RAW<-"TABLE_S14.csv"
+TABLE_EDGER_RESULTS<-"TABLE_S15.csv"
+TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S16.csv"
 
 FIGURE_SUBJECT_PLOTS<-"FIGURE_1_"
 FIGURE_RF_IMPORTANCE_AMSEL<-"FIGURE_drop_2.eps"
@@ -1250,7 +1251,22 @@ topmir_plot_data$variable<-gsub(topmir_plot_data$variable,pattern = "hsa.mir.",r
 
 ## Calcualte linear model fit for miRNA expression data vs Nugent score to rank miR expression plots in figure
 
-fitness<-apply(model_input[,names(model_input) %in% unique(topmir_plot_data$variable)],MARGIN = 2,function(s) summary(lm(model_input$NUGENT_SCORE~s)))
+lm_input<-model_input[,names(model_input) %in% c(as.character(unique(topmir_plot_data$variable)),"LACTO_PROP")]
+library(purrr)
+
+fitness<-lm_input %>% 
+  select(-LACTO_PROP) %>%
+    names() %>% 
+    paste0('LACTO_PROP ~ `', .,'`') %>% 
+    map(~lm(as.formula(.x), data = lm_input))
+
+lapply(fitness,FUN=function(x) fitness[[x]][1]$coefficients[2])
+lapply(fitness,unname)
+data.frame(unlist(fitness),
+           adjr2==lapply(lapply(fitness,summary),function(x) round(x$adj.r.squared,digits = 3)))
+
+#fitness<-apply(model_input[,names(model_input) %in% unique(topmir_plot_data$variable)],MARGIN = 2,function(s) summary(lm(model_input,LACTO_PROP~s)))
+
 
 fitness.r2<-data.frame(adjr2=unlist(lapply(fitness,function(x) round(x$adj.r.squared,digits = 3))))
 fitness.r2$variable<-row.names(fitness.r2)
@@ -1262,7 +1278,7 @@ topmir_plot_data<-join(topmir_plot_data,fitness.r2)
 topmir_plot_data$variable<-factor(x=topmir_plot_data$variable,levels = unique(topmir_plot_data[order(abs(topmir_plot_data$adjr2),decreasing = T),c("variable")]),ordered = T)
 
 ## Liner correlation coeff for miRNA expression data:
-paste(apply(unique(dplyr::select(topmir_plot_data,c(variable,adjr2))),MARGIN = 1,FUN = function(x) paste(sep =":" ,x[1],x[2])),sep=",")
+paste(apply(unique(dplyr::select(topmir_plot_data,c(variable,adjr2))) %>% dplyr::arrange(rev(adjr2)),MARGIN = 1,FUN = function(x) paste(sep =":" ,x[1],x[2])),sep=",")
 
 ## Collapse CSTs to a single CST super type
 topmir_plot_data[topmir_plot_data$CST %in% c("III-A","III-B"),"CST"]<-"III"
@@ -1625,10 +1641,10 @@ PLOT_QPCR_TIMECOURSE<-
 cairo_ps(paste0(thesis_figures_directory,FIGURE_QPCR_TIMECOURSE),width = 9,height = 6)
 PLOT_QPCR_TIMECOURSE
 dev.off()
-
+##FIXME- this figure should have more reference--- what am I trying to say?
 ## Show D and L lactic acid qPCR results compared to other references
 ddct_LacticAcid_plot<-
-  ggplot(filter(qpcr_sigtest,ExposureTime=="4hr" & !qpcr_sigtest$reference=="0.06% D-lactic acid"),aes(x=reference,y=-mean_diff,col=comparison))+
+  ggplot(filter(qpcr_sigtest,ExposureTime=="4hr" & !qpcr_sigtest$reference=="0.06% D-lactic acid" & !reference %in% c("G. vaginalis")),aes(x=reference,y=-mean_diff,col=comparison))+
   theme_bw()+
   geom_hline(yintercept = 0,col="#9e9ac8",size=2.5)+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=14))+
@@ -1647,8 +1663,11 @@ paste0("Additionally, the ∆∆Ct of miR-193b expression after 4 hours of expos
 
 ## Write plot as a table
 qpcr_sigtests<-dplyr::select(qpcr_sigtest[with(qpcr_sigtest,order(ExposureTime.n,comparison,reference)),],c(comparison,reference,ExposureTime,mean_diff,pval,sig))
-qpcr_sigtests$Figure<-gsub(FIGURE_QPCR_TIMECOURSE,pattern=".eps",replacement = "")
 
+qpcr_sigtests$Figure<-gsub(FIGURE_QPCR_TIMECOURSE,pattern=".eps",replacement = "")
+qpcr_sigtests[qpcr_sigtests$ExposureTime=="4hr" & !qpcr_sigtests$reference=="0.06% D-lactic acid" & !qpcr_sigtests$comparison %in% c("L. crispatus","L. jensenii","L. iners","G. vaginalis"),"Figure"]<-gsub(FIGURE_DL_LACTICACID_QPCR,pattern=".eps",replacement = "")
+## Only plotting medium as reference, filter for table
+qpcr_sigtests<-dplyr::filter(qpcr_sigtests,reference=="Cell Culture Medium")
 write.csv(qpcr_sigtests,file=paste0(thesis_tables_directory,TABLE_QPCR_TIMECOURSE),row.names = F)
 
 ```
@@ -1660,20 +1679,12 @@ write.csv(qpcr_sigtests,file=paste0(thesis_tables_directory,TABLE_QPCR_TIMECOURS
 
 ```{r Scratch_EDU,eval=T}
 
-
-###FIXME this should now be set up closert to qPCR given it is a time course
-
-#write.csv(in_vitro_experiments,"~/Desktop/inv.csv")
-## Breadcrumb: 
-# In_Vitro_Experiments.Rdata in PreparePipeline/Prepare_EdU_Scratch.Rmd
 load(file=paste0(R_script_input_directory,"In_Vitro_Experiments.Rdata")) 
-#in_vitro_experiments<-read.csv(paste0("~/smith_thesis_2017/PreparePipeline/","In_vitro_Experiments.csv")) ## pre-compiled csv datatable. 
 ## Melt scratch assay data for easier handling
 scratch.m<-filter(in_vitro_experiments,Experiment=="Scratch" & Observation == "Proliferation" & !grepl(x = as.character(in_vitro_experiments$Treatment),pattern = "CONTROL_")) %>% dplyr::select(-c(Experiment,Coverslip)) 
 
 ## Re-name the melted data
 names(scratch.m)<-c("Observation","BCS","ExposureTime","percent_cells","Field")
-
 
 ## //////////////
 ### Scratch Assay
@@ -1819,8 +1830,8 @@ proliferation_sigtests<-proliferation_sigtests[with(proliferation_sigtests, orde
 proliferation_sigtests<-dplyr::select(proliferation_sigtests,Figure,xref,reference,ExposureTime,pval,mean_diff,sig)
 
 
-sig.migration<-t.test(dplyr::filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_TSBmed_20pct")$percent_cells,
-dplyr::filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_NYCmed_20pct")$percent_cells)
+# sig.migration<-t.test(dplyr::filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_TSBmed_20pct")$percent_cells,
+# dplyr::filter(control_meds,Observation=="Proliferation" & Treatment=="CONTROL_NYCmed_20pct")$percent_cells)
 
 
 proliferation_sigtests<-rbind(proliferation_sigtests,
@@ -1828,7 +1839,7 @@ proliferation_sigtests<-rbind(proliferation_sigtests,
                                          xref="TSB",
                                          reference="NYC",
                                          ExposureTime="13hr",
-                              pval=sig.migration$p.value,
+                              pval= control_meds.summary$p.value,
                               mean_diff=sig.migration$estimate[2] - sig.migration$estimate[1],
                               sig=ifelse(sig.migration$p.value<pval_threshold,"*","N.S.")))
  
@@ -1864,6 +1875,8 @@ postscript(file=paste0(thesis_figures_directory,FIGURE_nyc_v_tsb),width = 8,heig
 PLOT_nyc_v_tsb
 dev.off()
 
+proliferation_sigtests<-proliferation_sigtests[with(proliferation_sigtests, order(Figure, x,xend)),]
+
 write.csv(proliferation_sigtests,file=paste0(thesis_tables_directory,TABLE_EDU_SCRATCH_QUANT),row.names = F)
 
 ## PErcent proliferation in 1% DL lactic acid, ph buffered 7.66 expoed cells. Easier to hardcode than read in table
@@ -1897,6 +1910,8 @@ postscript(file=paste0(thesis_figures_directory,FIGURE_WESTERN_QUANT),width = 8,
 plot(western.plot)
 dev.off()
 
+Western$ExposureTime<-paste0(Western$ExposureTime,"hr")
+write.csv(Western,file=paste0(thesis_tables_directory,TABLE_WESTERN_QUANT),row.names = F)
 ```
 
 ## Inhbit A2EN cell proliferation & Observe CT Infectivity  
@@ -1984,7 +1999,8 @@ summary(ct_pro_summary_lm)
 
 
 ## Combine proliferation sig tests and write to file
-ct_sigtests<-data.frame(Figure=paste0("FIGURE_4",ct_sigtest$Observation),ct_sigtest)
+FIGURE_CT_EDU_QUANT
+ct_sigtests<-data.frame(Figure=paste0(gsub(FIGURE_CT_EDU_QUANT,pattern = ".ps",replacement = ""),"_",ct_sigtest$Observation),ct_sigtest)
 ct_sigtests<-dplyr::select(ct_sigtests[with(ct_sigtests,order(Observation,x,xend)),],c(Figure,xref,reference,pval,mean_diff,sig))
 
 write.csv(ct_sigtests,file=paste0(thesis_tables_directory,TABLE_CT_QUANT),row.names=F,quote=F)
