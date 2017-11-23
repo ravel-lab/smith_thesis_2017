@@ -1149,13 +1149,13 @@ print(paste0("There were 5 samples removed due to insufficient library material 
 ## Write SRL metadata
 write.csv(SRL_meta_table,file=paste0(thesis_tables_directory,TABLE_SRL_METADATA),row.names=F,quote=F)
 
-## Summarize # samples surviving QC and having 16S data
-SRL_seq_summary<-ddply(SRL_meta_table,c("BVGroup","SID"),summarise,PreQC=length(QC_removal_stage),PostQC=length(QC_removal_stage)-sum(as.numeric(QC_removal_stage),na.rm = T))
 
-## Count # samples with 16S data
-samples_with_16S.nsid<-data.frame(table(dplyr::filter(SRL_meta_table,!Pre_QC_ID %in% samples_without_16S & is.na(SRL_meta_table$QC_removal_stage))$SID))
-names(samples_with_16S.nsid)<-c("SID","With Lact. RA")
-SRL_seq_summary<-merge(SRL_seq_summary,samples_with_16S.nsid,all.x = T)
+## Summarize # samples surviving QC and having 16S data
+SRL_seq_summary<-ddply(SRL_meta_table,c("BVGroup","SID"),summarise,
+                       PreQC=length(QC_removal_stage),
+                       PostQC=length(QC_removal_stage)-sum(as.numeric(QC_removal_stage %in% c("Low_Coverage","Visual Outlier")),na.rm = T),
+                       With_metataxonomic=sum(as.numeric(is.na(QC_removal_stage)),na.rm = T)
+                       )
 
 ## Write to table
 SRL_seq_summary<-SRL_seq_summary[order(SRL_seq_summary$BVGroup),]
