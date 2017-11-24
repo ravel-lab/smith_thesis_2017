@@ -152,7 +152,8 @@ cst.colors<-c("I-A"="red1",
 
 ## Table and figure names
 TABLE_SEQSUMMARY<-"TABLE_1.csv"
-TABLE_TOPMIRS<-"TABLE_2.txt"
+#TABLE_TOPMIRS<-"TABLE_2.txt"
+TABLE_GO_GENES<-"TABLE_2.txt"
 TABLE_TRL_NUMDEGENES<-"TABLE_3.csv"
 TABLE_TRL_SUMMARY_PATHWAYS<-"TABLE_4.csv"
 
@@ -994,7 +995,7 @@ plot_RIN_meta(pData(counts_meta.qc),"number_reads_mirs.percent_surviving",col_by
 dev.off()
 median_RIN<-median(pData(counts_meta.qc)$RIN,na.rm = T)
 
-print(paste0("The median RINe score was ",median_RIN,", with ",round(100*sum(pData((counts_meta.qc))$RIN<7,na.rm = T)/length(pData((counts_meta.qc))$RIN),digits = 1),"% of the samples having a RINe greater than 7."))
+print(paste0("The median RINe score was ",median_RIN,"."))
 
 number_miRNAs<-mapping_stats(pData(counts_meta.qc)$number_reads_mirs)
 percent_miRNAs.hg<-round(mapping_stats(pData(counts_meta.qc)$number_reads_mirs.percent_hgmapped),1)
@@ -1158,6 +1159,7 @@ SRL_seq_summary<-ddply(SRL_meta_table,c("BVGroup","SID"),summarise,
                        With_metataxonomic=sum(as.numeric(is.na(QC_removal_stage)),na.rm = T)
                        )
 
+
 ## Write to table
 SRL_seq_summary<-SRL_seq_summary[order(SRL_seq_summary$BVGroup),]
 write.csv(SRL_seq_summary,file=paste0(thesis_tables_directory,TABLE_SEQSUMMARY),row.names=F,quote=F)
@@ -1175,7 +1177,7 @@ Use RF to discover miRNAs associated w/ Lactobacillus spp. dominated communities
 ## See run_randomForest function above for paramaters. Note that you can load a previously-built model to save time.  Note that if loaded from previous, most of the input is ignored. 
 
 ##FIXME change all Nugent to Lacto (or just RF) and remove Amsel. 
-model_input_Lactobacillus
+names(model_input_Lactobacillus)
 
 setdiff(c(Lacto_RF$training_ids,Lacto_RF$testing_ids),row.names(model_input_Lactobacillus))
 
@@ -1354,6 +1356,7 @@ mir_go<-read.csv(paste0(R_script_input_directory,"miR_GODirect_Gene_Map.csv"),st
 mir_go<-mir_go[mir_go$mir %in% as.character(top_mirs_table$miRNA),]
 ddply(unique(dplyr::select(mir_go,c(mir,gene))),c("mir"),summarise,n=length(gene))
 
+
 ## Read in miR-target counts, created in outside script. 
 mir_targetCnt<-read.csv(paste0(R_script_input_directory,"miR_Target_Counts.csv"),stringsAsFactors = F)
 mir_targetCnt[mir_targetCnt$mir %in% top_mirs_table$miRNA,]
@@ -1392,8 +1395,8 @@ for(a in 1:nrow(df1)){
 (optimal_cutoffs<-df1[df1$ncol==max(df1[df1$ncol<=25 & df1$ncol>=5,"ncol"]),]) ## What are the optimal cutoffs for somewhere between 5 and 25 GO processes on the plot?
 
 ## Take the max i/j pair as the cutoffs:
-i<-.1125#0.1904762 # 0.2285714 #0
-j<-0.6#0.3 #0.8
+i<-0.2285714 #0
+j<-0.3 #0.8
 ## Note that 19 in the "nc" column is the number of GO processes that will be plotted
 
 ## Therefore, the proportion of genes should be >0 across at least 0.8*6 =4.8 miRNAs. 
@@ -1454,7 +1457,29 @@ plot(PLOT_MIR_TARGET_GO_PROP)
 ## Output miR-Target-GO table for miR-193b only
 mir_go.wide.filtered.m.193b<-filter(mir_go.wide.filtered.m,mir=="miR-193b")
 
-write.table(dplyr::select(mir_go.wide.filtered.m.193b,c(mir,GO_format,value)),file = paste0(thesis_tables_directory,TABLE_TOPMIRS),sep="\t",quote=F,row.names = F)
+#write.table(dplyr::select(mir_go.wide.filtered.m.193b,c(mir,GO_format,value)),file = paste0(thesis_tables_directory,TABLE_TOPMIRS),sep="\t",quote=F,row.names = F)
+
+## for miR-193b, list genes involved in each process and write as table
+mir_go.mir193b<-dplyr::filter(mir_go,mir=="miR-193b") ## filter on mir193b
+mir_go_genes.mir193b<-data.frame(GO=unique(mir_go.mir193b$GO))
+## FOr each GO term, make a comma separated list of genes in GO
+for(GO in mir_go_genes.mir193b$GO){
+  mir_go_genes.mir193b[mir_go_genes.mir193b$GO==GO,"gene"] <- str_c(mir_go.mir193b[mir_go.mir193b$GO==GO,"gene"],collapse = ", ")
+}
+## sort based on most to least genes in GO
+mir_go_genes.mir193b<-mir_go_genes.mir193b[order(str_count(string = mir_go_genes.mir193b$gene,pattern = ", "),decreasing = T),]
+
+## Filter on GO terms with at least 2 genes
+mir_go_genes.mir193b<-mir_go_genes.mir193b[str_count(string = mir_go_genes.mir193b$gene,pattern = ", ")>=2,]
+
+## The following filters just on what is reported in figure... drops some GO terms not shared with top miRNAs. 
+##FIXME MAke sure to metnion this in manuscript
+mir_go_genes.mir193b[mir_go_genes.mir193b$GO %in% mir_go.wide.filtered.m.193b$variable,]
+
+## Not in GO figure:
+mir_go_genes.mir193b[!mir_go_genes.mir193b$GO %in% mir_go.wide.filtered.m.193b$variable,]
+
+write.table(mir_go_genes.mir193b,file = paste0(thesis_tables_directory,TABLE_GO_GENES),sep="\t",quote=F,row.names = F)
 
 ## Make a GO process bar chart for miR-193b only (for thesis presentation, not used in thesis document)
 mir193b_GOcount_groups<-data.frame(table(dplyr::select(unique(dplyr::select(merge(mir_go.miR193b,group_go_map,by.x="GO",by.y="variable"),c(Group,gene))),Group)))
