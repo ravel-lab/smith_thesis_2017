@@ -80,6 +80,7 @@ library(nlme)
 library(gplots)
 library(Biobase)
 library(caret)
+library(purrr)
 
 ## Source the Random Forest wrapper script
 source(paste0(root_directory,"Scripts/rfSubjectSpecific.R"))
@@ -1254,7 +1255,6 @@ topmir_plot_data$variable<-gsub(topmir_plot_data$variable,pattern = "hsa.mir.",r
 ## Calcualte linear model fit for miRNA expression data vs Nugent score to rank miR expression plots in figure
 
 lm_input<-model_input[,names(model_input) %in% c(as.character(unique(topmir_plot_data$variable)),"LACTO_PROP")]
-library(purrr)
 
 fitness<-lm_input %>% 
   select(-LACTO_PROP) %>%
@@ -1305,15 +1305,15 @@ plot(PLOT_EXPRESSION)
 dev.off()
 
 
-library(Boruta)
+#library(Boruta)
 
-postscript(paste0(R_script_output_directory,"Boruta_optimization.ps"))
-Lacto_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID,LACTO_PROP)),y=model_input_Lactobacillus$LACTO_PROP)
-plot(Lacto_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
-Lacto_RF.Boruta$finalDecision[Lacto_RF.Boruta$finalDecision=="Confirmed"]
+#postscript(paste0(R_script_output_directory,"Boruta_optimization.ps"))
+#Lacto_RF.Boruta<-Boruta(x=dplyr::select(model_input_Lactobacillus,-c(SID,LACTO_PROP)),y=model_input_Lactobacillus$LACTO_PROP)
+#plot(Lacto_RF.Boruta,main="Nugent-RF Boruta unimportant feature removal")
+#Lacto_RF.Boruta$finalDecision[Lacto_RF.Boruta$finalDecision=="Confirmed"]
 
 
-dev.off()
+#dev.off()
 ```
 
 
@@ -1424,7 +1424,8 @@ group_go_map<-read.csv(file=paste0(R_script_input_directory,"GO_Process_Grouping
 group_go_map<-merge(group_go_map,mir_go.wide.filtered.summary)
 
 ## How many GO terms in each super group
-(group_freq<-data.frame(table(group_go_map$Group))) 
+group_freq<-data.frame(table(group_go_map$Group))
+(group_freq<-group_freq[order(group_freq$Freq,decreasing = T),])
 names(group_freq)<-c("Group","n_group")
 # MErge the super groups and data found above
 group_go_map<-merge(group_go_map,group_freq)
