@@ -161,19 +161,16 @@ TABLE_TRL_SUMMARY_PATHWAYS<-"TABLE_4.csv"
 TABLE_COUNTS_RAW<-"TABLE_S1.csv"
 TABLE_MODEL_INPUT<-"TABLE_S2.csv"
 TABLE_SRL_METADATA<-"TABLE_S3.csv"
-#TABLE_PROXY_AMSEL_INPUT<-"TABLE_S4.csv"
-#TABLE_RF_SUMMARY.CV<-"TABLE_S5.csv"
-#TABLE_PROXY_AMSEL_SRL<-"TABLE_S6.csv"
-TABLE_RF_SUMMARY<-"TABLE_S7.csv"
-TABLE_MIR_TARGETS<-"TABLE_S8.txt"
-TABLE_QPCR_TIMECOURSE<-"TABLE_S9.csv"
-TABLE_EDU_SCRATCH_QUANT<-"TABLE_S10.csv"
-TABLE_WESTERN_QUANT<-"TABLE_S11.csv"
-TABLE_CT_QUANT<-"TABLE_S12.csv"
-TABLE_TRL_ALIGNSTATS<-"TABLE_S13.csv"
-TABLE_TRL_COUNTS_RAW<-"TABLE_S14.csv"
-TABLE_EDGER_RESULTS<-"TABLE_S15.csv"
-TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S16.csv"
+TABLE_RF_SUMMARY<-"TABLE_S4.csv"
+TABLE_MIR_TARGETS<-"TABLE_S5.txt"
+TABLE_QPCR_TIMECOURSE<-"TABLE_S6.csv"
+TABLE_EDU_SCRATCH_QUANT<-"TABLE_S7.csv"
+TABLE_WESTERN_QUANT<-"TABLE_S8.csv"
+TABLE_CT_QUANT<-"TABLE_S9.csv"
+TABLE_TRL_ALIGNSTATS<-"TABLE_S10.csv"
+TABLE_TRL_COUNTS_RAW<-"TABLE_S11.csv"
+TABLE_EDGER_RESULTS<-"TABLE_S12.csv"
+TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S13.csv"
 
 FIGURE_SUBJECT_PLOTS<-"FIGURE_1_"
 FIGURE_RF_IMPORTANCE_AMSEL<-"FIGURE_drop_2.eps"
@@ -1262,25 +1259,28 @@ fitness<-lm_input %>%
     paste0('LACTO_PROP ~ `', .,'`') %>% 
     map(~lm(as.formula(.x), data = lm_input))
 
-lapply(fitness,FUN=function(x) fitness[[x]][1]$coefficients[2])
-lapply(fitness,unname)
-data.frame(unlist(fitness),
-           adjr2==lapply(lapply(fitness,summary),function(x) round(x$adj.r.squared,digits = 3)))
+fitness.r2<-data.frame(slope=unlist(lapply(fitness,FUN = function(x) x[[1]][2])),
+           intersecpt=unlist(lapply(fitness,FUN = function(x) x[[1]][1])),
+           adj.r.squared=unlist(lapply(fitness,FUN = function(x) round(summary(x)$adj.r.squared,digits = 3))))
+fitness.r2$variable<-gsub(row.names(fitness.r2),pattern = "`",replacement = "")
 
+fitness.r2$slope_xy<-1/fitness.r2$slope
+fitness.r2$interscept_xy<--fitness.r2$intersecpt/fitness.r2$slope
 #fitness<-apply(model_input[,names(model_input) %in% unique(topmir_plot_data$variable)],MARGIN = 2,function(s) summary(lm(model_input,LACTO_PROP~s)))
 
 
-fitness.r2<-data.frame(adjr2=unlist(lapply(fitness,function(x) round(x$adj.r.squared,digits = 3))))
-fitness.r2$variable<-row.names(fitness.r2)
+#fitness.r2<-data.frame(adjr2=unlist(lapply(fitness,function(x) round(x$adj.r.squared,digits = 3))))
 
-print(fitness.r2[order(abs(fitness.r2$adjr2),decreasing = T),])
+print(fitness.r2[order(abs(fitness.r2$adj.r.squared),decreasing = T),])
 
 topmir_plot_data<-join(topmir_plot_data,fitness.r2)
 
-topmir_plot_data$variable<-factor(x=topmir_plot_data$variable,levels = unique(topmir_plot_data[order(abs(topmir_plot_data$adjr2),decreasing = T),c("variable")]),ordered = T)
+topmir_plot_data$variable<-factor(x=topmir_plot_data$variable,levels = unique(topmir_plot_data[order(abs(topmir_plot_data$adj.r.squared),decreasing = T),c("variable")]),ordered = T)
 
 ## Liner correlation coeff for miRNA expression data:
-paste(apply(unique(dplyr::select(topmir_plot_data,c(variable,adjr2))) %>% dplyr::arrange(rev(adjr2)),MARGIN = 1,FUN = function(x) paste(sep =":" ,x[1],x[2])),sep=",")
+paste(apply(unique(dplyr::select(topmir_plot_data,c(variable,adj.r.squared))) %>% dplyr::arrange(rev(adj.r.squared)),MARGIN = 1,FUN = function(x) paste(sep =":" ,x[1],x[2])),sep=",")
+
+paste(apply(unique(dplyr::select(topmir_plot_data,c(variable,slope_xy))) %>% dplyr::arrange(rev(slope_xy)),MARGIN = 1,FUN = function(x) paste(sep =":" ,x[1],x[2])),sep=",")
 
 ## Collapse CSTs to a single CST super type
 topmir_plot_data[topmir_plot_data$CST %in% c("III-A","III-B"),"CST"]<-"III"
