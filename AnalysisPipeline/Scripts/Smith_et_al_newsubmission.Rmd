@@ -1437,8 +1437,8 @@ group_go_map<-group_go_map[order(group_go_map$n_group, group_go_map$s,decreasing
 mir_go.wide.filtered.m$GO_format<-factor(mir_go.wide.filtered.m$variable,levels =group_go_map$variable ,ordered = T,labels = group_go_map$Go_format)
 
 ## Determine order of miRs on plot according to correlation with Lactoabacillus spp prop
-miR_order<-unique(dplyr::select(topmir_plot_data,c(variable,adjr2)))
-miR_order<-miR_order[order(miR_order$adjr2,decreasing = T),]
+miR_order<-unique(dplyr::select(topmir_plot_data,c(variable,adj.r.squared)))
+miR_order<-miR_order[order(miR_order$adj.r.squared,decreasing = T),]
 mir_go.wide.filtered.m$mir<-factor(mir_go.wide.filtered.m$mir,levels = miR_order$variable,ordered = T)
 
 PLOT_MIR_TARGET_GO_PROP<-ggplot(mir_go.wide.filtered.m,aes(x=GO_format,y=100*value,fill=mir))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
