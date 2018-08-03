@@ -1406,6 +1406,8 @@ hist(as.matrix(mir_go.wide))
 mir_go.wide.filtered<-mir_go.wide[,colSums(mir_go.wide>i)>=j*nrow(mir_go.wide)]
 
 mir_go.wide.mir193b<-mir_go.wide[row.names(mir_go.wide)=="miR-193b",]
+## TEMPORARY HACK-> setting mir<->go table to just miR-193b
+mir_go.wide.filtered<-mir_go.wide.mir193b
 
 ## The names of the GO processes to be used in plot:
 names(mir_go.wide.filtered[,order(colSums(mir_go.wide.filtered>0),decreasing = T)])
@@ -1440,13 +1442,18 @@ mir_go.wide.filtered.m$GO_format<-factor(mir_go.wide.filtered.m$variable,levels 
 miR_order<-unique(dplyr::select(topmir_plot_data,c(variable,adj.r.squared)))
 miR_order<-miR_order[order(miR_order$adj.r.squared,decreasing = T),]
 mir_go.wide.filtered.m$mir<-factor(mir_go.wide.filtered.m$mir,levels = miR_order$variable,ordered = T)
+mir_go.wide.filtered.m<-mir_go.wide.filtered.m[mir_go.wide.filtered.m$value>0.00,] #miR-193b only... plot GO terms >10%. HACK!
 
-PLOT_MIR_TARGET_GO_PROP<-ggplot(mir_go.wide.filtered.m,aes(x=GO_format,y=100*value,fill=mir))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+# since only plotting miR-193b, plot counts, not percentage
+scalar<-unique(mir_go.counts[mir_go.counts$mir=="miR-193b","number_targets"])#100
+
+PLOT_MIR_TARGET_GO_PROP<-ggplot(mir_go.wide.filtered.m,aes(x=GO_format,y=scalar*value,fill=mir))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
   journalFormat+
   theme(axis.text.x = element_text(angle=45,hjust = 1,size=10),text=element_text(size=12),plot.margin = unit(c(10,25,10,170),units = "pt"))+
   scale_fill_brewer(type = "qual",palette = "Set1")+
   xlab("GO Term")+
-  ylab("Percentage miRNA Targets")
+  #ylab("Percentage miRNA Targets")
+  ylab("Number miR-193b Targets")
 
 cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR_TARGETS_GO),width = 11,height = 8.5)
 plot(PLOT_MIR_TARGET_GO_PROP)
