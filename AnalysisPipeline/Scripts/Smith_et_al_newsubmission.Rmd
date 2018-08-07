@@ -1363,7 +1363,7 @@ mir_targetCnt[mir_targetCnt$mir %in% top_mirs_table$miRNA,]
 ## Determine the number of genes associated with each miRNA- need to determine how many GO processes to plot in figure
 mir_go.counts<-data.frame(table(dplyr::select(mir_go,c(mir,GO))))
 mir_go.miR193b<-mir_go[mir_go$mir=="miR-193b",]
-
+head(mir_go.miR193b)
 mir_go.counts<-merge(mir_go.counts,mir_targetCnt)
 mir_go.counts$Freq_Targets<-mir_go.counts$Freq/mir_go.counts$number_targets
 
@@ -1406,8 +1406,6 @@ hist(as.matrix(mir_go.wide))
 mir_go.wide.filtered<-mir_go.wide[,colSums(mir_go.wide>i)>=j*nrow(mir_go.wide)]
 
 mir_go.wide.mir193b<-mir_go.wide[row.names(mir_go.wide)=="miR-193b",]
-## TEMPORARY HACK-> setting mir<->go table to just miR-193b
-mir_go.wide.filtered<-mir_go.wide.mir193b
 
 ## The names of the GO processes to be used in plot:
 names(mir_go.wide.filtered[,order(colSums(mir_go.wide.filtered>0),decreasing = T)])
@@ -1442,7 +1440,6 @@ mir_go.wide.filtered.m$GO_format<-factor(mir_go.wide.filtered.m$variable,levels 
 miR_order<-unique(dplyr::select(topmir_plot_data,c(variable,adj.r.squared)))
 miR_order<-miR_order[order(miR_order$adj.r.squared,decreasing = T),]
 mir_go.wide.filtered.m$mir<-factor(mir_go.wide.filtered.m$mir,levels = miR_order$variable,ordered = T)
-mir_go.wide.filtered.m<-mir_go.wide.filtered.m[mir_go.wide.filtered.m$value>0.00,] #miR-193b only... plot GO terms >10%. HACK!
 
 # since only plotting miR-193b, plot counts, not percentage
 scalar<-unique(mir_go.counts[mir_go.counts$mir=="miR-193b","number_targets"])#100
@@ -1493,7 +1490,8 @@ write.table(mir_go_genes.mir193b,file = paste0(thesis_tables_directory,TABLE_GO_
 mir193b_GOcount_groups<-data.frame(table(dplyr::select(unique(dplyr::select(merge(mir_go.miR193b,group_go_map,by.x="GO",by.y="variable"),c(Group,gene))),Group)))
 mir193b_GOcount_groups$Var1<-factor(mir193b_GOcount_groups$Var1,levels=mir193b_GOcount_groups[order(mir193b_GOcount_groups$Freq,decreasing = T),"Var1"],ordered = T)
 
-mir193b_GOcount_groups.plot<-ggplot(mir193b_GOcount_groups,aes(x=Var1,y=Freq))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+# old plot
+ggplot(mir193b_GOcount_groups,aes(x=Var1,y=Freq))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
   journalFormat+
   theme(axis.text.x = element_text(angle=45,hjust = 1),text=element_text(size=25),plot.margin = unit(c(10,25,10,170),units = "pt"))+
   scale_fill_brewer(type = "qual",palette = "Set1")+
@@ -1501,10 +1499,47 @@ mir193b_GOcount_groups.plot<-ggplot(mir193b_GOcount_groups,aes(x=Var1,y=Freq))+g
   xlab("GO process")+
   ylab("Number miR-193b targets")
 
-cairo_ps(paste0(R_script_output_directory,"miR193b_GOProcess_presentation.eps"),width = 11,height = 8.5)
+# Generate miR-193b only plots
+mir_go.wide.filtered.m.193b
+mir_go.mir193b
+mir_go_group.mir193b<-merge(mir_go.mir193b,group_go_map,by.x="GO",by.y = "variable")
+
+mir_group.mir193b.summary<- ddply(unique(dplyr::select(mir_go_group.mir193b,c("Group","gene"))),c("Group"),summarise,n=length(gene))
+
+mir_go.mir193b.summary<-ddply(unique(dplyr::select(mir_go_group.mir193b,c("Go_format","Group","gene"))),c("Go_format","Group"),summarise,n=length(gene))
+
+mir_go.mir193b.summary$Group<-factor(mir_go.mir193b.summary$Group,levels =mir_group.mir193b.summary[order(mir_group.mir193b.summary$n,decreasing = T),"Group"] ,ordered = T)
+
+mir_group.mir193b.summary$Group<-factor(mir_group.mir193b.summary$Group,levels =mir_group.mir193b.summary[order(mir_group.mir193b.summary$n,decreasing = T),"Group"] ,ordered = T)
+
+
+mir193b_GOcount_groups.plot<-ggplot(mir_group.mir193b.summary,aes(x=Group,y=n))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+  journalFormat+
+  theme(axis.text.x = element_text(angle=45,hjust = 1),text=element_text(size=25),plot.margin = unit(c(10,25,10,170),units = "pt"))+
+  scale_fill_brewer(type = "qual",palette = "Set1")+
+  scale_y_continuous(breaks=seq(0,9,by=1))+
+  xlab("GO process")+
+  ylab("Number miR-193b targets")
+FIGURE_MIR193_TARGETS_GROUP<-"FIGURE_4b.ps"
+cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR193_TARGETS_GROUP),width = 11,height = 8.5)
 plot(mir193b_GOcount_groups.plot)
 dev.off()
 
+mir_go.mir193b.summary$Go_format<-factor(mir_go.mir193b.summary$Go_format,levels = mir_go.mir193b.summary[order(mir_go.mir193b.summary$Group,decreasing = F),"Go_format"],ordered = T)
+
+mir193b_GOcount.plot<-ggplot(mir_go.mir193b.summary,aes(x=Go_format,y=n,fill=Group))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+  journalFormat+
+  theme(axis.text.x = element_text(angle=45,hjust = 1,size=10),text=element_text(size=12),plot.margin = unit(c(10,25,10,170),units = "pt"))+
+  scale_fill_brewer(type = "qual",palette = "Set1")+
+  xlab("GO Term")+
+  #ylab("Percentage miRNA Targets")
+  ylab("Number miR-193b Targets")
+
+
+FIGURE_MIR193_TARGETS_GO<-"FIGURE_4c.ps"
+cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR193_TARGETS_GO),width = 11,height = 8.5)
+plot(mir193b_GOcount.plot)
+dev.off()
 ```
 
 # Function of miR-193b and in vitro Experimentation, Implications  
