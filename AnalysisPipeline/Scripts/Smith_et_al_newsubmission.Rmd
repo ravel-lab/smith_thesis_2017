@@ -1502,8 +1502,12 @@ ggplot(mir193b_GOcount_groups,aes(x=Var1,y=Freq))+geom_bar(width=.7,position = "
 # Generate miR-193b only plots
 mir_go.wide.filtered.m.193b
 mir_go.mir193b
+#HACK FIX! This is read in twice, because upstream it gets filtered
+group_go_map<-read.csv(file=paste0(R_script_input_directory,"GO_Process_Grouping_Map.csv"))
 mir_go_group.mir193b<-merge(mir_go.mir193b,group_go_map,by.x="GO",by.y = "variable")
-
+intersect(mir_go.mir193b$GO,group_go_map$variable)
+mir_go.mir193b[mir_go.mir193b$GO=="GO:0060749~mammary gland alveolus development",]
+group_go_map[group_go_map$variable=="GO:0060749~mammary gland alveolus development",]
 mir_group.mir193b.summary<- ddply(unique(dplyr::select(mir_go_group.mir193b,c("Group","gene"))),c("Group"),summarise,n=length(gene))
 
 mir_go.mir193b.summary<-ddply(unique(dplyr::select(mir_go_group.mir193b,c("Go_format","Group","gene"))),c("Go_format","Group"),summarise,n=length(gene))
@@ -1513,21 +1517,23 @@ mir_go.mir193b.summary$Group<-factor(mir_go.mir193b.summary$Group,levels =mir_gr
 mir_group.mir193b.summary$Group<-factor(mir_group.mir193b.summary$Group,levels =mir_group.mir193b.summary[order(mir_group.mir193b.summary$n,decreasing = T),"Group"] ,ordered = T)
 
 
-mir193b_GOcount_groups.plot<-ggplot(mir_group.mir193b.summary,aes(x=Group,y=n))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+number_miR193_targets<-unique(mir_go.counts[mir_go.counts$mir=="miR-193b","number_targets"]) # sloppy
+
+mir193b_GOcount_groups.plot<-ggplot(mir_group.mir193b.summary,aes(x=Group,y=100*n/number_miR193_targets))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
   journalFormat+
   theme(axis.text.x = element_text(angle=45,hjust = 1),text=element_text(size=25),plot.margin = unit(c(10,25,10,170),units = "pt"))+
   scale_fill_brewer(type = "qual",palette = "Set1")+
-  scale_y_continuous(breaks=seq(0,9,by=1))+
+  scale_y_continuous(limits = c(0,100),breaks=seq(0,100,by=10))+
   xlab("GO process")+
-  ylab("Number miR-193b targets")
+  ylab("Percent miR-193b targets")
 FIGURE_MIR193_TARGETS_GROUP<-"FIGURE_4b.ps"
 cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR193_TARGETS_GROUP),width = 11,height = 8.5)
 plot(mir193b_GOcount_groups.plot)
 dev.off()
 
-mir_go.mir193b.summary$Go_format<-factor(mir_go.mir193b.summary$Go_format,levels = mir_go.mir193b.summary[order(mir_go.mir193b.summary$Group,decreasing = F),"Go_format"],ordered = T)
-
-mir193b_GOcount.plot<-ggplot(mir_go.mir193b.summary,aes(x=Go_format,y=n,fill=Group))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
+mir_go.mir193b.summary$Go_format<-factor(mir_go.mir193b.summary$Go_format,levels = mir_go.mir193b.summary[with(mir_go.mir193b.summary, order(Group, -rank(n),decreasing = F)),"Go_format"],ordered = T)
+mir_go.mir193b.summary.filter<-dplyr::filter(mir_go.mir193b.summary,n>=2)
+mir193b_GOcount.plot<-ggplot(mir_go.mir193b.summary.filter,aes(x=Go_format,y=n,fill=Group))+geom_bar(width=.7,position = "dodge",col="grey",stat="identity")+
   journalFormat+
   theme(axis.text.x = element_text(angle=45,hjust = 1,size=10),text=element_text(size=12),plot.margin = unit(c(10,25,10,170),units = "pt"))+
   scale_fill_brewer(type = "qual",palette = "Set1")+
@@ -1540,6 +1546,10 @@ FIGURE_MIR193_TARGETS_GO<-"FIGURE_4c.ps"
 cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR193_TARGETS_GO),width = 11,height = 8.5)
 plot(mir193b_GOcount.plot)
 dev.off()
+## remove miR-193b from plot
+## verify no targets for bigger plot
+
+
 ```
 
 # Function of miR-193b and in vitro Experimentation, Implications  
