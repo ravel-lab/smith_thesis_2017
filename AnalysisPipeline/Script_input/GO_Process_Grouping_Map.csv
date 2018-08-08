@@ -3,8 +3,8 @@ GO:0000122~negative regulation of transcription from RNA polymerase II promoter,
 GO:0001666~response to hypoxia,Hypoxia,response to hypoxia
 GO:0001701~in utero embryonic development,Development,in utero embryonic development
 GO:0001934~positive regulation of protein phosphorylation,Signaling,positive regulation of protein phosphorylation
-GO:0006351~transcription<COMMA> DNA-templated,Transcription,"transcription, DNA-templated"
-GO:0006355~regulation of transcription<COMMA> DNA-templated,Transcription,"regulation of transcription, DNA-templated"
+GO:0006351~transcription<COMMA> DNA-templated,Transcription,transcription- DNA-templated
+GO:0006355~regulation of transcription<COMMA> DNA-templated,Transcription,regulation of transcription- DNA-templated
 GO:0006366~transcription from RNA polymerase II promoter,Transcription,transcription from RNA polymerase II promoter
 GO:0006955~immune response,Immune,immune response
 GO:0007049~cell cycle,Cell cycle,cell cycle
@@ -15,7 +15,7 @@ GO:0010628~positive regulation of gene expression,Transcription,positive regulat
 GO:0030335~positive regulation of cell migration,Cell cycle,positive regulation of cell migration
 GO:0043066~negative regulation of apoptotic process,Cell cycle,negative regulation of apoptotic process
 GO:0043547~positive regulation of GTPase activity,Signaling,positive regulation of GTPase activity
-GO:0045893~positive regulation of transcription<COMMA> DNA-templated,Transcription,"positive regulation of transcription, DNA-templated"
+GO:0045893~positive regulation of transcription<COMMA> DNA-templated,Transcription,positive regulation of transcription- DNA-templated
 GO:0045944~positive regulation of transcription from RNA polymerase II promoter,Transcription,positive regulation of transcription from RNA polymerase II promoter
 GO:0051091~positive regulation of sequence-specific DNA binding transcription factor activity,Transcription,positive regulation of sequence-specific DNA binding transcription factor activity
 GO:0000082~G1/S transition of mitotic cell cycle,Cell cycle,G1 to S transition of mitotic cell cycle
@@ -44,5 +44,21 @@ GO:0070301~cellular response to hydrogen peroxide,Signaling,cellular response to
 GO:0097192~extrinsic apoptotic signaling pathway in absence of ligand,Cell cycle,extrinsic apoptotic signaling pathway in absence of ligand
 GO:0001889~liver development,Development,liver development
 GO:0032355~response to estradiol,Cell cycle,response to estradiol
-GO:0045892~negative regulation of transcription<COMMA> DNA-templated,Transcription,"negative regulation of transcription, DNA-templated"
+GO:0045892~negative regulation of transcription<COMMA> DNA-templated,Transcription,negative regulation of transcription- DNA-templated
 GO:0090090~negative regulation of canonical Wnt signaling pathway,Signaling,negative regulation of canonical Wnt signaling pathway
+GO:0000165~MAPK cascade,Signaling,MAPK cascade
+GO:0007265~Ras protein signal transduction,Signaling,Ras protein signal transduction
+GO:0008542~visual learning,Learning,visual learning
+GO:0010629~negative regulation of gene expression,Transcription,negative regulation of gene expression
+GO:0021897~forebrain astrocyte development,Development,forebrain astrocyte development
+GO:0030036~actin cytoskeleton organization,Development,actin cytoskeleton organization
+GO:0032228~regulation of synaptic transmission<COMMA> GABAergic,Signaling, GABAergic regulation of synaptic transmission
+GO:0042060~wound healing,Wound healing,wound healing
+GO:0043627~response to estrogen,Signaling,response to estrogen
+GO:0045429~positive regulation of nitric oxide biosynthetic process,Biosynthesis,positive regulation of nitric oxide biosynthetic process
+GO:0045765~regulation of angiogenesis,Development,regulation of angiogenesis
+GO:0048169~regulation of long-term neuronal synaptic plasticity,Development,regulation of long-term neuronal synaptic plasticity
+GO:0050728~negative regulation of inflammatory response,Immune,negative regulation of inflammatory response
+GO:0051000~positive regulation of nitric-oxide synthase activity,Biosynthesis,positive regulation of nitric-oxide synthase activity
+GO:0060070~canonical Wnt signaling pathway,Signaling,canonical Wnt signaling pathway
+GO:0060749~mammary gland alveolus development,Development,mammary gland alveolus development
