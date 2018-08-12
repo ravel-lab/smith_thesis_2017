@@ -1,7 +1,0 @@
-Figure,xref,reference,pval,mean_diff,sig
-Figure_6B_Infectivity,CAS 546102-60-7,Fascaplysin,0.0152533875440742,-8.79632005826667,*
-Figure_6B_Infectivity,CAS 546102-60-7,Cell Culture Medium,0.000334606564696431,-53.3866268869905,*
-Figure_6B_Infectivity,Fascaplysin,Cell Culture Medium,0.00100026580119664,-44.5903068287238,*
-Figure_6B_Proliferation,CAS 546102-60-7,Fascaplysin,0.148842796592068,-6.62369850988333,N.S.
-Figure_6B_Proliferation,CAS 546102-60-7,Cell Culture Medium,6.10779413826187e-05,-35.1543095335083,*
-Figure_6B_Proliferation,Fascaplysin,Cell Culture Medium,0.000353903348334145,-28.530611023625,*
