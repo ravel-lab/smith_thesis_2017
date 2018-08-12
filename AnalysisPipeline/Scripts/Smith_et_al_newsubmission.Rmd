@@ -1,7 +1,7 @@
 ---
 title: "Smith et al Manuscript"
 author: "Steven Smith"
-date: "November 6, 2017"
+date: "August 12, 2018"
 output:
   word_document:
     toc: yes
@@ -11,7 +11,7 @@ output:
     toc: yes
 ---
 # Analysis Script
-**The following markdown serves as a record for analysis performed in Smith et al., 2017.**   
+**The following markdown serves as a record for partial analysis performed in Edwards, Smith et al., 2018.**   
 **Change the root directory to point to where "Script_input" and "Scripts" directories reside. This is currently hardcoded as the Git repo **  
 This script will automatically create the following directories, if not present already:  
 1.  Tables- Tables associated with manuscript, in .csv or .txt  
@@ -152,54 +152,56 @@ cst.colors<-c("I-A"="red1",
 
 
 ## Table and figure names
-TABLE_SEQSUMMARY<-"TABLE_1.csv"
+TABLE_SEQSUMMARY<-"DROP_TABLE_1.csv"
 #TABLE_TOPMIRS<-"TABLE_2.txt"
-TABLE_GO_GENES<-"TABLE_2.txt"
-TABLE_TRL_NUMDEGENES<-"TABLE_3.csv"
-TABLE_TRL_SUMMARY_PATHWAYS<-"TABLE_4.csv"
+TABLE_GO_GENES<-"DROP_TABLE_2.txt"
+TABLE_TRL_NUMDEGENES<-"DROP_TABLE_3.csv"
+TABLE_TRL_SUMMARY_PATHWAYS<-"DROP_TABLE_4.csv"
 
-TABLE_COUNTS_RAW<-"TABLE_S1.csv"
-TABLE_MODEL_INPUT<-"TABLE_S2.csv"
-TABLE_SRL_METADATA<-"TABLE_S3.csv"
-TABLE_RF_SUMMARY<-"TABLE_S4.csv"
-TABLE_MIR_TARGETS<-"TABLE_S5.txt"
-TABLE_QPCR_TIMECOURSE<-"TABLE_S6.csv"
-TABLE_EDU_SCRATCH_QUANT<-"TABLE_S7.csv"
-TABLE_WESTERN_QUANT<-"TABLE_S8.csv"
-TABLE_CT_QUANT<-"TABLE_S9.csv"
-TABLE_TRL_ALIGNSTATS<-"TABLE_S10.csv"
-TABLE_TRL_COUNTS_RAW<-"TABLE_S11.csv"
-TABLE_EDGER_RESULTS<-"TABLE_S12.csv"
-TABLE_TRL_PATHWAY_Z_SCORES<-"TABLE_S13.csv"
+TABLE_COUNTS_RAW<-"SS_TABLE_S1.csv"
+TABLE_MODEL_INPUT<-"SS_TABLE_S2.csv"
+TABLE_SRL_METADATA<-"SS_TABLE_S3.csv"
+TABLE_RF_SUMMARY<-"SS_TABLE_S4.csv"
+TABLE_MIR_TARGETS<-"DROP_XTABLE_S5.txt" # List of gene targets for miR-193b, others; contains commas so needs to be txt
+TABLE_QPCR_TIMECOURSE<-"DROP_XTABLE_S6.csv"
+TABLE_EDU_SCRATCH_QUANT<-"DROP_XTABLE_S7.csv"
+TABLE_WESTERN_QUANT<-"DROP_XTABLE_S8.csv"
+TABLE_CT_QUANT<-"DROP_XTABLE_S9.csv"
+TABLE_TRL_ALIGNSTATS<-"SS_TABLE_S10.csv"
+TABLE_TRL_COUNTS_RAW<-"SS_TABLE_S11.csv"
+TABLE_EDGER_RESULTS<-"SS_TABLE_S12.csv"
+TABLE_TRL_PATHWAY_Z_SCORES<-"SS_TABLE_S13.csv"
 
-FIGURE_SUBJECT_PLOTS<-"FIGURE_1_"
-FIGURE_RF_IMPORTANCE_AMSEL<-"FIGURE_drop_2.eps"
-FIGURE_RF_IMPORTANCE<-"Figure_drop.eps"
-FIGURE_TOPMIRS<-"FIGURE_2.eps"
-FIGURE_QPCR_TIMECOURSE<-"FIGURE_3.eps" ## Add lactic acid or put as supp;
-FIGURE_EDU_QUANT<-"FIGURE_4_D.ps"
-FIGURE_SCRATCH_QUANT<-"FIGURE_4_B.ps"
-FIGURE_CT_INFECT_QUANT<-"Figure_6A.ps"
-FIGURE_CT_EDU_QUANT<-"Figure_6B.ps"
-FIGURE_WESTERN_QUANT<-"Figure_5B.ps"
+FIGURE_SUBJECT_PLOTS<-"DROP_FIGURE_1_"
+FIGURE_RF_IMPORTANCE_AMSEL<-"DROP_FIGURE_2.eps"
+FIGURE_RF_IMPORTANCE<-"DROP_Figure_drop.eps"
+FIGURE_TOPMIRS<-"FIGURE_4A_and_FIGURE_S7C.eps"
+FIGURE_QPCR_TIMECOURSE<-"FIGURE_S8A.eps" 
+FIGURE_EDU_QUANT<-"FIGURE_5B.ps"
+FIGURE_SCRATCH_QUANT<-"FIGURE_5A.ps"
+FIGURE_CT_INFECT_QUANT<-"FIGURE_6B.ps"
+FIGURE_CT_EDU_QUANT<-"FIGURE_6A.ps"
+FIGURE_WESTERN_QUANT<-"FIGURE_S8B.ps"
+FIGURE_MIR193_TARGETS_GROUP<-"FIGURE_4B.ps"
+FIGURE_MIR193_TARGETS_GO<-"FIGURE_4C.ps"
 
-FIGURE_COMBINED_PATHWAYS_CYCLE<-"Figure_7.eps"
-FIGURE_LONGITDUINAL_GENEEXP.cycle<-"Figure_8.eps"
-FIGURE_FINAL_MODEL<-"Figure_9.eps" ##Placeholder
+FIGURE_COMBINED_PATHWAYS_CYCLE<-"DROP_Figure_7.eps"
+FIGURE_LONGITDUINAL_GENEEXP.cycle<-"FIGURE_7.eps"
+FIGURE_FINAL_MODEL<-"DROP_Figure_9.eps" ##Placeholder
 
-FIGURE_QC<-"FIGURE_S1_"
-FIGURE_QC_RIN_v_READS.PROP<-paste0(FIGURE_QC,"1.eps")
-FIGURE_QC_RIN_v_READS.ABS<-paste0(FIGURE_QC,"2.eps")
-FIGURE_QC_PCA.PREQC.BYBATCH<-paste0(FIGURE_QC,"3.eps")
-FIGURE_QC_PCA.PREQC.BYSUBJ<-paste0(FIGURE_QC,"4.eps")
-FIGURE_QC_PCA.RMLOW.BYBATCH<-paste0(FIGURE_QC,"5.eps")
-FIGURE_QC_PCA.RMLOW.BYSUBJ<-paste0(FIGURE_QC,"6.eps")
-FIGURE_QC_PCA.NORMAL.BYBATCH<-paste0(FIGURE_QC,"7.eps")
-FIGURE_QC_PCA.NORMAL.BYSUBJ<-paste0(FIGURE_QC,"8.eps")
-FIGURE_MIR_TARGETS_GO<-"Figure_S2.eps"
-FIGURE_DL_LACTICACID_QPCR<-"Figure_S3.eps" ## maybe add lactic acid time course here and split out 13h D, L, DL panel. 
+FIGURE_QC<-"FIGURE_S6"
+FIGURE_QC_RIN_v_READS.PROP<-paste0("DROP_",FIGURE_QC,"1.eps")
+FIGURE_QC_RIN_v_READS.ABS<-paste0("DROP_",FIGURE_QC,"2.eps")
+FIGURE_QC_PCA.PREQC.BYBATCH<-paste0(FIGURE_QC,"A.eps")
+FIGURE_QC_PCA.PREQC.BYSUBJ<-paste0(FIGURE_QC,"B.eps")
+FIGURE_QC_PCA.RMLOW.BYBATCH<-paste0(FIGURE_QC,"C.eps")
+FIGURE_QC_PCA.RMLOW.BYSUBJ<-paste0(FIGURE_QC,"D.eps")
+FIGURE_QC_PCA.NORMAL.BYBATCH<-paste0(FIGURE_QC,"E.eps")
+FIGURE_QC_PCA.NORMAL.BYSUBJ<-paste0(FIGURE_QC,"F.eps")
+FIGURE_MIR_TARGETS_GO<-"FIGURE_S7B.eps"
+FIGURE_DL_LACTICACID_QPCR<-"DROP_Figure_S3.eps" ## maybe add lactic acid time course here and split out 13h D, L, DL panel. 
 ##S4 =  EdU microscopy
-FIGURE_nyc_v_tsb<-"Figure_S5.eps" ## Add EdU barplot as well. 
+FIGURE_nyc_v_tsb<-"DROP_Figure_S5.eps" ## Add EdU barplot as well. 
 #FIGURE_TRL_RIN_HIST<-"Figure_.eps"
 #FIGURE_COMBINED_PATHWAYS_IMMUNE<-"Figure_S7.eps"
 #FIGURE_LONGITDUINAL_GENEEXP.immune<-"FIGURE_S9.eps"
@@ -773,11 +775,11 @@ apply_ttest<-function(sigtest_results=proliferation_sigtest,pval_threshold=pval_
 setup_sigtest<-function(pval_threshold = pval_threshold,raw_data = raw_data,test_function = "t.test",Experiment="Scratch"){
   ## Set up a significance test df to store inference testing data
   if(Experiment=="Scratch"){
-    sigtest<-data.frame(xref=c(rep("L. crispatus",times=4),rep("L. jensenii",times=3),rep("L. iners",times=2),"G. vaginalis"),reference=c("L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","L. iners","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium","Cell Culture Medium"))
+    sigtest<-data.frame(xref=c(rep("L. crispatus",times=5),rep("L. jensenii",times=4),rep("L. iners",times=3),rep("0.1% DL lactic acid",times=2),"G. vaginalis"),reference=c("L. jensenii", "L. iners","0.1% DL lactic acid","G. vaginalis","Cell Culture Medium",  "L. iners", "0.1% DL lactic acid","G. vaginalis", "Cell Culture Medium","0.1% DL lactic acid","G. vaginalis","Cell Culture Medium","G. vaginalis","Cell Culture Medium","Cell Culture Medium"))
     
     ## Factor labels
-    sigtest$xref<-factor(sigtest$xref,levels =c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"),ordered = T)
-    sigtest$reference<-factor(sigtest$reference,levels = c("L. jensenii","L. iners","G. vaginalis","Cell Culture Medium"),ordered = T)
+    sigtest$xref<-factor(sigtest$xref,levels =c("L. crispatus","L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"),ordered = T)
+    sigtest$reference<-factor(sigtest$reference,levels = c("L. jensenii","L. iners","G. vaginalis","Cell Culture Medium","0.1% DL lactic acid"),ordered = T)
     
     sigtest<-apply_ttest(sigtest_results = sigtest,pval_threshold = pval_threshold,summary_stats = raw_data,test_function = "t.test")
     ## Summarize scratch assay data with mean and sd
@@ -826,8 +828,8 @@ setup_sigtest<-function(pval_threshold = pval_threshold,raw_data = raw_data,test
                        xend=(as.numeric(sigtest$reference)+1)-.05)
   if(Experiment=="Scratch"){
     
-    statbars[statbars$reference=="Cell Culture Medium","y"]<-rep(seq(100,91,-3),times=1)
-    statbars[statbars$reference=="G. vaginalis","y"]<-rep(seq(91,by=-3,length.out = 3),times=1)
+    statbars[statbars$reference=="Cell Culture Medium","y"]<-rep(seq(100,88,-3),times=1)
+    statbars[statbars$reference=="G. vaginalis","y"]<-rep(seq(88,by=-3,length.out = 4),times=1)
     statbars[statbars$reference=="L. iners","y"]<-rep(c(85,94),times=1)
     statbars[statbars$reference=="L. jensenii","y"]<-rep(94,times=1)
     statbars[statbars$reference=="Cell Culture Medium" & statbars$xref=="L. iners","y"]<-85
@@ -1526,7 +1528,7 @@ mir193b_GOcount_groups.plot<-ggplot(mir_group.mir193b.summary,aes(x=Group,y=100*
   scale_y_continuous(limits = c(0,100),breaks=seq(0,100,by=10))+
   xlab("GO process")+
   ylab("Percent miR-193b targets")
-FIGURE_MIR193_TARGETS_GROUP<-"FIGURE_4b.ps"
+
 cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR193_TARGETS_GROUP),width = 11,height = 8.5)
 plot(mir193b_GOcount_groups.plot)
 dev.off()
@@ -1541,8 +1543,6 @@ mir193b_GOcount.plot<-ggplot(mir_go.mir193b.summary.filter,aes(x=Go_format,y=n,f
   #ylab("Percentage miRNA Targets")
   ylab("Number miR-193b Targets")
 
-
-FIGURE_MIR193_TARGETS_GO<-"FIGURE_4c.ps"
 cairo_ps(paste0(thesis_figures_directory,FIGURE_MIR193_TARGETS_GO),width = 11,height = 8.5)
 plot(mir193b_GOcount.plot)
 dev.off()
@@ -1790,6 +1790,11 @@ scratch_sigtest.all<-rbind.fill(scratch_sigtest,scratch_sigtest.all)
 scratch.summary.all<-rbind.fill(scratch.summary,scratch.summary.all)
 }
 
+scratch.summary.all$ExposureTime<-paste0(scratch.summary.all$ExposureTime.n,"hr")
+# This was removed from plot!
+scratch.summary.all<-merge(scratch.summary.all,dplyr::filter(scratch_sigtest.all,reference=="Cell Culture Medium"),by.x=c("BCS","ExposureTime"),by.y=c("xref","ExposureTime"),all.x=T)
+
+
 
 PLOT_SCRATCH<-
    ggplot(scratch.summary.all,
@@ -1804,6 +1809,7 @@ PLOT_SCRATCH<-
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
   scale_x_continuous(breaks=c(1,4,8,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
+   geom_text(aes(x=as.numeric(ExposureTime.n),y=mean,label=sig),size=8,col="black")+
   scale_y_continuous(limits=c(1.05*min(scratch.summary.all$mean-scratch.summary.all$sd,na.rm = T),102))
 
 ##Write plot
@@ -1836,6 +1842,10 @@ EdU_sigtest<-rbind.fill(data.frame(setup_sigtest.data$sigtest,ExposureTime=as.nu
 EdU.summary<-rbind.fill(data.frame(setup_sigtest.data$summary_stats,ExposureTime=as.numeric(gsub(et,pattern = "hr",replacement = ""))),EdU.summary)
 }
 EdU.summary$BCS<-factor(EdU.summary$BCS,rev(unique(EdU.summary$BCS)),ordered = T)
+
+# This was removed from plot!
+EdU.summary<-merge(EdU.summary,dplyr::filter(EdU_sigtest,reference=="Cell Culture Medium"),by.x=c("BCS","ExposureTime"),by.y=c("xref","ExposureTime"),all.x=T)
+
 PLOT_EDU<-
    ggplot(EdU.summary,
          aes(x=ExposureTime,y=mean,col=BCS))+
@@ -1849,6 +1859,7 @@ PLOT_EDU<-
   xlab("Exposure Time (hours)")+
   scale_color_manual(values = color_scheme_BCS)+
   scale_x_continuous(breaks=c(1,4,8,13,16,19,22),minor_breaks = NULL,limits=c(0,22.5))+
+    geom_text(aes(x=as.numeric(ExposureTime),y=mean,label=sig),size=8,col="black")+
   scale_y_continuous(limits=c(1.1*min(EdU.summary$mean-EdU.summary$sd,na.rm = T),102))
 
 ##Write plot
@@ -2020,7 +2031,7 @@ ct_sigtest_inf<-filter(ct_sigtest,Observation=="Infectivity")
 ct_sigtest_pro<-filter(ct_sigtest,Observation=="Proliferation")
 
 ## Plot Infectivity
-Fig3_inf<-ggplot(filter(pi.summary,Observation=="Infectivity"),aes(x=Treatment,y=grand_mean))+geom_bar(aes(fill=Treatment),stat="identity",show.legend = F)+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+
+CT_INFECT_QUANT.plot<-ggplot(filter(pi.summary,Observation=="Infectivity"),aes(x=Treatment,y=grand_mean))+geom_bar(aes(fill=Treatment),stat="identity",show.legend = F)+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+
   scale_fill_manual(values=c("Cell Culture Medium"='blue',"Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+
   journalFormat+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=16),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1,size=20))+scale_y_continuous(limits=c(0,102))+
@@ -2032,12 +2043,12 @@ Fig3_inf<-ggplot(filter(pi.summary,Observation=="Infectivity"),aes(x=Treatment,y
 
 
 postscript(paste0(thesis_figures_directory,FIGURE_CT_INFECT_QUANT),width=6,height = 5.5)#,width = 8,height = 5.5)
-plot(Fig3_inf)
+plot(CT_INFECT_QUANT.plot)
 dev.off()
 
 ##Plot Ct Assay EdU
 
-Fig3_prolif<-ggplot(filter(pi.summary,Observation=="Proliferation"),aes(x=Treatment,y=grand_mean))+geom_bar(stat="identity",show.legend = F,aes(fill=Treatment))+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+journalFormat+scale_fill_manual(values=c("Cell Culture Medium"='blue',SIS3="#c2a5cf","Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+ylab("Epithelial Cells Positive for EdU (%)")+
+CT_EDU_QUANT.plot<-ggplot(filter(pi.summary,Observation=="Proliferation"),aes(x=Treatment,y=grand_mean))+geom_bar(stat="identity",show.legend = F,aes(fill=Treatment))+geom_errorbar(aes(ymin=grand_mean-grand_sd,ymax=grand_mean+grand_sd,width=.3))+journalFormat+scale_fill_manual(values=c("Cell Culture Medium"='blue',SIS3="#c2a5cf","Fascaplysin"="#fdb863","CAS 546102-60-7"="#b2df8a"))+ylab("Epithelial Cells Positive for EdU (%)")+
   theme(plot.margin=unit(c(0,0,0,0),units = "pt"), text=element_text(size=20),axis.text.x=element_text(angle = 45,vjust = 1,hjust = 1))+scale_y_continuous(limits=c(0,102))+
   annotate("text",x=ct_sigtest_pro$midpoints,y=ct_sigtest_pro$y.sig,label=ct_sigtest_pro$sig,size=2.5)+
   geom_segment(data=statbars,aes(x=x,xend=xend,y=y,yend=yend))+
@@ -2045,7 +2056,7 @@ Fig3_prolif<-ggplot(filter(pi.summary,Observation=="Proliferation"),aes(x=Treatm
 
 ##Write plot
 postscript(paste0(thesis_figures_directory,FIGURE_CT_EDU_QUANT),width=6,height = 5.5)#width = 8,height = 5.5)
-plot(Fig3_prolif)
+plot(CT_EDU_QUANT.plot)
 dev.off()
 
 ## Print text describing results
