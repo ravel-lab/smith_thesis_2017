@@ -182,6 +182,7 @@ FIGURE_SCRATCH_QUANT<-"FIGURE_5A.ps"
 FIGURE_CT_INFECT_QUANT<-"FIGURE_6B.ps"
 FIGURE_CT_EDU_QUANT<-"FIGURE_6A.ps"
 FIGURE_WESTERN_QUANT<-"FIGURE_S8B.ps"
+FIGURE_WESTERN_TRANSFECTION_QUANT<-"FIGURE_S8B_2.ps"
 FIGURE_MIR193_TARGETS_GROUP<-"FIGURE_4B.ps"
 FIGURE_MIR193_TARGETS_GO<-"FIGURE_4C.ps"
 
@@ -2001,6 +2002,26 @@ dev.off()
 
 Western$ExposureTime<-paste0(Western$ExposureTime,"hr")
 write.csv(Western,file=paste0(thesis_tables_directory,TABLE_WESTERN_QUANT),row.names = F)
+
+Western_transfection<-read.table(paste0(R_script_input_directory,"Western_transfection.txt"),header = T,sep = "\t")
+Western_transfection$Transfection<-factor(Western_transfection$Transfection,ordered = T,levels = c("miR-193b mimic","Scramble control","miR-193b mimic only","Scramble control only","L. jensenii BCS"))
+
+western_transfection.plot<-ggplot(Western_transfection,aes(x=Transfection,y=CCND1_BACTIN,fill=Transfection))+
+  geom_bar(stat = "identity",width=.75, position = "dodge")+
+  scale_fill_manual(values=c("L. jensenii BCS"="#F9D825",
+                            "miR-193b mimic"="#ae017e",
+                            "miR-193b mimic only"="#f768a1",
+                           "Scramble control"="#2171b5",
+                           "Scramble control only"="#6baed6"))+
+  journalFormat+
+  theme(axis.text.x = element_text(angle = 35,hjust = 1))+
+  ylab("CCND1/B-actin intensity")+
+  xlab("Transfection type")
+
+postscript(file=paste0(thesis_figures_directory,FIGURE_WESTERN_TRANSFECTION_QUANT),width = 8,height = 5.5)
+plot(western_transfection.plot)
+dev.off()
+
 ```
 
 ## Inhbit A2EN cell proliferation & Observe CT Infectivity  
