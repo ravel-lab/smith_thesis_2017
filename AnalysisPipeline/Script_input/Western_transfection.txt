@@ -1,0 +1,6 @@
+Transfection	ExposureTime	CCND1_BACTIN
+miR-193b mimic	24	0.037751938
+Scramble control	24	0.07245614
+miR-193b mimic only	24	0.055507088
+Scramble control only	24	0.061111111
+L. jensenii BCS	24	0.024538545
